@@ -65,6 +65,7 @@ export const WalkInMapModal: React.FC<WalkInMapModalProps> = ({ isOpen, item, on
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [liveDistance, setLiveDistance] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState('');
 
   // Fetch live browser GPS if available
   useEffect(() => {
@@ -148,16 +149,23 @@ export const WalkInMapModal: React.FC<WalkInMapModalProps> = ({ isOpen, item, on
     window.open(url, '_blank', 'noopener');
   };
 
-  const handleCopyAddress = (e: React.MouseEvent) => {
+  const handleCopyAddress = async (e: React.MouseEvent) => {
     e.stopPropagation();
     playTapSound();
     const fullAddr = `${vendor}, ${landmarkText}, MITS Campus, Madanapalle, AP 517325`;
-    navigator.clipboard?.writeText(fullAddr);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopyError('');
+    try {
+      if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(fullAddr);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+      setCopyError('Could not copy the address. You can open it in Google Maps.');
+    }
   };
 
-  return <SvgScreenFrame screen={'map'}>(
+  return <SvgScreenFrame screen={'map'}>
     <div
       className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs select-none"
       onClick={onClose}
@@ -455,6 +463,7 @@ export const WalkInMapModal: React.FC<WalkInMapModalProps> = ({ isOpen, item, on
           )}
 
           {/* Clean, High-Trust Destination Info Card (NO duplicate second map) */}
+          {copyError && <p role="alert" className="pickup-error">{copyError}</p>}
           <div className="bg-white rounded-2xl p-4 border border-[#D6DCE2] shadow-xs space-y-3 font-sans">
             {/* Header row with vendor, verified status, and copy button */}
             <div className="flex items-start justify-between gap-2">
@@ -518,5 +527,5 @@ export const WalkInMapModal: React.FC<WalkInMapModalProps> = ({ isOpen, item, on
         </div>
       </div>
     </div>
-  )</SvgScreenFrame>;
+  </SvgScreenFrame>;
 };

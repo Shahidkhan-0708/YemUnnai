@@ -17,6 +17,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      '@watermelon-motion': path.resolve(__dirname, 'node_modules/motion/dist/es/react.mjs'),
       '@hugeicons/core-free-icons': path.resolve(__dirname, 'src/lib/hugeicons-shim.tsx'),
       '@hugeicons/react': path.resolve(__dirname, 'src/lib/hugeicons-shim.tsx'),
       'motion/react': path.resolve(__dirname, 'src/lib/motion-shim.tsx'),

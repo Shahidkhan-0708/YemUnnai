@@ -76,7 +76,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
     }
   };
 
-  return <SvgScreenFrame screen={'collection'} visible={isOpen}>(
+  return <SvgScreenFrame screen={'collection'} visible={isOpen}>
     <>
       {/* Trigger Button */}
       <button
@@ -191,7 +191,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
         </div>
       )}
     </>
-  )</SvgScreenFrame>;
+  </SvgScreenFrame>;
 };
 
 export default FamilyReceiveComponent;

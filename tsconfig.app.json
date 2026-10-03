@@ -9,6 +9,7 @@
     "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@watermelon-motion": ["./node_modules/motion/dist/react.d.ts"],
       "@hugeicons/core-free-icons": ["./src/lib/hugeicons-shim.tsx"],
       "@hugeicons/react": ["./src/lib/hugeicons-shim.tsx"],
       "motion/react": ["./src/lib/motion-shim.tsx"],

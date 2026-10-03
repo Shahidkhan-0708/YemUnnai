@@ -76,7 +76,7 @@ export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
   if (!isOpen) return null;
   const disabled = busy || retrySeconds > 0;
 
-  return <SvgScreenFrame screen={'login'}>(
+  return <SvgScreenFrame screen={'login'}>
     <div ref={rootRef} role="dialog" aria-modal="true" aria-labelledby="vendor-login-title"
       className="vendor-login fixed inset-0 z-50 overflow-y-auto bg-[#E8ECEF] text-[#1F140A]">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-6 sm:py-9">
@@ -122,5 +122,5 @@ export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
         </form>
       </div>
     </div>
-  )</SvgScreenFrame>;
+  </SvgScreenFrame>;
 }

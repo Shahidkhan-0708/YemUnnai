@@ -9,6 +9,9 @@ import { MobileDeviceShell } from './components/MobileDeviceShell';
 import { playTapSound, playSuccessChime } from './lib/celebration';
 import { OrdersScreen, useBuyerOrders } from './components/OrdersScreen';
 import { useLanguage } from './lib/language';
+import { BuyerTabBar, type BuyerTab } from './components/BuyerTabBar';
+import { Tabs, TabsContent } from './components/watermelon/tabs';
+import { MotionConfig } from '@watermelon-motion';
 import { useVendorSession } from './lib/hooks';
 import { safeStorage } from './lib/storage';
 import { Download, ExternalLink, Eye } from 'lucide-react';
@@ -65,7 +68,7 @@ const DEFAULT_ORDER_ITEM: FoodItem = {
 
 export function App() {
   const { vendor } = useVendorSession();
-  const { t, lang, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const [buyerTab, setBuyerTab] = useState<'discover' | 'saved' | 'orders'>('discover');
   const [activePortal, setActivePortal] = useState<'consumer' | 'business' | 'artifacts' | 'gallery' | 'components' | '404'>(() => {
     if (typeof window !== 'undefined') {
@@ -127,7 +130,11 @@ export function App() {
         {activePortal === 'consumer' && (
           <MobileDeviceShell>
             <Suspense fallback={<ScreenFallback />}>
-              <div className="relative everyday-consumer">
+              <MotionConfig reducedMotion="user">
+              <Tabs className="relative everyday-consumer" value={buyerTab} onValueChange={value => {
+                setBuyerTab(value as BuyerTab); setSelectedDetailFood(null); setConsumerFlow('discovery');
+              }}>
+                <TabsContent className="buyer-tab-panel" value={buyerTab} id={`buyer-panel-${buyerTab}`} aria-labelledby={`buyer-tab-${buyerTab}`}>
                 
                 {buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
                   <div className="relative">
@@ -191,10 +198,8 @@ export function App() {
                   />
                 )}
 
-                <nav aria-label={t('Buyer navigation', 'కొనుగోలుదారు నావిగేషన్')} className="pickup-nav">
-                  {([['discover','Discover','కనుగొనండి'],['saved','Saved','భద్రపరచినవి'],['orders','Orders','ఆర్డర్లు']] as const).map(([tab,en,te]) => <button key={tab} type="button" aria-current={buyerTab === tab ? 'page' : undefined} onClick={() => { setBuyerTab(tab); setSelectedDetailFood(null); setConsumerFlow('discovery'); }}>{t(en,te)}</button>)}
-                  <select className="buyer-language" aria-label={t('Language','భాష')} value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select>
-                </nav>
+                </TabsContent>
+                <BuyerTabBar activeTab={buyerTab} />
                 {/* Quick Order Modal — sits stably on top of screen with synced quantity */}
                 {selectedOrderFood && <QuickOrderModal
                   isOpen={!!selectedOrderFood}
@@ -220,7 +225,8 @@ export function App() {
                     showToast(`Review published for ${selectedReviewFood?.name}!`);
                   }}
                 />}
-              </div>
+              </Tabs>
+              </MotionConfig>
             </Suspense>
           </MobileDeviceShell>
         )}
