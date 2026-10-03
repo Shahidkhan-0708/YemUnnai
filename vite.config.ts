@@ -26,6 +26,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    watch: { ignored: ['**/.tmp/**'] },
   },
   build: {
     chunkSizeWarningLimit: 600,
@@ -46,4 +47,3 @@ export default defineConfig({
     }
   }
 })
-

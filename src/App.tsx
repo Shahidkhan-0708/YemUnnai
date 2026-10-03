@@ -1,3 +1,4 @@
+import { SvgScreenFrame } from './components/SvgScreenFrame';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { HomeDiscoveryScreen } from './components/HomeDiscoveryScreen';
 import type { FoodItem } from './lib/types';
@@ -34,9 +35,9 @@ const MorphingButtonDemo = lazy(() => import('./components/MorphingButtonDemo'))
 
 function ScreenFallback() {
   return (
-    <div className="w-full min-h-115 flex flex-col items-center justify-center gap-3 bg-[#0F1A15] text-[#7A6658]">
-      <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-      <span className="text-xs font-bold text-emerald-400/90 tracking-wide">Loading Screen...</span>
+    <div className="w-full min-h-115 flex flex-col items-center justify-center gap-3 bg-[#E8ECEF] text-[#7A6658]">
+      <div className="w-8 h-8 rounded-full border-2 border-[#F06A05] border-t-transparent animate-spin" />
+      <span className="text-xs font-bold text-[#7A6658] tracking-wide">Loading…</span>
     </div>
   );
 }
@@ -116,28 +117,25 @@ export function App() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-white text-slate-900">
+  return <SvgScreenFrame screen={activePortal==='gallery'?'gallery':activePortal==='artifacts'?'artifacts':activePortal==='components'?'components':null}>(
+    <div className="min-h-screen bg-[#E8ECEF] text-[#1F140A]">
       <Toaster />
       {/* Main Content Area */}
       <a className="skip-content" href="#main-content">Skip to menu</a>
-      <main id="main-content" tabIndex={-1} className="w-full flex justify-center py-0 sm:py-6">
+      <main id="main-content" tabIndex={-1} className="w-full flex justify-center">
         {/* 1. CONSUMER APP SCREEN */}
         {activePortal === 'consumer' && (
           <MobileDeviceShell>
             <Suspense fallback={<ScreenFallback />}>
               <div className="relative everyday-consumer">
-                <div className="flex items-center justify-between gap-3 bg-[#E8ECEF] px-4 py-2">
-                  <span className="text-sm font-bold">{t('Pickup ? Pay at pickup', '????????? ? ??????????????? ???????????')}</span>
-                  <label className="text-sm">{t('Language', '???')}<select aria-label={t('Language', '???')} value={lang} onChange={e => setLanguage(e.target.value as 'en' | 'te')} className="ml-2 min-h-11"><option value="en">English</option><option value="te">??????</option></select></label>
-                </div>
+                
                 {buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
                   <div className="relative">
                     <LocationPermissionScreen
                       onAllow={() => {
                         playSuccessChime();
                         setConsumerFlow('discovery');
-                        showToast('📍 Campus Radar Enabled • Live MITS Canteen Updates');
+                        showToast('Campus location enabled');
                       }}
                       onManual={() => {
                         playTapSound();
@@ -193,8 +191,9 @@ export function App() {
                   />
                 )}
 
-                <nav aria-label={t('Buyer navigation', '???????????? ?????????')} className="pickup-nav">
-                  {([['discover','Discover','?????????'],['saved','Saved','???????????'],['orders','Orders','????????']] as const).map(([tab,en,te]) => <button key={tab} type="button" aria-current={buyerTab === tab ? 'page' : undefined} onClick={() => { setBuyerTab(tab); setSelectedDetailFood(null); setConsumerFlow('discovery'); }}>{t(en,te)}</button>)}
+                <nav aria-label={t('Buyer navigation', 'కొనుగోలుదారు నావిగేషన్')} className="pickup-nav">
+                  {([['discover','Discover','కనుగొనండి'],['saved','Saved','భద్రపరచినవి'],['orders','Orders','ఆర్డర్లు']] as const).map(([tab,en,te]) => <button key={tab} type="button" aria-current={buyerTab === tab ? 'page' : undefined} onClick={() => { setBuyerTab(tab); setSelectedDetailFood(null); setConsumerFlow('discovery'); }}>{t(en,te)}</button>)}
+                  <select className="buyer-language" aria-label={t('Language','భాష')} value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select>
                 </nav>
                 {/* Quick Order Modal — sits stably on top of screen with synced quantity */}
                 {selectedOrderFood && <QuickOrderModal
@@ -229,7 +228,7 @@ export function App() {
         {/* 2. BUSINESS PORTAL SCREEN — reachable via ?portal=business (vendor login) */}
         {activePortal === 'business' && (
           <MobileDeviceShell>
-            <button type="button" className="pickup-link" onClick={() => setActivePortal('consumer')}>{t('Back to Discover', '??????? ?????? ?????? ????????')}</button>
+            <button type="button" className="pickup-link" onClick={() => setActivePortal('consumer')}>{t('Back to Discover', 'కనుగొనే పేజీకి తిరిగి వెళ్ళండి')}</button>
             <Suspense fallback={<ScreenFallback />}>
               <div className="relative">
                 {vendor && showMenuStock ? (
@@ -238,7 +237,7 @@ export function App() {
                       onBack={() => setShowMenuStock(false)}
                       onAddNewItem={() => setIsAddEditOpen(true)}
                       onToggleStock={(id, inStock) => {
-                        showToast(`Item #${id} stock ${inStock ? 'marked LIVE' : 'marked SOLD OUT'}`);
+                        showToast(`Item #${id} stock ${inStock ? 'on' : 'off'}`);
                       }}
                     />
                   </div>
@@ -654,7 +653,7 @@ export function App() {
       {/* PWA install sheet — appears when the browser offers install */}
       <InstallPrompt />
     </div>
-  );
+  )</SvgScreenFrame>;
 }
 
 export default App;

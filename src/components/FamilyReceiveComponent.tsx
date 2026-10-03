@@ -1,9 +1,11 @@
+import { SvgScreenFrame } from './SvgScreenFrame';
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Fingerprint, Check, X, AlertCircle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Check, X, AlertCircle } from 'lucide-react';
 import { playTapSound, playSuccessChime } from '../lib/celebration';
 import { toast } from './ui/sonner';
+import { useModalA11y } from '../lib/useModalA11y';
 
 export interface FamilyReceiveComponentProps {
   triggerLabel?: string;
@@ -35,22 +37,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
-
-  // Close on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !isProcessing) {
-        handleClose();
-      }
-    };
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      confirmBtnRef.current?.focus();
-    }
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isProcessing]);
 
   const handleOpen = () => {
     if (disabled || isProcessing) return;
@@ -66,6 +53,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
     setErrorMsg(null);
     onCancel?.();
   };
+  const modalRef = useModalA11y<HTMLDivElement>(isOpen, handleClose);
 
   const handleConfirm = async () => {
     if (isProcessing) return;
@@ -88,14 +76,14 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
     }
   };
 
-  return (
+  return <SvgScreenFrame screen={'collection'} visible={isOpen}>(
     <>
       {/* Trigger Button */}
       <button
         type="button"
         onClick={handleOpen}
         disabled={disabled}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold transition-all duration-150 active:scale-97 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-colors duration-150 active:scale-97 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed ${
           variant === 'primary' || variant === 'orange'
             ? 'bg-[#F06A05] text-white hover:bg-[#D85800] btn-orange-shadow'
             : 'bg-[#E8ECEF] text-[#1F140A] border border-[#D6DCE2] tactile-card hover:bg-[#DDE2E8]'
@@ -109,7 +97,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
                 })
               : icon
           ) : (
-            <Fingerprint className="w-4 h-4 text-current" />
+            null
           )}
         </span>
         <span>{triggerLabel}</span>
@@ -122,14 +110,14 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
           aria-modal="true"
           aria-labelledby="family-receive-title"
           aria-describedby="family-receive-desc"
-          className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+          className="pickup-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isProcessing) handleClose();
           }}
         >
           <div
             ref={modalRef}
-            className="w-full max-w-sm rounded-4xl bg-[#E8ECEF] p-6 shadow-2xl border border-white/60 tactile-modal transform animate-in zoom-in-95 duration-200 relative overflow-hidden"
+            className="pickup-sheet collection-sheet"
           >
             {/* Top Close Button */}
             {!isProcessing && (
@@ -144,22 +132,17 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
             )}
 
             {/* Central Illuminated Icon */}
-            <div className="flex flex-col items-center text-center mt-2">
-              <div className="relative w-20 h-20 rounded-full bg-linear-to-b from-orange-100 to-amber-50 border-2 border-[#F06A05]/40 flex items-center justify-center text-[#F06A05] shadow-[0_10px_25px_rgba(240,106,5,0.25)] mb-4">
-                <div className="absolute inset-0 rounded-full animate-ping bg-[#F06A05]/15 pointer-events-none" />
-                {icon ? icon : <Fingerprint size={36} className="text-[#F06A05]" />}
-              </div>
-
-              {/* Title & Description */}
+            <div className="flex flex-col items-start text-left mt-2">
+              <div className="sheet-handle"/>{/* Title & Description */}
               <h3
                 id="family-receive-title"
-                className="text-xl font-extrabold text-[#1F140A] tracking-tight"
+                className="sheet-title"
               >
                 {title}
               </h3>
               <p
                 id="family-receive-desc"
-                className="text-xs font-semibold text-[#7A6658] mt-2 leading-relaxed max-w-xs"
+                className="sheet-subtitle leading-relaxed"
               >
                 {description}
               </p>
@@ -180,12 +163,12 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
                 type="button"
                 onClick={handleConfirm}
                 disabled={isProcessing}
-                className="w-full h-12 rounded-xl bg-[#F06A05] hover:bg-[#D85800] text-white font-extrabold text-sm flex items-center justify-center gap-2 btn-orange-shadow cursor-pointer transition-all active:scale-98 disabled:opacity-70"
+                className="w-full h-12 rounded-xl bg-[#F06A05] hover:bg-[#D85800] text-white font-semibold text-sm flex items-center justify-center gap-2 btn-orange-shadow cursor-pointer transition-colors active:scale-98 disabled:opacity-70"
               >
                 {isProcessing ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Confirming with Server…</span>
+                    <span>Confirming…</span>
                   </>
                 ) : (
                   <>
@@ -208,7 +191,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
         </div>
       )}
     </>
-  );
+  )</SvgScreenFrame>;
 };
 
 export default FamilyReceiveComponent;

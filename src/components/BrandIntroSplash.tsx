@@ -1,3 +1,4 @@
+import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useEffect, useRef } from 'react';
 import { playSuccessChime, playTapSound } from '../lib/celebration';
 
@@ -24,10 +25,10 @@ export const BrandIntroSplash: React.FC<BrandIntroSplashProps> = ({
       });
     }
 
-    // Auto-advance fallback when video duration ends (5.5s)
+    // Auto-advance fallback when sleek video duration ends (3.2s)
     const autoAdvanceTimer = setTimeout(() => {
       onStart();
-    }, 5600);
+    }, 3300);
 
     return () => {
       clearTimeout(autoAdvanceTimer);
@@ -40,16 +41,17 @@ export const BrandIntroSplash: React.FC<BrandIntroSplashProps> = ({
     onStart();
   };
 
-  return (
+  return <SvgScreenFrame screen={'intro'}>(
     <div
       onClick={handleEnter}
+      onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleEnter(); } }}
       role="button"
       tabIndex={0}
       aria-label="Enter YEMUNNAI"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white select-none p-0 sm:p-4 cursor-pointer"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#F06A05] select-none p-0 cursor-pointer"
     >
       {/* 9:16 Aspect Ratio Viewport */}
-      <div className="relative w-full max-w-107.5 aspect-9/16 max-h-dvh h-full sm:h-auto overflow-hidden bg-[#F06A05] sm:rounded-[36px] shadow-2xl flex items-center justify-center">
+      <div className="relative w-full max-w-[400px] min-h-dvh h-full overflow-hidden bg-[#F06A05] flex items-center justify-center">
         <video
           ref={videoRef}
           src="/videos/yemunnai_intro_clean.mp4"
@@ -57,11 +59,16 @@ export const BrandIntroSplash: React.FC<BrandIntroSplashProps> = ({
           muted
           playsInline
           onEnded={handleEnter}
-          className="w-full h-full object-cover"
+          className="w-full h-dvh object-contain" poster="/videos/preview_intro.png"
         />
+        
+        {/* Subtle skip prompt */}
+        <div className="absolute bottom-5 z-20 text-[10px] font-bold text-white/50 tracking-widest uppercase pointer-events-none">
+          Tap anywhere to continue
+        </div>
       </div>
     </div>
-  );
+  )</SvgScreenFrame>;
 };
 
 export default BrandIntroSplash;

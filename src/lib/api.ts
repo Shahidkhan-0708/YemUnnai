@@ -70,7 +70,7 @@ function rowToItem(row: FoodItemRow): FoodItem {
   // Never default to a fake 4.5 star rating when there are 0 reviews
   const avg = ratings.length
     ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
-    : (row.reviews_count > 0 ? 4.5 : null);
+    : null;
   const vendorInfo = row.vendors;
   const landmark = vendorInfo?.location_landmark ?? undefined;
   const walkTime = landmark || (vendorInfo?.is_on_campus === false
@@ -85,7 +85,6 @@ function rowToItem(row: FoodItemRow): FoodItem {
     ? '📦 Sealed Pack'
     : (row.name.toLowerCase().includes('samosa') ? '🔥 Fresh Batch' : undefined);
 
-  const isNonVeg = /chicken|mutton|egg|meat|fish|prawn/i.test(row.name);
 
   return {
     id: row.id,
@@ -103,7 +102,8 @@ function rowToItem(row: FoodItemRow): FoodItem {
     walkTime,
     actionType: row.action_type,
     inStock: row.in_stock,
-    isVeg: !isNonVeg,
+    stockLeft: row.remaining_quantity ?? undefined,
+    isVeg: row.is_vegetarian ?? undefined,
     latitude: vendorInfo?.latitude ?? undefined,
     longitude: vendorInfo?.longitude ?? undefined,
     locationLandmark: landmark,
@@ -116,7 +116,9 @@ function orderRowToDashboard(row: OrderRow, vendorName: string): DashboardOrder 
   return {
     id: row.id,
     item: row.item_name,
-    price: row.unit_price,
+    price: row.total,
+    quantity: row.quantity ?? undefined,
+    row,
     vendor: vendorName,
     phone: row.customer_mobile,
     location: row.delivery_address,
@@ -131,14 +133,12 @@ function orderRowToDashboard(row: OrderRow, vendorName: string): DashboardOrder 
 
 export async function fetchFoodItems(category?: FoodCategory): Promise<FoodItem[]> {
   if (!supabase) {
-    let items = inMemoryFoodItems;
-    if (category) items = items.filter(i => i.category === category);
-    return items;
+    throw new Error('The menu is unavailable. Try again later.');
   }
 
   let query = supabase
     .from('food_items')
-    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, likes_count, dislikes_count, reviews_count, created_at, vendors(name, is_online, latitude, longitude, location_landmark, is_on_campus), reviews(rating)')
+    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, is_vegetarian, remaining_quantity, likes_count, dislikes_count, reviews_count, created_at, vendors(name, is_online, latitude, longitude, location_landmark, is_on_campus), reviews(rating)')
     .order('created_at', { ascending: true });
 
   if (category) query = query.eq('category', category);
@@ -163,7 +163,7 @@ export function cleanShopTag(tag?: string | null): string {
 }
 
 export async function fetchShops(): Promise<ShopEntry[]> {
-  if (!supabase) return inMemoryShops;
+  if (!supabase) throw new Error('Shops are unavailable. Try again later.');
 
   const EXCLUDED_SHOPS = new Set(['royal hotel', 'royal corner', 'chai corner', 'vatika', 'vatika tuck', 'lays corner']);
 
@@ -182,7 +182,7 @@ export async function fetchShops(): Promise<ShopEntry[]> {
 
   if (error) {
     console.error('[api] fetchShops:', error.message);
-    return inMemoryShops.filter(s => !EXCLUDED_SHOPS.has(s.name.toLowerCase()));
+    throw new Error('Unable to refresh shops. Check your connection and retry.');
   }
   return (data as Array<{ id: string; name: string; image_url: string | null; is_active: boolean; is_online: boolean; latitude?: number | null; longitude?: number | null; location_landmark?: string | null; is_on_campus?: boolean | null }>)
     .filter(v => v.is_active && !EXCLUDED_SHOPS.has(v.name.toLowerCase()))
@@ -319,260 +319,45 @@ export async function submitReview(input: {
 // Orders (quick order modal → business dashboard feed)
 // ---------------------------------------------------------------------------
 
-export async function placeOrder(input: {
-  foodItem: FoodItem;
-  mobile: string;
-  address: string;
-  quantity?: number;
-}): Promise<{ success: boolean; token?: string; orderId?: string; reason?: string }> {
-  // Defense-in-depth: check if item is in stock
-  if (input.foodItem.inStock === false) {
-    return { success: false, reason: 'This item is sold out' };
-  }
+export { placeOrder, recoverCheckout, fetchBuyerOrders, cancelBuyerOrder, pickupRequest } from './pickup';
 
-  // Check if shop is online
-  if (input.foodItem.isShopOnline === false) {
-    return { success: false, reason: 'This canteen is currently offline' };
-  }
-
-  // Check if item has a valid price and is not 'Coming Soon'
-  if (!input.foodItem.price || input.foodItem.price <= 0) {
-    return { success: false, reason: 'This item is coming soon and cannot be ordered yet' };
-  }
-
-  const clientOrderId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : undefined;
-  const numPart = (clientOrderId || `${Date.now()}`).replace(/\D/g, '');
-  const token = numPart.length >= 3 ? numPart.slice(-3) : Math.floor(100 + Math.random() * 900).toString();
-
-  const qty = input.quantity && input.quantity > 0 ? input.quantity : 1;
-  const totalPrice = input.foodItem.price * qty;
-  const itemName = qty > 1 ? `${input.foodItem.name} (${qty}x)` : input.foodItem.name;
-
-  if (!supabase) {
-    return { success: false, reason: 'Ordering is unavailable in the preview. Open the connected site to place an order.' };
-  }
-
-  const payload: Record<string, unknown> = {
-    vendor_id: input.foodItem.vendorId,
-    food_item_id: input.foodItem.id,
-    item_name: itemName,
-    unit_price: totalPrice,
-    customer_mobile: input.mobile,
-    delivery_address: input.address
-  };
-  if (clientOrderId) {
-    payload.id = clientOrderId;
-  }
-
-  const { error } = await supabase.from('orders').insert(payload);
-
-  if (error) {
-    console.error('[api] placeOrder:', error.message);
-    return { success: false };
-  }
-
-  return { success: true, token, orderId: clientOrderId };
-}
-
-/**
- * Live order feed for one vendor. `onData` is invoked on every change
- * (initial load + realtime inserts/updates).
- * Uses debouncing to prevent high-concurrency re-fetch storms.
- */
-export function subscribeVendorOrders(
-  vendorId: string,
-  onData: (orders: DashboardOrder[]) => void,
-  onError: (message: string | null) => void = () => {}
-): () => void {
+export function subscribeVendorOrders(vendorId: string, onData: (orders: DashboardOrder[]) => void, onError: (message: string | null) => void = () => {}): () => void {
   if (!supabase) return () => {};
-
-  const mapRows = (rows: OrderRow[]) => rows.map(r => orderRowToDashboard(r, 'Your Shop'));
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
   let cancelled = false;
+  let busy = false;
   const load = async () => {
+    if (busy || cancelled) return;
+    busy = true;
     try {
-    const { data, error } = await supabase!
-      .from('orders')
-      .select('id, vendor_id, food_item_id, item_name, unit_price, customer_mobile, delivery_address, status, created_at, food_items(image_url)')
-      .eq('vendor_id', vendorId)
-      .in('status', ['pending', 'accepted'])
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    if (cancelled) return;
-    if (error) throw error;
-    onError(null);
-    onData(mapRows(data as unknown as OrderRow[]));
-    } catch {
-      if (!cancelled) onError('Unable to load orders. Check your connection.');
-    }
+      const { pickupRequest } = await import('./pickup');
+      const result = await pickupRequest({ action: 'vendor_list', vendorId }, true);
+      if (!cancelled) {
+        onData((result.orders ?? []).filter(r => ['pending','preparing','ready'].includes(r.status)).map(r => orderRowToDashboard(r, r.shop_name ?? 'Your shop')));
+        onError(null);
+      }
+    } catch { if (!cancelled) onError('Unable to refresh orders. Retrying automatically; displayed orders may be outdated.'); }
+    finally { busy = false; }
   };
-
-  const scheduleLoad = () => {
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      void load();
-    }, 250);
-  };
-
   void load();
-
-  const channel = supabase
-    .channel(`vendor-orders-${vendorId}`)
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'orders', filter: `vendor_id=eq.${vendorId}` },
-      () => scheduleLoad()
-    )
-    .subscribe();
-
+  const poll = setInterval(() => { if (!document.hidden) void load(); }, 8000);
+  window.addEventListener('online', load);
+  document.addEventListener('visibilitychange', load);
+  const channel = supabase.channel('vendor-pickup-' + vendorId)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: 'vendor_id=eq.' + vendorId }, () => void load())
+    .subscribe(() => void load());
   return () => {
     cancelled = true;
-    if (debounceTimer) clearTimeout(debounceTimer);
+    clearInterval(poll);
+    window.removeEventListener('online', load);
+    document.removeEventListener('visibilitychange', load);
     void supabase!.removeChannel(channel);
   };
 }
 
-export async function setOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
-  if (!supabase) throw new Error('Business portal is unavailable.');
-  const { data, error } = await supabase.from('orders').update({ status }).eq('id', orderId).select('id').single();
-  if (error || !data) throw new Error('Could not save the order status. Please try again.');
-  // Broadcast locally for instant reactivity within the current app window
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(
-      new CustomEvent('yememunnai:order-status-update', {
-        detail: { orderId, status }
-      })
-    );
-  }
+export async function setOrderStatus(orderId: string, status: OrderStatus, preparationMinutes?: number, paymentMethod?: 'cash' | 'counter_upi'): Promise<void> {
+  const { pickupRequest } = await import('./pickup');
+  await pickupRequest({ action: 'transition', orderId, status, preparationMinutes, paymentMethod }, true);
   notifySubscribers();
-
-}
-
-export async function fetchOrderStatus(orderId: string): Promise<OrderStatus | null> {
-  if (!supabase) return null;
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('status')
-      .eq('id', orderId)
-      .single();
-    if (error || !data) return null;
-    return data.status as OrderStatus;
-  } catch (e) {
-    console.error('[api] fetchOrderStatus error:', e);
-    return null;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Shared Realtime Channel for Consumer Orders (Scale P0 fix: avoids 300+ channels)
-// ---------------------------------------------------------------------------
-const orderStatusListeners = new Map<string, Set<(status: OrderStatus) => void>>();
-let sharedConsumerOrdersChannel: ReturnType<NonNullable<typeof supabase>['channel']> | null = null;
-let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-function ensureSharedOrdersChannel() {
-  if (!supabase || sharedConsumerOrdersChannel) return;
-
-  sharedConsumerOrdersChannel = supabase
-    .channel('consumer-orders-shared')
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'orders'
-      },
-      (payload) => {
-        const orderId = payload.new?.id as string;
-        const newStatus = payload.new?.status as OrderStatus;
-        if (orderId && newStatus) {
-          const listeners = orderStatusListeners.get(orderId);
-          if (listeners) {
-            listeners.forEach(cb => {
-              try { cb(newStatus); } catch (err) { console.error('[api] status callback error:', err); }
-            });
-          }
-        }
-      }
-    )
-    .subscribe();
-
-  // Fallback poll: every 8s while any consumer in this tab is waiting on an order
-  if (!pollTimer) {
-    pollTimer = setInterval(async () => {
-      if (orderStatusListeners.size === 0) return;
-      for (const [orderId, listeners] of orderStatusListeners.entries()) {
-        const currentStatus = await fetchOrderStatus(orderId);
-        if (currentStatus) {
-          listeners.forEach(cb => {
-            try { cb(currentStatus); } catch (err) { console.error('[api] poll callback error:', err); }
-          });
-        }
-      }
-    }, 8000);
-  }
-}
-
-function cleanupSharedOrdersChannelIfIdle() {
-  if (orderStatusListeners.size === 0) {
-    if (pollTimer) {
-      clearInterval(pollTimer);
-      pollTimer = null;
-    }
-    if (sharedConsumerOrdersChannel && supabase) {
-      void supabase.removeChannel(sharedConsumerOrdersChannel);
-      sharedConsumerOrdersChannel = null;
-    }
-  }
-}
-
-/**
- * Real-time order status listener for consumers.
- * Uses a single multiplexed channel per browser session and fallback polling.
- */
-export function subscribeOrderStatus(
-  orderId: string,
-  onStatusChange: (status: OrderStatus) => void
-): () => void {
-  // 1. Local event listener for instant responsiveness in same tab
-  const handleLocalEvent = (e: Event) => {
-    const custom = e as CustomEvent<{ orderId: string; status: OrderStatus }>;
-    if (custom.detail?.orderId === orderId) {
-      onStatusChange(custom.detail.status);
-    }
-  };
-
-  if (typeof window !== 'undefined') {
-    window.addEventListener('yememunnai:order-status-update', handleLocalEvent);
-  }
-
-  // 2. Register in shared listeners map
-  let listeners = orderStatusListeners.get(orderId);
-  if (!listeners) {
-    listeners = new Set();
-    orderStatusListeners.set(orderId, listeners);
-  }
-  listeners.add(onStatusChange);
-
-  // 3. Ensure single shared channel is active
-  ensureSharedOrdersChannel();
-
-  return () => {
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('yememunnai:order-status-update', handleLocalEvent);
-    }
-    const currentListeners = orderStatusListeners.get(orderId);
-    if (currentListeners) {
-      currentListeners.delete(onStatusChange);
-      if (currentListeners.size === 0) {
-        orderStatusListeners.delete(orderId);
-      }
-    }
-    cleanupSharedOrdersChannelIfIdle();
-  };
 }
 
 // ---------------------------------------------------------------------------
@@ -661,7 +446,7 @@ export async function fetchVendorItems(vendorId: string): Promise<FoodItem[]> {
 
   const { data, error } = await supabase
     .from('food_items')
-    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, likes_count, dislikes_count, reviews_count, created_at, vendors(name, is_online), reviews(rating)')
+    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, is_vegetarian, remaining_quantity, likes_count, dislikes_count, reviews_count, created_at, vendors(name, is_online), reviews(rating)')
     .eq('vendor_id', vendorId)
     .order('created_at', { ascending: true });
 
@@ -673,7 +458,7 @@ export async function fetchVendorItems(vendorId: string): Promise<FoodItem[]> {
 
 export async function setItemStock(foodItemId: string, inStock: boolean): Promise<void> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  const { data, error } = await supabase.from('food_items').update({ in_stock: inStock }).eq('id', foodItemId).select('id').single();
+  const { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('id', foodItemId).select('id').single();
   if (error || !data) throw new Error('Could not save stock. Please try again.');
   // Update in-memory item
   const item = inMemoryFoodItems.find(i => i.id === foodItemId || i.name.toLowerCase() === foodItemId.toLowerCase());
@@ -684,9 +469,17 @@ export async function setItemStock(foodItemId: string, inStock: boolean): Promis
 
 }
 
+export async function updateItemAvailability(foodItemId: string, remainingQuantity: number | null, isVeg: boolean | null): Promise<void> {
+  if (!supabase) throw new Error('Business portal is unavailable.');
+  if (remainingQuantity !== null && (!Number.isSafeInteger(remainingQuantity) || remainingQuantity < 0 || remainingQuantity > 1000000)) throw new Error('Enter a whole quantity from 0 to 1000000.');
+  const { data, error } = await supabase.from('food_items').update({ remaining_quantity: remainingQuantity, is_vegetarian: isVeg }).eq('id', foodItemId).select('id').single();
+  if (error || !data) throw new Error('Could not save availability. Please retry.');
+  notifySubscribers();
+}
+
 export async function setVendorAllStock(vendorId: string, inStock: boolean): Promise<void> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  const { data, error } = await supabase.from('food_items').update({ in_stock: inStock }).eq('vendor_id', vendorId).select('id');
+  const { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('vendor_id', vendorId).select('id');
   if (error || !data?.length) throw new Error('Could not save menu stock. Please try again.');
   const shop = inMemoryShops.find(s => s.id === vendorId || s.name.toLowerCase().includes(vendorId.toLowerCase()));
   inMemoryFoodItems.forEach(i => {
@@ -700,10 +493,9 @@ export async function setVendorAllStock(vendorId: string, inStock: boolean): Pro
 
 export async function createFoodItem(vendorId: string, input: NewFoodItemInput): Promise<FoodItem | null> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  if (!input.name.trim() || !Number.isFinite(input.price) || input.price < 0) throw new Error('Enter a valid food name and price.');
-  const finalName = input.isVeg === false && !/chicken|mutton|egg|meat|fish|prawn/i.test(input.name)
-    ? `${input.name} (Non-Veg)`
-    : input.name;
+  if (!input.name.trim() || !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000) throw new Error('Enter a whole-rupee price from 1 to 1000000 for orders (0 is allowed for walk-in items).');
+  if (input.remainingQuantity != null && (!Number.isSafeInteger(input.remainingQuantity) || input.remainingQuantity < 0 || input.remainingQuantity > 1000000)) throw new Error('Enter a whole remaining quantity from 0 to 1000000.');
+  const finalName = input.name;
 
   const { data, error } = await supabase
     .from('food_items')
@@ -714,9 +506,11 @@ export async function createFoodItem(vendorId: string, input: NewFoodItemInput):
       category: input.category,
       action_type: input.actionType,
       in_stock: input.inStock,
-      image_url: input.imageUrl
+      image_url: input.imageUrl,
+      is_vegetarian: input.isVeg ?? null,
+      remaining_quantity: input.remainingQuantity ?? null
     })
-    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, likes_count, dislikes_count, reviews_count, created_at, vendors(name), reviews(rating)')
+    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, is_vegetarian, remaining_quantity, likes_count, dislikes_count, reviews_count, created_at, vendors(name), reviews(rating)')
     .single();
 
   if (error) {

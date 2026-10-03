@@ -1,25 +1,11 @@
+import { SvgScreenFrame } from './SvgScreenFrame';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Plus, RefreshCw, Trash2 } from 'lucide-react';
-import { fetchVendorItems, setItemStock, setVendorAllStock, subscribeCatalogUpdates } from '../lib/api';
+import { ArrowLeft, Plus, RefreshCw } from 'lucide-react';
+import { fetchVendorItems, setItemStock, subscribeCatalogUpdates, updateItemAvailability } from '../lib/api';
 import { useVendorSession } from '../lib/hooks';
-import {
-  Copy01Icon,
-  FavouriteIcon,
-  PencilEdit02Icon,
-  Share01Icon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { InlineDisclosureMenu } from "./original";
 import type { FoodItem } from '../lib/types';
-import { toast } from './ui/sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from './ui/dialog';
+import { useLanguage } from '../lib/language';
+import { Button } from './ui/button';
 
 interface MenuStockManagementScreenProps {
   onBack?: () => void;
@@ -28,6 +14,7 @@ interface MenuStockManagementScreenProps {
 }
 
 export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock }: MenuStockManagementScreenProps) {
+  const { t } = useLanguage();
   const { vendor, checking } = useVendorSession();
   const vendorId = vendor?.vendorId;
   const [items, setItems] = useState<FoodItem[]>([]);
@@ -36,7 +23,6 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
-  const [itemToDelete, setItemToDelete] = useState<FoodItem | null>(null);
   const lock = useRef(false);
 
   useEffect(() => {
@@ -61,174 +47,32 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
     const unsubscribe = subscribeCatalogUpdates(() => { void load(); });
     return () => { cancelled = true; unsubscribe(); };
   }, [vendorId, reload]);
-
-  const saveStock = async (inStock: boolean, itemId?: string) => {
+  const saveStock = async (inStock: boolean, itemId: string) => {
     if (!vendor || lock.current) return;
-    lock.current = true;
-    setBusy(true);
-    setError(null);
-    const previous = items;
-    setItems(current => current.map(item => !itemId || item.id === itemId ? { ...item, inStock } : item));
-    try {
-      if (itemId) { await setItemStock(itemId, inStock); onToggleStock?.(itemId, inStock); }
-      else await setVendorAllStock(vendor.vendorId, inStock);
-    } catch {
-      setItems(previous);
-      setError('Could not save stock. Please try again.');
-    } finally { lock.current = false; setBusy(false); }
+    lock.current=true; setBusy(true); setError(null);
+    const previous=items;
+    setItems(current=>current.map(item=>item.id===itemId?{...item,inStock}:item));
+    try { await setItemStock(itemId,inStock); onToggleStock?.(itemId,inStock); }
+    catch { setItems(previous); setError('Could not save stock. Please try again.'); }
+    finally { lock.current=false; setBusy(false); }
   };
-
-  const active = items.filter(item => item.inStock).length;
-  const visible = items.filter(item => category === 'all' || (category === 'chai') === /tea|coffee|milk/i.test(item.name));
-
-  return (
-    <section className="mx-auto min-h-dvh w-full max-w-3xl bg-[#E8ECEF] px-5 py-6 text-[#1F140A]">
-      <button type="button" onClick={onBack} className="mb-4 flex min-h-11 items-center gap-2 text-sm font-bold">
-        <ArrowLeft className="size-4" />Back to Dashboard
-      </button>
-      {!vendor || checking ? <p role="status">{checking ? 'Checking your session…' : 'Sign in to manage your cafe’s menu.'}</p> : <>
-        <header className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0"><h1 className="text-xl font-extrabold">Live Menu &amp; Stock</h1><p className="mt-1 wrap-break-word text-sm text-[#7A6658]">{vendor.vendorName} · Vendor Terminal</p></div>
-          <span className="rounded-full bg-[#F06A05] px-3 py-2 text-xs font-bold text-white">{vendor.isOnline ? 'ONLINE' : 'OFFLINE'}</span>
-        </header>
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl tactile-card p-4"><p className="text-xs font-bold text-[#7A6658]">ACTIVE</p><p className="mt-2 text-2xl font-extrabold">{active}</p></div>
-          <div className="rounded-2xl tactile-card p-4"><p className="text-xs font-bold text-[#7A6658]">SOLD OUT</p><p className="mt-2 text-2xl font-extrabold text-[#F26A00]">{items.length - active}</p></div>
-        </div>
-        <div className="mt-6 flex flex-wrap gap-2" aria-label="Menu categories">
-          {(['all', 'snacks', 'chai'] as const).map(value => <button type="button" key={value} aria-pressed={category === value} onClick={() => setCategory(value)}
-            className={`min-h-11 rounded-xl px-4 text-sm font-bold ${category === value ? 'bg-[#F06A05] text-white' : 'tactile-inset'}`}>
-            {value === 'all' ? `All (${items.length})` : value === 'snacks' ? 'Snacks' : 'Chai'}
-          </button>)}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" disabled={busy || loading || !items.length} onClick={() => void saveStock(false)} className="min-h-11 rounded-xl border border-red-200 px-3 text-sm font-bold text-red-700 disabled:opacity-50">All Sold Out</button>
-          <button type="button" disabled={busy || loading || !items.length} onClick={() => void saveStock(true)} className="min-h-11 rounded-xl border border-[#D6DCE2] px-3 text-sm font-bold disabled:opacity-50">All Live</button>
-          <button type="button" disabled={busy} onClick={() => setReload(value => value + 1)} aria-label="Refresh menu" className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold"><RefreshCw className="size-4" />Refresh</button>
-        </div>
-        {error && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        {loading ? <p role="status" className="py-8 text-sm text-[#7A6658]">Loading your menu…</p> :
-          <div className="mt-5 space-y-3">
-            {!visible.length && <p className="py-8 text-sm text-[#7A6658]">{items.length ? 'No items in this category.' : 'No dishes yet. Add your first dish below.'}</p>}
-            {visible.map(item => (
-              <article key={item.id} className="flex flex-col gap-2 rounded-2xl tactile-card p-3.5">
-                <div className="flex items-center gap-3">
-                  <img src={item.image} alt="" className="size-16 shrink-0 rounded-xl object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <h2 className="wrap-break-word text-sm font-extrabold">{item.name}</h2>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="font-bold">₹{item.price}</p>
-                      <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md ${
-                        item.actionType === 'walkin'
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : 'bg-orange-100 text-[#F06A05] border border-orange-200'
-                      }`}>
-                        {item.actionType === 'walkin' ? '📍 Walk-In' : '🛒 Order In'}
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-[#7A6658]">{item.inStock ? 'In stock' : 'Sold out'}</p>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={item.inStock}
-                    aria-label={`Stock for ${item.name}`}
-                    disabled={busy}
-                    onClick={() => void saveStock(!item.inStock, item.id)}
-                    className="flex min-h-11 shrink-0 items-center justify-center disabled:opacity-50"
-                  >
-                    <span className={`relative h-7 w-12 rounded-full ${item.inStock ? 'bg-[#F06A05]' : 'bg-[#A3AEBB]'}`}>
-                      <span className={`absolute left-1 top-1 size-5 rounded-full bg-white transition-transform ${item.inStock ? 'translate-x-5' : ''}`} />
-                    </span>
-                  </button>
-                </div>
-
-                <div className="pt-2 border-t border-[#D6DCE2]/60 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-[#7A6658]">Quick Actions:</span>
-                  <InlineDisclosureMenu
-                    menuItems={[
-                      {
-                        icon: <HugeiconsIcon icon={PencilEdit02Icon} />,
-                        label: 'Edit',
-                        onClick: () => {
-                          toast.info(`Opening editor for ${item.name}`);
-                        }
-                      },
-                      {
-                        icon: <HugeiconsIcon icon={Copy01Icon} />,
-                        label: 'Duplicate',
-                        onClick: () => {
-                          toast.success(`Duplicated ${item.name} as a new draft ✨`);
-                        }
-                      },
-                      {
-                        icon: <HugeiconsIcon icon={FavouriteIcon} />,
-                        label: 'Special',
-                        onClick: () => {
-                          toast.success(`Marked ${item.name} as Today's Campus Special! ⭐`);
-                        }
-                      },
-                      {
-                        icon: <HugeiconsIcon icon={Share01Icon} />,
-                        label: 'Share',
-                        onClick: () => {
-                          navigator.clipboard?.writeText(window.location.origin + '?item=' + item.id);
-                          toast.success(`Share link for ${item.name} copied to clipboard! 📋`);
-                        }
-                      }
-                    ]}
-                    showDelete
-                    deleteLabel="Delete"
-                    onDelete={() => {
-                      setItemToDelete(item);
-                    }}
-                  />
-                </div>
-              </article>
-            ))}
-          </div>}
-        <button type="button" onClick={onAddNewItem} className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#F06A05] hover:bg-[#D85800] btn-orange-shadow px-4 py-3 text-sm font-extrabold text-white cursor-pointer active:scale-98 transition-all"><Plus className="size-5" />Add New Dish</button>
-      </>}
-
-      {/* Branded Delete Confirmation Dialog */}
-      <Dialog open={Boolean(itemToDelete)} onOpenChange={(open) => !open && setItemToDelete(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-2 border border-rose-200">
-              <Trash2 className="w-6 h-6" />
-            </div>
-            <DialogTitle className="text-center">Delete Menu Item</DialogTitle>
-            <DialogDescription className="text-center mt-2">
-              Are you sure you want to remove <span className="font-bold text-[#1F140A]">&quot;{itemToDelete?.name}&quot;</span> from your cafe menu? Customers won&apos;t be able to view or order it.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-2">
-            <button
-              type="button"
-              onClick={() => setItemToDelete(null)}
-              className="flex-1 h-10 rounded-xl bg-[#E8ECEF] border border-[#D6DCE2] text-xs font-bold text-[#7A6658] hover:text-[#1F140A] cursor-pointer active:scale-98 transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (itemToDelete) {
-                  const deletedName = itemToDelete.name;
-                  setItems(curr => curr.filter(i => i.id !== itemToDelete.id));
-                  toast.success(`Removed "${deletedName}" from menu`);
-                  setItemToDelete(null);
-                }
-              }}
-              className="flex-1 h-10 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white cursor-pointer active:scale-98 transition-all shadow-md flex items-center justify-center gap-1.5"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete Item</span>
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </section>
-  );
+  const visible=items.filter(item=>category==='all'||(category==='chai')===/tea|coffee|milk/i.test(item.name));
+  return <SvgScreenFrame screen={'stock'}><section className="stock-screen screen-enter">
+    <button type="button" onClick={onBack} className="stock-back"><ArrowLeft size={13}/>{t('Back to dashboard','నిర్వహణ పేజీకి తిరిగి వెళ్లండి')}</button>
+    {!vendor || checking ? <p role="status">{checking ? 'Checking your session…' : 'Sign in to manage your menu.'}</p> : <>
+      <header className="stock-heading"><div><h1>{t('Menu & stock','మెనూ మరియు నిల్వ')}</h1><p>{vendor.vendorName}</p></div><span>{vendor.isOnline ? t('Online','అందుబాటులో ఉంది') : t('Offline','మూసివేయబడింది')}</span></header>
+      <p className="stock-instruction">{t('Turn stock off when a product is finished.','ఉత్పత్తి పూర్తయినప్పుడు నిల్వను ఆఫ్ చేయండి.')}</p>
+      <div className="stock-filters">{(['all','snacks','chai'] as const).map(value => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)}>{value === 'all' ? `All (${items.length})` : value === 'snacks' ? t('Snacks','చిరుతిళ్లు') : t('Chai','టీ')}</button>)}<button className="stock-refresh" type="button" disabled={busy} onClick={() => setReload(n => n+1)}><RefreshCw size={12}/>{t('Refresh','తాజాకరించండి')}</button></div>
+      {error && <p className="pickup-error" role="alert">{error}</p>}
+      {loading && <p role="status">Loading your menu…</p>}
+      <div className="stock-list">{visible.map(item => <article key={item.id} className="stock-item">
+        <div className="stock-item-top"><img src={item.image} alt=""/><div><h2>{item.name}</h2><p>₹{item.price} · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
+        <form key={String(item.isVeg)} className="stock-item-form" onSubmit={event => {event.preventDefault();if(lock.current)return;const diet=new FormData(event.currentTarget).get('diet');lock.current=true;setBusy(true);setError(null);void updateItemAvailability(item.id,null,diet === 'unknown' ? null : diet === 'yes').catch(cause=>setError(cause instanceof Error?cause.message:'Could not save.')).finally(()=>{lock.current=false;setBusy(false);});}}>
+          <label className="field-label">{t('Dietary information','ఆహార సమాచారం')}<select name="diet" className="pickup-input" defaultValue={item.isVeg === undefined?'unknown':item.isVeg?'yes':'no'}><option value="unknown">Not specified</option><option value="yes">{t('Vegetarian','శాకాహారం')}</option><option value="no">{t('Non-vegetarian','మాంసాహారం')}</option></select></label><Button type="submit" disabled={busy}>{t('Save','భద్రపరచండి')}</Button>
+        </form>
+      </article>)}</div>
+      {!loading && !visible.length && <p className="stock-instruction">{items.length ? 'No items in this category.' : 'No dishes yet. Add your first item.'}</p>}
+      <Button className="stock-add" onClick={onAddNewItem}><Plus size={15}/> {t('Add food item','ఆహారాన్ని జోడించండి')}</Button>
+    </>}
+  </section></SvgScreenFrame>;
 }

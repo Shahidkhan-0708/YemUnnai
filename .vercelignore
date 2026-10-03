@@ -5,4 +5,15 @@ supabase/*.local
 .codex
 .gstack
 node_modules
+.tmp
+.tmp-logo-study
+.firecrawl
+.mcp.json
+page_svgs
+figma_svgs
+refined_svgs
+*.zip
+Screen Recording*.mp4
+Screenshot*.png
+preview_app_no_chassis.png
 supabase info

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bookmark, Check, Loader2 } from 'lucide-react';
 import { playTapSound, playSuccessChime } from '../lib/celebration';
+import { useLanguage } from '../lib/language';
 
 export interface SaveToggleProps {
   size?: 'sm' | 'md' | 'lg';
@@ -25,6 +26,7 @@ export const SaveToggle: React.FC<SaveToggleProps> = ({
   onToggle,
   className = '',
 }) => {
+  const { t } = useLanguage();
   const [internalSaved, setInternalSaved] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'saved'>('idle');
 
@@ -50,6 +52,8 @@ export const SaveToggle: React.FC<SaveToggleProps> = ({
     if (status === 'loading') return;
 
     playTapSound();
+
+    if (controlledSaved !== undefined && onToggle) { onToggle(!saved); return; }
 
     if (saved) {
       // Toggle off
@@ -81,6 +85,7 @@ export const SaveToggle: React.FC<SaveToggleProps> = ({
       type="button"
       onClick={handleClick}
       aria-pressed={saved}
+      aria-label={saved ? t('Remove from Saved', 'భద్రపరచిన వాటి నుండి తొలగించండి') : t('Save item', 'వంటకాన్ని భద్రపరచండి')}
       className={`inline-flex items-center justify-center transition-all duration-150 active:scale-96 cursor-pointer select-none ${
         sizeClasses[size]
       } ${

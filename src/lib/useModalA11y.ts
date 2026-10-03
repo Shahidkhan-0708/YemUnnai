@@ -22,7 +22,12 @@ export function useModalA11y<T extends HTMLElement>(
     if (!isOpen) return;
 
     const previouslyFocused = document.activeElement as HTMLElement | null;
-    const root = ref.current;
+    const nativeRoot = ref.current;
+    const projectedRoot = () => {
+      const id = nativeRoot?.closest<HTMLElement>('[data-svg-root-id]')?.dataset.svgRootId;
+      return (id ? document.getElementById(id) : null) ?? nativeRoot;
+    };
+    const root = projectedRoot();
     if (!root) return;
     const hidden: HTMLElement[] = [];
     // Inert sibling branches while leaving the dialog and its ancestors usable.
@@ -46,6 +51,8 @@ export function useModalA11y<T extends HTMLElement>(
     (firstFocusable ?? root).focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
+      const root = projectedRoot();
+      if (!root) return;
       if (root.closest('[inert]')) return;
       if (e.key === 'Escape') {
         e.stopPropagation();

@@ -7,7 +7,12 @@
     "dev": "node --max-old-space-size=4096 node_modules/vite/bin/vite.js",
     "build": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:pickup": "node scripts/test_pickup.mjs",
+    "test:daily-use": "node scripts/test_daily_use.mjs",
+    "test:pickup:browser": "node scripts/test_pickup_browser.mjs",
+    "test:pickup:browser:live": "node scripts/test_pickup_browser_live.mjs",
+    "test:pickup:integration": "node scripts/test_pickup_integration.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

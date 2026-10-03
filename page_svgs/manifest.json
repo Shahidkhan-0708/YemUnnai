@@ -1,0 +1,170 @@
+[
+  {
+    "file": "01_home_discovery_feed.svg",
+    "preview": "previews/01_home_discovery_feed.png",
+    "label": "Home discovery",
+    "width": 400,
+    "height": 7630,
+    "bytes": 9629667
+  },
+  {
+    "file": "02_quick_order_modal.svg",
+    "preview": "previews/02_quick_order_modal.png",
+    "label": "Pickup checkout",
+    "width": 400,
+    "height": 812,
+    "bytes": 10355885
+  },
+  {
+    "file": "03_feedback_popup.svg",
+    "preview": "previews/03_feedback_popup.png",
+    "label": "Feedback",
+    "width": 400,
+    "height": 812,
+    "bytes": 10355260
+  },
+  {
+    "file": "04_business_dashboard.svg",
+    "preview": "previews/04_business_dashboard.png",
+    "label": "Business dashboard",
+    "width": 400,
+    "height": 1090,
+    "bytes": 777226
+  },
+  {
+    "file": "05_add_edit_food_item.svg",
+    "preview": "previews/05_add_edit_food_item.png",
+    "label": "Add / edit food item",
+    "width": 400,
+    "height": 812,
+    "bytes": 428805
+  },
+  {
+    "file": "06_walk_in_map_modal.svg",
+    "preview": "previews/06_walk_in_map_modal.png",
+    "label": "Walk-in map",
+    "width": 400,
+    "height": 812,
+    "bytes": 4730238
+  },
+  {
+    "file": "07_mascot_logo.svg",
+    "preview": "previews/07_mascot_logo.png",
+    "label": "Mascot logo (existing asset)",
+    "width": 546,
+    "height": 330,
+    "bytes": 1490052
+  },
+  {
+    "file": "08_splash_onboarding.svg",
+    "preview": "previews/08_splash_onboarding.png",
+    "label": "Splash & onboarding",
+    "width": 400,
+    "height": 812,
+    "bytes": 1492732
+  },
+  {
+    "file": "09_location_permission.svg",
+    "preview": "previews/09_location_permission.png",
+    "label": "Location permission",
+    "width": 400,
+    "height": 812,
+    "bytes": 427238
+  },
+  {
+    "file": "10_food_item_detail.svg",
+    "preview": "previews/10_food_item_detail.png",
+    "label": "Food item detail",
+    "width": 400,
+    "height": 878,
+    "bytes": 535187
+  },
+  {
+    "file": "11_menu_stock_management.svg",
+    "preview": "previews/11_menu_stock_management.png",
+    "label": "Menu & stock management",
+    "width": 400,
+    "height": 3106,
+    "bytes": 3162601
+  },
+  {
+    "file": "12_access_login.svg",
+    "preview": "previews/12_access_login.png",
+    "label": "Vendor login",
+    "width": 400,
+    "height": 812,
+    "bytes": 3280541
+  },
+  {
+    "file": "13_buyer_orders.svg",
+    "preview": "previews/13_buyer_orders.png",
+    "label": "Buyer orders & history",
+    "width": 400,
+    "height": 1370,
+    "bytes": 439584
+  },
+  {
+    "file": "14_saved_items.svg",
+    "preview": "previews/14_saved_items.png",
+    "label": "Saved items",
+    "width": 400,
+    "height": 820,
+    "bytes": 4339335
+  },
+  {
+    "file": "15_brand_intro.svg",
+    "preview": "previews/15_brand_intro.png",
+    "label": "Brand intro",
+    "width": 400,
+    "height": 812,
+    "bytes": 171615
+  },
+  {
+    "file": "16_error_404.svg",
+    "preview": "previews/16_error_404.png",
+    "label": "404 error",
+    "width": 1280,
+    "height": 812,
+    "bytes": 1491305
+  },
+  {
+    "file": "17_screen_gallery.svg",
+    "preview": "previews/17_screen_gallery.png",
+    "label": "Screen gallery",
+    "width": 1280,
+    "height": 812,
+    "bytes": 441146
+  },
+  {
+    "file": "18_design_deliverables.svg",
+    "preview": "previews/18_design_deliverables.png",
+    "label": "Design deliverables",
+    "width": 1280,
+    "height": 2818,
+    "bytes": 1217725
+  },
+  {
+    "file": "19_component_showcase.svg",
+    "preview": "previews/19_component_showcase.png",
+    "label": "Component showcase",
+    "width": 1280,
+    "height": 1618,
+    "bytes": 481040
+  },
+  {
+    "file": "20_collection_confirmation.svg",
+    "preview": "previews/20_collection_confirmation.png",
+    "label": "Collection confirmation",
+    "width": 400,
+    "height": 812,
+    "bytes": 424926
+  },
+  {
+    "file": "21_help_requests.svg",
+    "preview": "previews/21_help_requests.png",
+    "label": "Help requests",
+    "width": 400,
+    "height": 812,
+    "bytes": 424377
+  }
+]

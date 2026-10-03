@@ -8,16 +8,16 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center rounded-xl text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-97 select-none';
+    const baseStyles = 'inline-flex items-center justify-center rounded-[10px] text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-97 select-none';
 
     const variants: Record<string, string> = {
       default: 'bg-[#F06A05] text-white hover:bg-[#D85800] btn-orange-shadow',
       green: 'bg-emerald-600 text-white hover:bg-emerald-700 btn-green-shadow',
-      walkin: 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-500 hover:to-teal-600 btn-green-shadow',
-      order: 'bg-gradient-to-r from-[#FB6E00] to-[#F06A05] text-white hover:brightness-105 btn-orange-shadow',
-      orange: 'bg-gradient-to-r from-[#FB6E00] to-[#F06A05] text-white hover:brightness-105 btn-orange-shadow',
+      walkin: 'border border-[#007A55] bg-white text-[#007A55] hover:bg-emerald-50',
+      order: 'bg-[#F06A05] text-white hover:bg-[#D85800]',
+      orange: 'bg-[#F06A05] text-white hover:bg-[#D85800]',
       secondary: 'bg-[#DDE2E8] text-[#1F140A] hover:bg-[#D4DCE4]',
-      outline: 'border border-[#D6DCE2] bg-[#E8ECEF] text-[#1F140A] hover:bg-[#DDE2E8]',
+      outline: 'border border-[#D6DCE2] bg-white text-[#1F140A] hover:bg-[#E8ECEF]',
       ghost: 'hover:bg-black/5 text-[#1F140A]',
       link: 'text-[#F06A05] underline-offset-4 hover:underline'
     };

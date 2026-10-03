@@ -12,7 +12,6 @@ import {
   fetchVendorStats,
   subscribeCatalogUpdates
 } from './api';
-import { DEFAULT_FOOD_ITEMS, LOCAL_SHOPS } from './mockData';
 import type { FoodCategory, FoodItem, ShopEntry, DashboardOrder, VendorStats } from './types';
 import { supabase } from './supabase';
 
@@ -31,7 +30,7 @@ export function useFoodItems(category?: FoodCategory): {
   retry: () => void;
   totalByCategory: Record<FoodCategory, number>;
 } {
-  const [allItems, setAllItems] = useState<FoodItem[]>(supabase ? [] : DEFAULT_FOOD_ITEMS);
+  const [allItems, setAllItems] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -52,10 +51,18 @@ export function useFoodItems(category?: FoodCategory): {
 
     reload();
     const unsub = subscribeCatalogUpdates(reload);
+    const channel = supabase?.channel('discovery-menu')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'food_items' }, reload)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vendors' }, reload).subscribe();
+    const poll = setInterval(() => { if (!document.hidden) reload(); }, 15000);
+    window.addEventListener('online', reload);
 
     return () => {
       cancelled = true;
       unsub();
+      clearInterval(poll);
+      window.removeEventListener('online', reload);
+      if (channel) void supabase?.removeChannel(channel);
     };
   }, [attempt]);
 
@@ -74,28 +81,38 @@ export function useFoodItems(category?: FoodCategory): {
 }
 
 /** Shop avatars for the "Local Shops" row. Subscribes to realtime catalog updates. */
-export function useShops(): ShopEntry[] {
-  const [shops, setShops] = useState<ShopEntry[]>(LOCAL_SHOPS);
+export function useShops() {
+  const [shops, setShops] = useState<ShopEntry[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
     const reload = () => {
       fetchShops().then(list => {
-        if (!cancelled && list.length > 0) setShops(list);
-      });
+        if (!cancelled) { setShops(list); setError(null); }
+      }).catch(() => { if (!cancelled) setError('Unable to refresh shops.'); })
+        .finally(() => { if (!cancelled) setLoading(false); });
     };
 
     reload();
     const unsub = subscribeCatalogUpdates(reload);
+    const channel = supabase?.channel('discovery-shops').on('postgres_changes', { event: '*', schema: 'public', table: 'vendors' }, reload).subscribe();
+    const poll = setInterval(() => { if (!document.hidden) reload(); }, 15000);
+    window.addEventListener('online', reload);
 
     return () => {
       cancelled = true;
       unsub();
+      clearInterval(poll);
+      window.removeEventListener('online', reload);
+      if (channel) void supabase?.removeChannel(channel);
     };
-  }, []);
+  }, [attempt]);
 
-  return shops;
+  return { shops, loading, error, retry: () => { setLoading(true); setAttempt(n => n + 1); } };
 }
 
 /**
@@ -277,7 +294,7 @@ export function useVendorSession(): {
 }
 
 /** Realtime incoming-order feed for the signed-in vendor. */
-export function useVendorOrders(vendorId: string | null): {
+export function useVendorOrders(vendorId: string | null, retry = 0): {
   orders: DashboardOrder[];
   loading: boolean;
   error: string | null;
@@ -307,7 +324,7 @@ export function useVendorOrders(vendorId: string | null): {
     }, message => { setError(message); if (message) setLoading(false); });
 
     return unsubscribe;
-  }, [vendorId]);
+  }, [vendorId, retry]);
 
   return { orders, loading, error };
 }

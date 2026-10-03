@@ -1,324 +1,57 @@
-import React, { useState } from 'react';
-import { ChevronLeft, MapPin, ShoppingCart } from 'lucide-react';
-import { MorphingButton } from './MorphingButton';
+import { SvgScreenFrame } from './SvgScreenFrame';
+import { useState } from 'react';
+import { Button } from './ui/button';
 import { SaveToggle } from './SaveToggle';
 import { Stepper } from './Stepper';
+import { useSaved } from '../lib/saved';
+import { useLanguage } from '../lib/language';
+import { recheckItem, PickupError } from '../lib/pickup';
+import { pickupErrorText } from '../lib/language';
 import type { FoodItem } from '../lib/types';
-import { toast } from './ui/sonner';
 
-interface FoodItemDetailScreenProps {
-  item: FoodItem | null;
-  onBack?: () => void;
-  onMap?: () => void;
-  onOrder?: (qty: number) => void;
-}
-
-/**
- * Screen 10 — "Food Item Detail", 1:1 from
- * figma_svgs/10_food_item_detail.svg (375 × 812):
- *   - Top nav ........ back circle 36px #E8ECEF at (38,54) with chevron 24px;
- *                      "Item Details" 14 w800 centered (y=59); heart circle 36px at
- *                      (333,54) with orange heart path #F26A00
- *   - Hero ........... (20,95) 335×225 rx=24 #131F17 + photo slice; "🔥 Fresh Batch •
- *                      12 mins ago" pill 180×28 rx=12 #F06A05 11 w800 at (34,109);
- *                      "14 Left In Pot" pill 118×28 rx=12 #FF8A2A (warm shadow) at
- *                      (216,265), text 11 w800
- *   - Info ........... (20,335): name 20 w800 + "₹140" 22 w800 #F06A05 right-aligned;
- *                      "₹160" strike 12 w600 #8EA397; vendor bar 335×54 rx=14 #E8ECEF
- *                      stroke #D6DCE2 with 34px photo circle + name 12 w800 +
- *                      "★ 4.8 (128 ratings) • 160m (2 min walk)" 10 w600 + "Map 📍"
- *                      chip 62×24 rx=12 #D9E8DF 10 w700 #F06A05; 3 tags 24px high
- *                      (95/85/105 wide) rx=12 10 w700; portion selector label 11 w800
- *                      ls.5, options 162×42 rx=12 (#F06A05 active / #E8ECEF inactive)
- *                      12 w800/w700 with prices; kitchen note 335×54 rx=14
- *   - Bottom bar ..... (0,695) 375×117 #E8ECEF stroke #D6DCE2; stepper 105×48 rx=12
- *                      #E8ECEF stroke #BACFC2 (−/1/+ 18/15/18 w800); CTA 217×48 rx=12
- *                      emerald gradient "Quick Order • ₹140" 14 w800
- */
-export const FoodItemDetailScreen: React.FC<FoodItemDetailScreenProps> = ({
-  item,
-  onBack,
-  onMap,
-  onOrder
-}) => {
+interface Props { item: FoodItem | null; onBack?: () => void; onMap?: () => void; onOrder?: (qty: number, current?: FoodItem) => void }
+export function FoodItemDetailScreen({ item, onBack, onMap, onOrder }: Props) {
+  const { t } = useLanguage();
+  const saved = useSaved();
   const [qty, setQty] = useState(1);
-  const [portion, setPortion] = useState<'single' | 'double'>('single');
-  const [favorited, setFavorited] = useState(false);
-
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   if (!item) return null;
-
-  // Shop photos keyed by vendor name — mirrors LOCAL_SHOPS in src/lib/mockData.ts
-  const SHOP_IMAGES: Record<string, string> = {
-    'MITS Canteen': '/images/shop_mits_canteen.jpg',
-    'MITS Cafe': '/images/shop_mits_cafe.jpg',
-    "Ekdant's Cafe": '/images/shop_ekdants_cafe.jpg',
-    Lickies: '/images/shop_lickies.jpg',
-    'New Cafe': '/images/shop_new_cafe.jpg'
+  const order = async () => {
+    if (busy) return;
+    setBusy(true); setError('');
+    try { onOrder?.(qty, await recheckItem(item.id)); }
+    catch (cause) { setError(pickupErrorText(cause instanceof PickupError ? cause.code : 'unavailable', t)); }
+    finally { setBusy(false); }
   };
-  const vendorImage = SHOP_IMAGES[item.vendor] ?? '/images/shop_mits_canteen.jpg';
-
-  // Tags that match what the item actually is (drinks / packed snacks / fried snacks)
-  const isDrink = /tea|coffee|milk/i.test(item.name);
-  const isPacked = /batanees|popsicle|chips|lays|biscuit/i.test(item.name);
-  const TAGS: Array<{ label: string; w: number }> = isPacked
-    ? [{ label: '📦 Sealed Pack', w: 95 }, { label: '✨ Hygienic', w: 85 }, { label: '🏫 Campus Fav', w: 105 }]
-    : isDrink
-      ? [{ label: '☕ Served Hot', w: 95 }, { label: '🌿 Fresh Brew', w: 85 }, { label: '👥 Student Fav', w: 105 }]
-      : [{ label: '🔥 Fried Fresh', w: 95 }, { label: '🌶️ Spiced', w: 85 }, { label: '🍟 Evening Special', w: 105 }];
-
-  const unitPrice = portion === 'single' ? item.price : Math.round(item.price * 2 * 0.93);
-  const total = unitPrice * qty;
-
-  return (
-    <div className="relative w-full max-w-97.5 mx-auto bg-[#E8ECEF] h-203 select-none overflow-hidden shadow-2xl rounded-[36px] border border-[#D6DCE2] font-sans">
-      {/* Top nav — circles at (38,54) and (351,54), title baseline y=59 */}
-      <div className="absolute left-5 top-9 flex items-center">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="Back"
-          className="w-9 h-9 rounded-full bg-[#E8ECEF] border border-white flex items-center justify-center cursor-pointer"
-          style={{ boxShadow: '-3px -3px 7px rgba(255,255,255,0.8), 4px 4px 8px rgba(163,174,187,0.4)' }}
-        >
-          <ChevronLeft className="w-6 h-6 text-[#1F140A]" strokeWidth={2} />
-        </button>
-        <span className="absolute left-37.25 text-[14px] font-extrabold text-[#1F140A]">
-          Item Details
+  return <SvgScreenFrame screen={'detail'}><section className="pickup-page detail-screen space-y-5 screen-enter">
+    <div className="flex justify-between gap-3"><Button variant="outline" onClick={onBack}>{t('Back', 'వెనుకకు')}</Button><SaveToggle isSaved={saved.ids.has(item.id)} onToggle={value => saved.toggle(item.id, value)} idleText={t('Save', 'భద్రపరచండి')} savedText={t('Saved', 'భద్రపరచబడింది')} /></div>
+    {saved.error && <p role="alert" className="pickup-error">{saved.error === 'storage_unavailable' ? t('Bookmarks could not be saved on this device. They may be lost after refresh.', 'ఈ పరికరంలో భద్రపరచలేకపోయాం. పేజీ తాజాకరిస్తే ఇవి పోవచ్చు.') : t('Bookmarks could not sync. Retry when your connection returns.', 'సమకాలీకరించలేకపోయాం. కనెక్షన్ వచ్చినప్పుడు మళ్లీ ప్రయత్నించండి.')} <Button variant="outline" onClick={() => void saved.retry()}>{t('Retry', 'మళ్లీ ప్రయత్నించండి')}</Button></p>}
+    <img src={item.image} alt={item.name} className="w-full rounded-3xl aspect-4/3 object-cover" />
+    <div className="flex flex-wrap justify-between gap-3"><h1 className="text-2xl font-semibold">{item.name}</h1><strong className="text-2xl">₹{item.price}</strong></div>
+    <p className="font-bold">{item.vendor}</p>
+    <p>{t('Pickup location', 'తీసుకునే స్థలం')}: {item.locationLandmark || item.vendor}</p>
+    <div className={`inline-flex items-center gap-2 py-1.5 px-3 rounded-xl border text-xs font-bold ${
+      item.isVeg === true
+        ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+        : item.isVeg === false
+        ? 'bg-amber-50 border-amber-300 text-amber-900'
+        : 'bg-stone-50 border-stone-200 text-stone-600'
+    }`}>
+      {item.isVeg !== undefined && (
+        <span className={`w-3.5 h-3.5 border ${item.isVeg === true ? 'border-emerald-700' : 'border-amber-800'} flex items-center justify-center p-0.5 rounded-xs shrink-0 bg-white`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${item.isVeg === true ? 'bg-emerald-700' : 'bg-amber-800'}`} />
         </span>
-        <div className="absolute right-5 flex items-center">
-          <SaveToggle
-            size="sm"
-            idleText="Save"
-            savedText="Saved"
-            isSaved={favorited}
-            onToggle={setFavorited}
-          />
-        </div>
-      </div>
-
-      {/* Hero — (20,95) 335×225 rx=24 */}
-      <div
-        className="absolute left-5 top-23.75 w-83.75 h-56.25 rounded-3xl overflow-hidden bg-[#131F17]"
-        style={{ boxShadow: '-6px -6px 12px rgba(255,255,255,0.85), 6px 6px 12px rgba(163,174,187,0.45)' }}
-      >
-        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-        {/* Fresh batch pill / Service Mode Pill */}
-        <div
-          className={`absolute left-3.5 top-3.5 px-3 h-7 rounded-xl flex items-center justify-center ${
-            item.actionType === 'walkin' ? 'bg-emerald-700' : 'bg-[#F06A05]'
-          }`}
-          style={{ boxShadow: '-3px -3px 7px rgba(255,255,255,0.8), 4px 4px 8px rgba(163,174,187,0.4)' }}
-        >
-          <span className="text-[11px] font-extrabold text-white">
-            {item.actionType === 'walkin' ? '📍 Walk-In Item' : (item.freshnessTag ?? (isDrink ? '☕ Fresh Brew' : isPacked ? '📦 Sealed Pack' : '🔥 In Stock'))}
-          </span>
-        </div>
-        {/* Stock pill — hidden when the shop publishes no live count */}
-        {item.stockLeft != null && (
-          <div
-            className="absolute left-49 top-42.5 w-29.5 h-7 rounded-xl bg-[#FF8A2A] flex items-center justify-center shadow-md"
-            style={{ boxShadow: '-3px -3px 7px rgba(255,255,255,0.8), 4px 4px 9px rgba(199,123,58,0.4)' }}
-          >
-            <span className="text-[11px] font-extrabold text-white">{item.stockLeft} Left In Stock</span>
-          </div>
-        )}
-      </div>
-
-      {/* Item info — origin (20,335) */}
-      <div className="absolute left-5 top-83.75 w-83.75">
-        {/* Name / price — baseline y=359 (24px in) */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 max-w-57.5">
-            <span
-              className={`w-3.5 h-3.5 border ${item.isVeg !== false ? 'border-emerald-700' : 'border-amber-800'} flex items-center justify-center p-0.5 rounded-xs shrink-0 bg-white/50`}
-              title={item.isVeg !== false ? 'Vegetarian' : 'Non-Vegetarian'}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${item.isVeg !== false ? 'bg-emerald-700' : 'bg-amber-800'}`} />
-            </span>
-            <h1 className="text-[20px] font-extrabold text-[#1F140A] leading-6 truncate">
-              {item.name}
-            </h1>
-          </div>
-          <span className={`font-extrabold ${item.price > 0 ? (item.actionType === 'walkin' ? 'text-[22px] text-emerald-700' : 'text-[22px] text-[#F06A05]') : 'text-[14px] text-[#D96C37] bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/25'}`}>
-            {item.price > 0 ? `₹${item.price}` : 'Coming Soon'}
-          </span>
-        </div>
-        {/* Strike price — only when the item actually carries one */}
-        {item.originalPrice != null && (
-          <p className="text-right text-[12px] font-semibold text-[#8EA397] line-through mt-px">
-            ₹{item.originalPrice}
-          </p>
-        )}
-
-        {/* Vendor bar — y offset 52, 335×54 rx=14 */}
-        <div
-          className="mt-2.5 w-full h-13.5 rounded-[14px] bg-[#E8ECEF] border border-[#D6DCE2] relative"
-        >
-          <div className="absolute left-3 top-2.5 w-8.5 h-8.5 rounded-full bg-[#F06A05] overflow-hidden">
-            <img
-              src={vendorImage}
-              alt={item.vendor}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="absolute left-13.5 top-3.25 text-[12px] font-extrabold text-[#1F140A]">
-            {item.vendor}
-          </p>
-          <p className="absolute left-13.5 top-7.25 text-[10px] font-semibold text-[#7A6658]">
-            {item.reviews && item.reviews > 0 && item.rating != null
-              ? `★ ${Number(item.rating).toFixed(1)} (${item.reviews} ratings) • `
-              : 'New • '}
-            {item.locationLandmark ?? item.walkTime ?? 'Campus Center'}
-          </p>
-          <button
-            type="button"
-            onClick={onMap}
-            className={`absolute left-65 top-3.75 w-15.5 h-6 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
-              item.actionType === 'walkin'
-                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 shadow-xs'
-                : 'bg-[#D6DCE2] text-[#F06A05] hover:bg-[#C9DEd2]'
-            }`}
-          >
-            <span className="text-[10px] font-bold">Map 📍</span>
-          </button>
-        </div>
-
-        {/* Tags — y offset 120, heights 24, widths 95/85/105 */}
-        <div className="mt-3.5 flex gap-1.75">
-          {TAGS.map(tag => (
-            <span
-              key={tag.label}
-              style={{ width: tag.w }}
-              className="h-6 rounded-xl bg-[#E8ECEF] border border-[#D6DCE2] flex items-center justify-center text-[10px] font-bold text-[#1F140A] whitespace-nowrap overflow-hidden"
-            >
-              {tag.label}
-            </span>
-          ))}
-        </div>
-
-        {/* Portion selector — label y offset 174; options y offset 184 */}
-        <p className="mt-6.5 text-[11px] font-extrabold tracking-[0.5px] text-[#1F140A]">
-          SELECT PORTION SIZE
-        </p>
-        <div className="mt-2.5 flex gap-2.75">
-          <button
-            type="button"
-            onClick={() => setPortion('single')}
-            aria-pressed={portion === 'single'}
-            className={`w-40.5 h-10.5 rounded-xl flex items-center justify-between px-5 cursor-pointer transition-all ${
-              portion === 'single'
-                ? 'bg-[#F06A05] text-white btn-orange-shadow'
-                : 'bg-[#E8ECEF] border border-[#D6DCE2] text-[#1F140A]'
-            }`}
-          >
-            <span className="text-[12px] font-extrabold">Single Plate</span>
-            <span className="text-[12px] font-extrabold">{item.price > 0 ? `₹${item.price}` : 'Coming Soon'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPortion('double')}
-            aria-pressed={portion === 'double'}
-            className={`w-40.5 h-10.5 rounded-xl flex items-center justify-between px-5 cursor-pointer transition-all ${
-              portion === 'double'
-                ? 'bg-[#F06A05] text-white btn-orange-shadow'
-                : 'bg-[#E8ECEF] border border-[#D6DCE2] text-[#1F140A]'
-            }`}
-          >
-            <span className="text-[12px] font-bold">Double Feast</span>
-            <span className={`text-[12px] font-bold ${portion === 'double' ? 'text-white' : 'text-[#7A6658]'}`}>
-              {item.price > 0 ? `₹${Math.round(item.price * 2 * 0.93)}` : 'Coming Soon'}
-            </span>
-          </button>
-        </div>
-
-        {/* Kitchen note — y offset 245, 335×54 rx=14 */}
-        <div className="mt-4.75 w-full h-13.5 rounded-[14px] bg-[#E8ECEF] border border-[#D6DCE2] px-3.5 py-2">
-          <p className="text-[11px] font-extrabold text-[#1F140A]">
-            Kitchen Status: {!item.inStock
-              ? '🔴 Currently Sold Out • Back soon'
-              : item.isShopOnline === false
-              ? '🔴 Canteen Offline • Not accepting orders'
-              : (item.freshnessTag ?? (isDrink ? 'Freshly Brewed' : isPacked ? 'Sealed & Fresh' : 'In Stock & Ready'))}
-          </p>
-          <p className="mt-0.75 text-[10px] font-medium text-[#7A6658]">
-            Available at {item.vendor} • {item.locationLandmark ?? item.walkTime ?? 'Campus Center'}
-          </p>
-        </div>
-      </div>
-
-      {/* Bottom order bar — (0,695) 375×117 */}
-      <div
-        className="absolute left-0 right-0 top-173.75 h-29.25 bg-[#E8ECEF]"
-        style={{ borderTop: '1.5px solid #D6DCE2', boxShadow: '0 -6px 12px rgba(255,255,255,0.7), 0 6px 12px rgba(163,174,187,0.4)' }}
-      >
-        {/* Stepper — (20,707) 105×48 rx=12 */}
-        <div className="absolute left-5 top-3 w-26.25 h-12 flex items-center justify-center">
-          <Stepper
-            min={1}
-            max={20}
-            value={qty}
-            onChange={setQty}
-            disabled={!item.inStock || item.isShopOnline === false || !item.price || item.price <= 0}
-            size="md"
-            className="w-full h-12 rounded-xl"
-          />
-        </div>
-
-        {/* CTA — (138,707) 217×48 rx=12 */}
-        {!item.inStock ? (
-          <div className="absolute left-34.5 top-3 w-54.25 h-12 flex items-center justify-center">
-            <MorphingButton
-              buttonText="Notify Restock"
-              onSubmit={(email) => {
-                toast.success(`You will be notified at ${email} when ${item.name} is back in stock! 🔔`);
-              }}
-            />
-          </div>
-        ) : item.isShopOnline === false ? (
-          <div className="absolute left-34.5 top-3 w-54.25 h-12 flex items-center justify-center">
-            <MorphingButton
-              buttonText="Alert Me"
-              onSubmit={(email) => {
-                toast.success(`You will be alerted at ${email} when this canteen comes online! 🔔`);
-              }}
-            />
-          </div>
-        ) : (!item.price || item.price <= 0) ? (
-          <div className="absolute left-34.5 top-3 w-54.25 h-12 flex items-center justify-center">
-            <button
-              type="button"
-              disabled
-              className="w-full h-12 rounded-xl bg-[#D5DCE2] text-slate-500 border border-[#BAC3CC] text-[12px] font-black cursor-not-allowed flex items-center justify-center gap-1.5 opacity-80 shadow-none select-none"
-            >
-              <span>Coming Soon • Not Available</span>
-            </button>
-          </div>
-        ) : item.actionType === 'walkin' ? (
-          <button
-            type="button"
-            onClick={onMap}
-            className="absolute left-34.5 top-3 w-54.25 h-12 rounded-xl text-white text-[14px] font-extrabold cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-green-shadow"
-            style={{
-              background: 'linear-gradient(180deg, #059669 0%, #047857 100%)',
-            }}
-          >
-            <MapPin className="w-4 h-4 fill-white/20" />
-            <span>Walk-In (Maps) 📍</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => onOrder?.(qty)}
-            className="absolute left-34.5 top-3 w-54.25 h-12 rounded-xl text-white text-[14px] font-extrabold cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-orange-shadow"
-            style={{
-              background: 'linear-gradient(180deg, #F06A05 0%, #E05D00 100%)',
-            }}
-          >
-            <ShoppingCart className="w-4 h-4 fill-white/20" />
-            <span>Quick Order • ₹{total}</span>
-          </button>
-        )}
-      </div>
+      )}
+      <span>{item.isVeg === true ? t('Vegetarian', 'దుకాణం నిర్ధారించిన శాఖాహారం') : item.isVeg === false ? t('Non-vegetarian', 'మాంసాహారం') : t('Dietary information not provided', 'ఆహార సమాచారం ఇవ్వలేదు')}</span>
     </div>
-  );
-};
+    <p>{!item.inStock ? t('Sold out', 'అమ్ముడయ్యాయి') : item.isShopOnline === false ? t('Shop offline', 'దుకాణం మూసివేయబడింది') : t('Available', 'అందుబాటులో ఉంది')}</p>
+    <Button variant="outline" onClick={onMap}>{t('Directions', 'దారి')}</Button>
+    {item.actionType === 'order' && <>
+      <div className="flex flex-wrap items-center justify-between gap-3"><span>{t('Quantity', 'పరిమాణం')}</span><Stepper min={1} max={20} value={qty} onChange={setQty} disabled={busy} /></div>
+      <p>{t('Pay at pickup. The current price is checked before checkout.', 'తీసుకునేటప్పుడు చెల్లించండి. ఆర్డర్ ముందు తాజా ధరను తనిఖీ చేస్తాము.')}</p>
+      {error && <p role="alert" className="pickup-error">{error}</p>}
+      <Button className="w-full" disabled={busy || !item.inStock || item.isShopOnline === false || item.price <= 0} onClick={() => void order()}>{busy ? t('Checking availability…', 'అందుబాటు తనిఖీ చేస్తున్నారు…') : `${t('Quick order', 'త్వరగా ఆర్డర్ చేయండి')} · ₹${item.price * qty}`}</Button>
+    </>}
+  </section></SvgScreenFrame>;
+}

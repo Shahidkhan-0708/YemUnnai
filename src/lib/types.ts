@@ -4,7 +4,7 @@
 
 export type FoodCategory = 'cooked' | 'packed';
 export type ActionType = 'walkin' | 'order';
-export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'collected' | 'declined' | 'cancelled' | 'completed';
+export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'collected' | 'declined' | 'cancelled' | 'completed';
 export type ReactionValue = 'like' | 'dislike';
 
 export interface VendorRow {

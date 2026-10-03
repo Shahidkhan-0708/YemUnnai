@@ -5,8 +5,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 /**
  * The Supabase client, or `null` when credentials are missing.
- * Every backend call in the app goes through helpers that treat
- * `null` as "demo mode" so the UI keeps working with mock data.
+ * Buyer and vendor sessions use separate persistent storage keys.
  */
 export const supabase: SupabaseClient | null =
   supabaseUrl && supabaseAnonKey
@@ -26,7 +25,7 @@ export const buyerSupabase: SupabaseClient | null = supabaseUrl && supabaseAnonK
 
 if (!isBackendConfigured) {
   console.warn(
-    '[YEMEMUNNAI] Supabase not configured — running in demo mode. ' +
+    '[YEMEMUNNAI] Supabase not configured — ordering and discovery unavailable. ' +
       'Copy .env.example to .env.local and add your project URL + anon key.'
   );
 }
