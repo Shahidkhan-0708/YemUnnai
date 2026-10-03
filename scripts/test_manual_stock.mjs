@@ -7,13 +7,13 @@ const source = await fs.readFile(new URL('../src/lib/api.ts', import.meta.url), 
 const mapper = source.slice(source.indexOf('function rowToItem('), source.indexOf('function orderRowToDashboard('));
 const setter = source.slice(source.indexOf('export async function setItemStock('), source.indexOf('export async function updateItemAvailability('));
 const writes = [], cache = [{ id: 'dish', name: 'Dosa', inStock: false }];
-let failure = false, notifications = 0;
+let failure = false, legacy = false, notifications = 0;
 globalThis.__stockTest = {
   cache,
   notify: () => notifications++,
   client: { from: table => ({ update: payload => ({ eq: (key, value) => {
     writes.push({ table, payload, key, value });
-    return { select: () => ({ single: async () => failure ? { error: new Error('network failure') } : { data: { id: value } } }) };
+    return { select: () => ({ single: async () => failure ? { error: new Error('network failure') } : legacy && 'remaining_quantity' in payload ? {error:{code:'PGRST204',message:'remaining_quantity column is missing'}} : { data: { id: value } } }) };
   } }) }) },
 };
 const code = ts.transpileModule(`const { client: supabase, cache: inMemoryFoodItems, notify: notifySubscribers } = globalThis.__stockTest;\n${mapper}\n${setter}\nexport { rowToItem };`, {
@@ -31,4 +31,11 @@ failure = true;
 await assert.rejects(api.setItemStock('dish', false), /Could not save stock/);
 assert.equal(cache[0].inStock, true, 'failed saves leave the catalog cache unchanged');
 assert.equal(notifications, 1, 'failed saves do not announce a successful catalog change');
-console.log('PASS: manual stock overrides legacy quantities, clears quantity on save, and preserves cache on failure.');
+failure=false;legacy=true;
+const before=writes.length;
+await api.setItemStock('dish',false);
+assert.equal(writes.length,before+2,'missing quantity column receives one compatibility retry');
+assert.deepEqual(writes.at(-1).payload,{in_stock:false});
+assert.equal(cache[0].inStock,false);
+assert.equal(notifications,2,'a successful compatibility write announces one change');
+console.log('PASS: manual stock overrides quantities, clears quantity on save, supports older catalogs, and preserves cache on failure.');

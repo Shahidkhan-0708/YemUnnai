@@ -117,7 +117,7 @@ export function App() {
     );
   }
 
-  return <SvgScreenFrame screen={activePortal==='gallery'?'gallery':activePortal==='artifacts'?'artifacts':activePortal==='components'?'components':null}>(
+  return <SvgScreenFrame screen={activePortal==='gallery'?'gallery':activePortal==='artifacts'?'artifacts':activePortal==='components'?'components':null}>
     <div className="min-h-screen bg-[#E8ECEF] text-[#1F140A]">
       <Toaster />
       {/* Main Content Area */}
@@ -653,7 +653,7 @@ export function App() {
       {/* PWA install sheet — appears when the browser offers install */}
       <InstallPrompt />
     </div>
-  )</SvgScreenFrame>;
+  </SvgScreenFrame>;
 }
 
 export default App;

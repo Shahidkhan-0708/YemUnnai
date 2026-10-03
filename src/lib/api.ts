@@ -138,7 +138,7 @@ export async function fetchFoodItems(category?: FoodCategory): Promise<FoodItem[
 
   let query = supabase
     .from('food_items')
-    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, is_vegetarian, remaining_quantity, likes_count, dislikes_count, reviews_count, created_at, vendors(name, is_online, latitude, longitude, location_landmark, is_on_campus), reviews(rating)')
+    .select('*, vendors(name, is_online, latitude, longitude, location_landmark, is_on_campus), reviews(rating)')
     .order('created_at', { ascending: true });
 
   if (category) query = query.eq('category', category);
@@ -446,7 +446,7 @@ export async function fetchVendorItems(vendorId: string): Promise<FoodItem[]> {
 
   const { data, error } = await supabase
     .from('food_items')
-    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, is_vegetarian, remaining_quantity, likes_count, dislikes_count, reviews_count, created_at, vendors(name, is_online), reviews(rating)')
+    .select('*, vendors(name, is_online), reviews(rating)')
     .eq('vendor_id', vendorId)
     .order('created_at', { ascending: true });
 
@@ -458,7 +458,11 @@ export async function fetchVendorItems(vendorId: string): Promise<FoodItem[]> {
 
 export async function setItemStock(foodItemId: string, inStock: boolean): Promise<void> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  const { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('id', foodItemId).select('id').single();
+  let { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('id', foodItemId).select('id').single();
+  // Older catalogs have no quantity column. Their stock flag is already manual.
+  if ((error?.code === '42703' || error?.code === 'PGRST204') && error.message.includes('remaining_quantity')) {
+    ({ data, error } = await supabase.from('food_items').update({ in_stock: inStock }).eq('id', foodItemId).select('id').single());
+  }
   if (error || !data) throw new Error('Could not save stock. Please try again.');
   // Update in-memory item
   const item = inMemoryFoodItems.find(i => i.id === foodItemId || i.name.toLowerCase() === foodItemId.toLowerCase());
@@ -479,7 +483,10 @@ export async function updateItemAvailability(foodItemId: string, remainingQuanti
 
 export async function setVendorAllStock(vendorId: string, inStock: boolean): Promise<void> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  const { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('vendor_id', vendorId).select('id');
+  let { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('vendor_id', vendorId).select('id');
+  if ((error?.code === '42703' || error?.code === 'PGRST204') && error.message.includes('remaining_quantity')) {
+    ({ data, error } = await supabase.from('food_items').update({ in_stock: inStock }).eq('vendor_id', vendorId).select('id'));
+  }
   if (error || !data?.length) throw new Error('Could not save menu stock. Please try again.');
   const shop = inMemoryShops.find(s => s.id === vendorId || s.name.toLowerCase().includes(vendorId.toLowerCase()));
   inMemoryFoodItems.forEach(i => {
@@ -510,7 +517,7 @@ export async function createFoodItem(vendorId: string, input: NewFoodItemInput):
       is_vegetarian: input.isVeg ?? null,
       remaining_quantity: input.remainingQuantity ?? null
     })
-    .select('id, vendor_id, name, price, category, action_type, image_url, in_stock, is_vegetarian, remaining_quantity, likes_count, dislikes_count, reviews_count, created_at, vendors(name), reviews(rating)')
+    .select('*, vendors(name), reviews(rating)')
     .single();
 
   if (error) {

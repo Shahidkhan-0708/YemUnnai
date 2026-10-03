@@ -79,12 +79,14 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
     const hasError=!['gallery','artifacts','components'].includes(screen??'')&&!!source.querySelector('[role=alert]');
     const hasConfirmation=['checkout','feedback','add'].includes(screen??'')&&!!source.querySelector('[role=status]');
     const hasLogin=screen==='dashboard'&&!source.querySelector('.business-screen');
+    const differentDetail=screen==='detail'&&(source.querySelector('.detail-screen h1')?.textContent!=='Samosa'||source.querySelector('.detail-screen strong')?.textContent!=='₹0');
+    const differentMap=screen==='map'&&source.querySelector('h3')?.textContent!=='MITS Canteen';
     const headings=screen==='dashboard'?[...source.querySelectorAll('.business-order-item h3')]:screen==='orders'?[...source.querySelectorAll('.order-card-food h4')]:[];
     const wrongOrders=headings.some(heading=>!template.current.text.includes(normalize(heading.textContent??'')));
     const count=source.querySelectorAll('.food-card:not(.food-skeleton)').length;
-    const savedMatches= count===1 && source.querySelector('.food-name-row h3')?.textContent==='Samosa';
-    const notTemplateData=(screen==='home'&&count>0&&count!==template.current.cards)||(screen==='saved'&&!savedMatches)||(screen==='orders'&&(source.querySelectorAll('.order-card').length!==3||wrongOrders))||(screen==='dashboard'&&(source.querySelectorAll('.business-order').length!==2||wrongOrders))||(screen==='stock'&&source.querySelectorAll('.stock-item').length!==16);
-    const useNative=hasError||hasConfirmation||hasLogin||notTemplateData;
+    const savedMatches= count===1 && source.querySelector('.food-name-row h3')?.textContent==='Samosa' && source.querySelector('.discovery-group-heading h2')?.textContent==='MITS Canteen' && !!source.querySelector('.food-action:disabled');
+    const notTemplateData=(screen==='home'&&count!==template.current.cards)||(screen==='saved'&&!savedMatches)||(screen==='orders'&&(source.querySelectorAll('.order-card').length!==3||wrongOrders))||(screen==='dashboard'&&(source.querySelectorAll('.business-order').length!==2||wrongOrders))||(screen==='stock'&&source.querySelectorAll('.stock-item').length!==16);
+    const useNative=hasError||hasConfirmation||hasLogin||differentDetail||differentMap||notTemplateData;
     if(useNative!==nativeState){setNativeState(useNative);return;}
     if(useNative||!artwork.current)return;
     const art=artwork.current;
@@ -222,7 +224,7 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
       if(box&&element.getAttribute('role')==='switch') {
         const value=element.getAttribute('aria-checked')??'false', old=previousValues.current.get(element);
         if(old!==undefined&&old!==value) {
-          const track=rectangles.find(r=>{const b=boxFor(r);return b.width===46&&b.height===26&&b.y>=box!.y&&b.y<=box!.y+box!.height;});
+          const track=rectangles.find(r=>{const b=boxFor(r);return Math.abs(b.width-46)<.1&&Math.abs(b.height-26)<.1&&b.y>=box!.y-.1&&b.y<=box!.y+box!.height;});
           if(track){track.setAttribute('fill',value==='true'?'#F06A05':'#A3AEBB');const r=boxFor(track);const thumb=[...svg.querySelectorAll('circle')].find(c=>Math.abs(Number(c.getAttribute('cy'))-(r.y+13))<1&&Number(c.getAttribute('r'))===10);if(thumb)thumb.setAttribute('cx',String(r.x+(value==='true'?33:13)));}
         }
         previousValues.current.set(element,value);
