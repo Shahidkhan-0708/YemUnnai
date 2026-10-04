@@ -68,4 +68,24 @@ The user approved 200 simulated browsing visits excluded from production analyti
 The runner uses isolated storage, five viewport widths and eight concurrent sessions;
 it blocks analytics and every non-read request before navigating. No orders, account
 signups or emails are generated. This is not 200 real people or proof of capacity
-for 1,000 simultaneous ordering users. Results are recorded after the deployed run.
+for 1,000 simultaneous ordering users.
+
+All 200 distinct journeys passed after targeted replays (268 attempts total).
+The initial run passed 138; 50 failures came from the runner attempting to serialize
+a DOM element, with 12 image/navigation timeouts needing replay. The first replay
+passed 56 of 62. Four later failures were an unguarded storage access in the test
+bootstrap and two were navigation/loading timeouts. Guarding that bootstrap and
+testing the canonical `https://yemunnai.me/` directly completed the remaining six.
+The final combined report has zero failed journeys. All 265 attempted analytics
+requests were blocked; no production write was allowed.
+
+Initial menu-visible median was 2,438 ms and p95 was 4,736 ms on this test machine.
+These measurements include browser setup/navigation and are not image-only timings,
+a promise for every connection, or an ordering-capacity benchmark. Detailed retained
+reports are under `.tmp/synthetic-browsing/`, including initial runs and the combined
+`verified-results.json`; failures have not been erased from the original reports.
+
+Final map review also corrected refreshes resetting a visitor's chosen zoom and
+pan, and verified that map zoom survives an online/catalog refresh. The live-catalog
+image check found that eager priority followed interleaved database order instead
+of the rendered canteen groups; priority now follows the actual first four cards.

@@ -6,6 +6,7 @@ import { MITS_CAMPUS, shopCoordinates } from '../lib/mapLocations';
 interface Props { shops: ShopEntry[]; selectedId?: string; onSelect?: (id: string) => void; }
 export function CanteenMap({ shops, selectedId, onSelect }: Props) {
   const node = useRef<HTMLDivElement>(null), map = useRef<L.Map | null>(null), layer = useRef<L.LayerGroup | null>(null);
+  const viewKey = useRef<string | null>(null);
   const select = useRef(onSelect); select.current = onSelect;
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [retry, setRetry] = useState(0);
@@ -13,7 +14,7 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
     if (!node.current) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const instance = L.map(node.current, { zoomControl: false, scrollWheelZoom: false, zoomAnimation: !reduced, fadeAnimation: !reduced, markerZoomAnimation: !reduced }).setView(MITS_CAMPUS, 17);
-    map.current = instance; layer.current = L.layerGroup().addTo(instance);
+    map.current = instance; layer.current = L.layerGroup().addTo(instance); viewKey.current = null;
     L.control.zoom({ position: 'bottomright' }).addTo(instance); instance.attributionControl.setPrefix(false);
     let goodTiles = 0; setStatus('loading');
     const timeout = setTimeout(() => { if (!goodTiles) setStatus('error'); }, 9000);
@@ -36,8 +37,13 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
       const marker = L.marker(point, { icon: L.divIcon({ html: icon, className: 'canteen-map-marker', iconSize: [52, 64], iconAnchor: [26, 58] }), title: shop.name, alt: shop.name, keyboard: true }).addTo(markers);
       marker.on('click', () => select.current?.(shop.id));
     }
-    if (points.length) instance.fitBounds(L.latLngBounds(points), { padding: [60, 65], maxZoom: 17, animate: false });
-    else { instance.setView(MITS_CAMPUS, 17, { animate: false }); L.circleMarker(MITS_CAMPUS, { radius: 7, color: '#fff', weight: 3, fillColor: '#F06A05', fillOpacity: 1 }).bindTooltip('MITS campus').addTo(markers); }
+    const nextViewKey = points.map(p => p.join(',')).sort().join('|');
+    if (viewKey.current !== nextViewKey) {
+      viewKey.current = nextViewKey;
+      if (points.length) instance.fitBounds(L.latLngBounds(points), { padding: [60, 65], maxZoom: 17, animate: false });
+      else instance.setView(MITS_CAMPUS, 17, { animate: false });
+    }
+    if (!points.length) L.circleMarker(MITS_CAMPUS, { radius: 7, color: '#fff', weight: 3, fillColor: '#F06A05', fillOpacity: 1 }).bindTooltip('MITS campus').addTo(markers);
   }, [shops, selectedId, retry]);
   return <div className="canteen-map-frame"><div ref={node} className="canteen-real-map" aria-label="Interactive canteen map"/>{status === 'loading' && <div className="canteen-map-status" role="status">Loading map…</div>}{status === 'error' && <div className="canteen-map-status" role="status">Map tiles couldn’t load. <button type="button" onClick={() => setRetry(v => v + 1)}>Retry map</button></div>}</div>;
 }

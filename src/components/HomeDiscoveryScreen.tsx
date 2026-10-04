@@ -99,13 +99,14 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       return { vendorName, shopMeta, items: groupItems };
     });
   }, [displayedItems, selectedShop, searchQuery, shops]);
+  const priorityFoodIds = new Set((shopGroups ? shopGroups.flatMap(group => group.items) : displayedItems).slice(0, 4).map(item => item.id));
 
   const renderFoodCard = (item: FoodItem) => {
     const isLiked = myReactions[item.id] === 'like';
     const unavailable = loading || !!error || !item.inStock || item.price <= 0 || item.isShopOnline === false;
     const hasRating = typeof item.rating === 'number' && Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 5;
     return <article className="food-card" key={item.id}>
-      <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={displayedItems.slice(0,4).some(first => first.id === item.id)} /></button>
+      <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={priorityFoodIds.has(item.id)} /></button>
         <SaveToggle size="sm" idleText="" savedText="" isSaved={saved.ids.has(item.id)} onToggle={value => {
           trackSaveItem(item.id, item.name, value);
           saved.toggle(item.id, value);

@@ -34,6 +34,11 @@ const journey = async function () {
     check(!document.querySelector('.canteen-map-logo'), 'Wrong old coordinates never become canteen markers');
     check(!document.querySelector('[role=tablist]')?.textContent.includes('GPS'), 'No GPS/campus switcher');
     check(window.__geoCalls === 0, 'No automatic GPS permission');
+    const zoom = () => document.querySelector('.canteen-real-map .leaflet-tile-container:last-child img')?.src.split('/').at(-3);
+    const initialZoom = zoom(); document.querySelector('.leaflet-control-zoom-in').click();
+    await until(() => zoom() && zoom() !== initialZoom, 'Map can zoom');
+    const chosenZoom = zoom(); window.dispatchEvent(new Event('online')); await pause(650);
+    check(zoom() === chosenZoom, 'Catalog refresh preserves the chosen map zoom');
     document.querySelector('[aria-label="Close map"]').click();
     await until(() => !document.querySelector('[role=dialog]'), 'Map closes without second screen');
     document.querySelector('.discovery-brand').click(); await until(() => document.querySelector('.vendor-location-card form'), 'Seller asked for missing pin');
@@ -54,7 +59,7 @@ const journey = async function () {
     check(document.documentElement.scrollWidth <= innerWidth, 'Portrait map has no page overflow');
     check(document.querySelectorAll('[role=dialog]').length === 1, 'One unified map dialog');
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await until(() => !document.querySelector('[role=dialog]'), 'Escape closes map');
-    await fetch('/__result', { method: 'POST', body: JSON.stringify({ result: 'pass', steps: ['Real geographic tiles', 'Invalid seed pins suppressed', 'No automatic GPS prompt', 'Seller prompted for missing coordinates', 'Invalid pin rejected', 'Single scoped location write', 'Failed save preserves pin', 'Customer logo marker updates', 'Correct walking destination', 'Portrait layout and modal dismissal'] }) });
+    await fetch('/__result', { method: 'POST', body: JSON.stringify({ result: 'pass', steps: ['Real geographic tiles', 'Invalid seed pins suppressed', 'No automatic GPS prompt', 'Catalog refresh preserves map zoom', 'Seller prompted for missing coordinates', 'Invalid pin rejected', 'Single scoped location write', 'Failed save preserves pin', 'Customer logo marker updates', 'Correct walking destination', 'Portrait layout and modal dismissal'] }) });
   } catch (error) { await fetch('/__result', { method: 'POST', body: JSON.stringify({ result: 'fail', message: error.stack, text: document.body.innerText.slice(0, 1500) }) }); }
 };
 const result = await runPickupBrowser({ bootstrap: `(${mockPickupTransport.toString()})();(${bootstrap.toString()})();`, exercise: `(${journey.toString()})()`, output: '.tmp/unified-map-browser' });

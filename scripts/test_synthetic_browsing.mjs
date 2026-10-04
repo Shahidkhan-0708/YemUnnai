@@ -5,7 +5,9 @@ import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const base=process.env.BROWSING_TEST_URL??'https://yemunnai.vercel.app/';
-const count=Number(process.env.BROWSING_TEST_SESSIONS??200),concurrency=8;
+const prior=process.env.BROWSING_RETRY_REPORT ? JSON.parse(await fs.readFile(process.env.BROWSING_RETRY_REPORT,'utf8')) : null;
+const retryIndices=prior?.results.filter(r=>r.result==='fail').map(r=>r.index-1);
+const count=retryIndices?.length??Number(process.env.BROWSING_TEST_SESSIONS??200),concurrency=8;
 assert(Number.isInteger(count)&&count>0&&count<=200);
 const output=path.resolve('.tmp/synthetic-browsing');await fs.mkdir(output,{recursive:true});
 const profile=await fs.mkdtemp(path.resolve('.tmp/synthetic-profile-'));
@@ -15,7 +17,7 @@ const results=[],pending=new Map(),stats=new Map();let socket,sequence=0,next=0,
 const tracking=/google-analytics\.com|googletagmanager\.com|analytics\.google\.com|doubleclick\.net|googlesyndication\.com|hotjar\.com|clarity\.ms|segment\.(?:com|io)|mixpanel\.com|amplitude\.com|plausible\.io/i;
 function command(method,params={},sessionId){return new Promise((resolve,reject)=>{const id=++sequence;const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method));},20000);pending.set(id,{resolve,reject,timer});socket.send(JSON.stringify({id,method,params,...sessionId?{sessionId}:{}}));});}
 async function evaluate(session,expression){const result=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true},session);if(result.exceptionDetails)throw Error(result.exceptionDetails.exception?.description??result.exceptionDetails.text);return result.result.value;}
-async function until(session,expression,label,timeout=18000){const end=Date.now()+timeout;while(Date.now()<end){if(await evaluate(session,expression))return;await pause(100);}throw Error(label);}
+async function until(session,expression,label,timeout=18000){const end=Date.now()+timeout;while(Date.now()<end){if(await evaluate(session,`Boolean(${expression})`))return;await pause(100);}throw Error(label);}
 async function visit(index){
  let context,session;const started=performance.now();const steps=[];const width=[320,360,390,430,1280][index%5];const state={blockedAnalytics:0,blockedWrites:0,jsErrors:[],httpErrors:[],menuMs:0};
  try{
@@ -26,7 +28,7 @@ async function visit(index){
   await command('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]},session);
   await command('Network.setUserAgentOverride',{userAgent:'Mozilla/5.0 Chrome/145.0.0.0 Safari/537.36 Yemunnai-Synthetic-QA/1.0'},session);
   await command('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:width<600},session);
-  await command('Page.addScriptToEvaluateOnNewDocument',{source:`localStorage.setItem('yemunnai-intro-seen','true');window.__syntheticBrowsingTest=true;`},session);
+  await command('Page.addScriptToEvaluateOnNewDocument',{source:`try{localStorage.setItem('yemunnai-intro-seen','true');}catch{}window.__syntheticBrowsingTest=true;\n//# sourceURL=yemunnai-synthetic-bootstrap.js`},session);
   await command('Page.navigate',{url:base},session);
   await until(session,"document.querySelectorAll('.food-card:not(.food-skeleton)').length>0&&!document.querySelector('.food-grid[aria-label=\"Loading menu\"]')",'Live menu did not load');
   state.menuMs=Math.round(performance.now()-started);steps.push('Discover');
@@ -57,7 +59,10 @@ async function visit(index){
   assert(await evaluate(session,"document.querySelectorAll('[role=dialog]').length<=1"),'Overlapping dialogs');
   assert(state.jsErrors.length===0,JSON.stringify(state.jsErrors));
   results.push({index:index+1,width,result:'pass',durationMs:Math.round(performance.now()-started),steps,...state});
- }catch(error){results.push({index:index+1,width,result:'fail',message:error.message,durationMs:Math.round(performance.now()-started),steps,...state});}
+ }catch(error){
+  const diagnostic=session?await evaluate(session,"({url:location.href,text:document.body.innerText.slice(0,600),tabs:[...document.querySelectorAll('[role=tab]')].map(t=>({id:t.id,selected:t.getAttribute('aria-selected')})),resources:performance.getEntriesByType('resource').filter(r=>r.initiatorType==='script').map(r=>({name:new URL(r.name).pathname,duration:r.duration})).slice(-6)})").catch(()=>null):null;
+  results.push({index:index+1,width,result:'fail',message:error.message,diagnostic,durationMs:Math.round(performance.now()-started),steps,...state});console.log('Failed session '+(index+1)+': '+error.message);
+ }
  finally{if(context)await command('Target.disposeBrowserContext',{browserContextId:context}).catch(()=>{});if(session)stats.delete(session);completed++;if(completed%20===0)console.log(`${completed}/${count} sessions completed; failures ${results.filter(r=>r.result==='fail').length}`);}
 }
 try{
@@ -76,7 +81,7 @@ try{
   if(message.method==='Network.responseReceived'&&message.params.response.status>=400&&!tracking.test(message.params.response.url))state.httpErrors.push({url:new URL(message.params.response.url).pathname,status:message.params.response.status});
  };
  const started=performance.now();
- await Promise.all(Array.from({length:Math.min(concurrency,count)},async()=>{while(next<count){const index=next++;await visit(index);}}));
+ await Promise.all(Array.from({length:Math.min(concurrency,count)},async()=>{while(next<count){const index=next++;await visit(retryIndices?.[index]??index);}}));
  const sorted=results.map(r=>r.menuMs).filter(Boolean).sort((a,b)=>a-b);
  const summary={sessions:count,concurrency,passed:results.filter(r=>r.result==='pass').length,failed:results.filter(r=>r.result==='fail').length,totalMs:Math.round(performance.now()-started),menuMedianMs:sorted[Math.floor(sorted.length*.5)],menuP95Ms:sorted[Math.min(sorted.length-1,Math.floor(sorted.length*.95))],blockedAnalytics:results.reduce((a,r)=>a+r.blockedAnalytics,0),blockedWrites:results.reduce((a,r)=>a+r.blockedWrites,0),realOrdersCreated:0,realEmailsSent:0};
  await fs.writeFile(path.join(output,'results.json'),JSON.stringify({summary,results},null,2));console.log(JSON.stringify(summary));assert.equal(summary.failed,0,'Synthetic browsing found failures; see results.json');

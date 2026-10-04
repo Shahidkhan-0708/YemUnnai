@@ -13,7 +13,8 @@ The smaller card/shop/logo copies total 761,280 bytes versus 5,761,801 bytes
 for the raster sources, an 87% reduction. The SVG brand logo and favicon now
 use small copies of the same artwork rather than the large SVG downloads.
 
-The first two visible dishes load eagerly at high priority. Later dishes stay
+The first four displayed dishes load eagerly at high priority. Priority follows
+the rendered canteen groups rather than the database's interleaved row order. Later dishes stay
 lazy-loaded. Dimensions preserve layout, and photo copies also serve seller
 menus, confirmation dialogs, and dashboard thumbnails. The native home, Saved,
 detail, and stock views skip artwork requests when they cannot use the reference
