@@ -29,4 +29,4 @@ Passed: TypeScript and production build; checkout duplicate/lost-response/recove
 
 A transport simulation with 1,000 simultaneous catalogue readers performs two upstream reads per cold server instance and passes cache expiry, outage and privacy checks. This is not a production concurrency benchmark. Live ordering, real database writes, realtime capacity and the production service plan remain unverified because production access is denied and pickup is not deployed.
 
-The proposed premium header is SVG-only pending user review. The tagline, dietary labels, duplicate status and launch behavior repairs are separately authorized app changes.
+The user approved the premium SVG header, which is now implemented using the same layered orange SVG background and native interactive controls. Header geometry, selection/clear actions, search sizing and cart navigation pass browser checks at four widths. This visual release does not resolve the production ordering blockers above.

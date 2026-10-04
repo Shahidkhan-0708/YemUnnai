@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, ThumbsUp, MessageSquare, ChevronRight, X, Star } from 'lucide-react';
+import { ThumbsUp, MessageSquare, ChevronRight, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { useFoodItems, useShops, useReactions } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
@@ -9,6 +9,7 @@ import { SaveToggle } from './SaveToggle';
 import { SavedSyncNotice } from './SavedSyncNotice';
 import { CatalogImage } from './CatalogImage';
 import { DietaryBadge } from './DietaryBadge';
+import { DiscoveryHeader } from './DiscoveryHeader';
 import type { FoodCategory, FoodItem } from '../lib/types';
 
 export type { FoodItem } from '../lib/types';
@@ -46,7 +47,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   const [maxPrice, setMaxPrice] = useState('');
   const [availableOnly, setAvailableOnly] = useState(false);
   const [vegOnly, setVegOnly] = useState(false);
-  const { shops, error: shopsError, retry: retryShops } = useShops();
+  const { shops, loading: shopsLoading, error: shopsError, retry: retryShops } = useShops();
   const { items, loading, error, retry, totalByCategory } = useFoodItems(savedOnly ? undefined : selectedCategory);
   const { myReactions, counts, toggleLike, pending: pendingReactions, error: reactionError } = useReactions(items);
 
@@ -116,12 +117,9 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   };
   // Product labels and prices always come from live data, including a 40-item menu.
   return <SvgScreenFrame screen={null}><section className="discovery-screen screen-enter">
-    <header className="discovery-header">
-      <button className="discovery-brand" type="button" onClick={onBusinessPortal} aria-label="Open business portal"><CatalogImage src="/images/NewLogo.svg" alt="" priority /><span><strong>YEMUNNAI</strong><small>A Food Discovery Platform</small></span></button>
-      <div className="discovery-search-row"><label className="discovery-search"><Search size={16} strokeWidth={1.5}/><input aria-label="Search food or shops" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Search food or shops','వంటకాలు లేదా దుకాణాలు వెతకండి')} />{searchQuery && <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')}><X size={15}/></button>}</label><button className="discovery-cart" type="button" onClick={onCartClick} aria-label={`My orders (${cartCount})`}><ShoppingCart size={23} strokeWidth={1.5}/>{cartCount > 0 && <span>{cartCount}</span>}</button></div>
-      <div className="discovery-shops-heading"><h2>{t('Canteens','క్యాంటీన్లు')}</h2><button type="button" onClick={() => {setSelectedShop('All');onSelectShop?.('All');}}>{t('View all','అన్నీ చూడండి')}<ChevronRight size={13}/></button></div>
-      <div className="discovery-shops">{shops.map(shop => <button key={shop.id} className="discovery-shop" type="button" aria-pressed={selectedShop === shop.name} onClick={() => {setSelectedShop(selectedShop === shop.name ? 'All' : shop.name);onSelectShop?.(shop.name);}}><span className="discovery-shop-photo"><CatalogImage src={shop.image} alt="" loading="eager"/>{shop.isOnline && <i/>}</span><span>{shop.name === "Ekdant's Cafe" ? "Ekdant's" : shop.name}</span></button>)}</div>
-    </header>
+    <DiscoveryHeader shops={shops} loading={shopsLoading} selectedShop={selectedShop} searchQuery={searchQuery} cartCount={cartCount}
+      onSearch={setSearchQuery} onShop={name => {setSelectedShop(name);onSelectShop?.(name);}} onCart={onCartClick} onBusinessPortal={onBusinessPortal}/>
+
     <div className="discovery-content">
       {reactionError && <p className="pickup-error" role="alert">{reactionError}</p>}
       {(error || shopsError) && <div role="alert" className="pickup-error">{t('Unable to load the menu.','మెనూ లోడ్ కాలేదు')}<Button variant="outline" onClick={() => {retry();retryShops();}}>Retry</Button></div>}
