@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, ThumbsUp, Star } from 'lucide-react';
 import { submitReview } from '../lib/api';
 import { useModalA11y } from '../lib/useModalA11y';
+import { trackSubmitFeedback } from '../lib/analytics';
 import type { FoodItem } from '../lib/types';
 import { toast } from './ui/sonner';
 
@@ -55,6 +56,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
       if (!ok) throw new Error('Could not submit review. Please try again.');
       published.current = true;
       setSubmitted(true);
+      trackSubmitFeedback({
+        foodItemId: item.id,
+        rating,
+        isLiked,
+        hasComment: Boolean(comment.trim()),
+      });
       toast.success('Review published! Thank you for the feedback.');
       onSubmitSuccess?.();
       closeTimer.current = setTimeout(onClose, 1100);

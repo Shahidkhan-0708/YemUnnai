@@ -3,7 +3,7 @@
 <title id="title">Splash &amp; Campus Onboarding</title><desc id="desc">YEMEMUNNAI onboarding welcome screen with brand mascot, campus selection, operating hours, and quick start CTA.</desc>
 <defs>
 
-<linearGradient id="emerald" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#0A461E"/><stop offset="1" stop-color="#063214"/></linearGradient>
+<linearGradient id="emerald" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F06A05"/><stop offset="1" stop-color="#E05D00"/></linearGradient>
 <linearGradient id="orange" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FF8A2A"/><stop offset="1" stop-color="#F26A00"/></linearGradient>
 <filter id="soft" x="-25%" y="-25%" width="150%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blurD"/><feOffset in="blurD" dx="6" dy="6" result="offD"/><feFlood flood-color="#A3AEBB" flood-opacity="0.55" result="colD"/><feComposite in="colD" in2="offD" operator="in" result="shadowD"/><feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blurL"/><feOffset in="blurL" dx="-6" dy="-6" result="offL"/><feFlood flood-color="#FFFFFF" flood-opacity="0.9" result="colL"/><feComposite in="colL" in2="offL" operator="in" result="shadowL"/><feMerge><feMergeNode in="shadowD"/><feMergeNode in="shadowL"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <filter id="warm" x="-30%" y="-50%" width="160%" height="210%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blurD"/><feOffset in="blurD" dx="4" dy="4" result="offD"/><feFlood flood-color="#C77B3A" flood-opacity="0.4" result="colD"/><feComposite in="colD" in2="offD" operator="in" result="shadowD"/><feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blurL"/><feOffset in="blurL" dx="-4" dy="-4" result="offL"/><feFlood flood-color="#FFFFFF" flood-opacity="0.85" result="colL"/><feComposite in="colL" in2="offL" operator="in" result="shadowL"/><feMerge><feMergeNode in="shadowD"/><feMergeNode in="shadowL"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -28,7 +28,7 @@
   
   <!-- Mascot Brand Image -->
   <g transform="translate(102.5, 55)">
-    <circle cx="60" cy="60" r="58" fill="#0A461E" filter="url(#warm)"/>
+    <circle cx="60" cy="60" r="58" fill="#F06A05" filter="url(#warm)"/>
     <circle cx="60" cy="60" r="55" fill="#E8ECEF"/>
     <clipPath id="splashMascotClip">
       <circle cx="60" cy="60" r="52"/>
@@ -38,36 +38,36 @@
 
   <!-- Floating Badges -->
   <g transform="translate(230, 45)">
-    <rect width="72" height="24" rx="12" fill="#0A461E" filter="url(#buttonShadow)"/>
+    <rect width="72" height="24" rx="12" fill="#F06A05" filter="url(#buttonShadow)"/>
     <text x="36" y="16" font-size="9.5" font-weight="800" fill="#FF8A2A" text-anchor="middle">LIVE RADAR</text>
   </g>
   <g transform="translate(24, 185)">
     <rect width="88" height="22" rx="11" fill="#FFFFFF" stroke="#D6DCE2"/>
-    <text x="44" y="15" font-size="9" font-weight="700" fill="#09431B" text-anchor="middle">⚡ Real-time</text>
+    <text x="44" y="15" font-size="9" font-weight="700" fill="#F06A05" text-anchor="middle">⚡ Real-time</text>
   </g>
 </g>
 
 <!-- Brand Header &amp; Copy -->
 <g transform="translate(25, 310)">
   <rect width="138" height="22" rx="11" fill="#D5E5DA"/>
-  <text x="69" y="15" font-size="9.5" font-weight="800" fill="#09431B" text-anchor="middle" letter-spacing="1">CAMPUS EATS LIVE</text>
+  <text x="69" y="15" font-size="9.5" font-weight="800" fill="#F06A05" text-anchor="middle" letter-spacing="1">CAMPUS EATS LIVE</text>
 
-  <text x="0" y="52" font-size="26" font-weight="900" fill="#0A2E20" letter-spacing="-0.5">YEMEMUNNAI!</text>
-  <text x="0" y="74" font-size="13.5" font-weight="700" fill="#0A461E">Never queue up for sold-out food.</text>
-  <text x="0" y="94" font-size="11" font-weight="500" fill="#5C7A6D">Discover fresh batches, live canteen menus, and walking times.</text>
+  <text x="0" y="52" font-size="26" font-weight="900" fill="#1F140A" letter-spacing="-0.5">YEMEMUNNAI!</text>
+  <text x="0" y="74" font-size="13.5" font-weight="700" fill="#F06A05">Never queue up for sold-out food.</text>
+  <text x="0" y="94" font-size="11" font-weight="500" fill="#7A6658">Discover fresh batches, live canteen menus, and walking times.</text>
 </g>
 
 <!-- Filled Address Card with Location Pin -->
 <g transform="translate(25, 428)">
   <rect width="325" height="72" rx="16" fill="#E8ECEF" stroke="#D6DCE2" filter="url(#soft)"/>
   <g transform="translate(14, 16)">
-    <circle cx="20" cy="20" r="18" fill="#09431B"/>
+    <circle cx="20" cy="20" r="18" fill="#F06A05"/>
     <path d="M20 12 C16.7 12 14 14.7 14 18 C14 22.5 20 27 20 27 C20 27 26 22.5 26 18 C26 14.7 23.3 12 20 12 Z M20 19.5 C18.9 19.5 18 18.6 18 17.5 C18 16.4 18.9 15.5 20 15.5 C21.1 15.5 22 16.4 22 17.5 C22 18.6 21.1 19.5 20 19.5 Z" fill="#FF8A2A"/>
   </g>
-  <text x="60" y="28" font-size="12" font-weight="800" fill="#0A2E20">Madanapalle Inst. of Tech &amp; Science</text>
-  <text x="60" y="44" font-size="10" font-weight="600" fill="#5C7A6D">Angallu, Campus Food Court • G-Floor</text>
+  <text x="60" y="28" font-size="12" font-weight="800" fill="#1F140A">Madanapalle Inst. of Tech &amp; Science</text>
+  <text x="60" y="44" font-size="10" font-weight="600" fill="#7A6658">Angallu, Campus Food Court • G-Floor</text>
   <rect x="60" y="50" width="70" height="14" rx="7" fill="#D9EADA"/>
-  <text x="95" y="61" font-size="8.5" font-weight="700" fill="#0A461E" text-anchor="middle">Open Now ✓</text>
+  <text x="95" y="61" font-size="8.5" font-weight="700" fill="#F06A05" text-anchor="middle">Open Now ✓</text>
 </g>
 
 <!-- Store Info / Operating Hours Dummy Card -->
@@ -75,11 +75,11 @@
   <rect width="325" height="58" rx="16" fill="#E8ECEF" stroke="#D6DCE2" filter="url(#soft)"/>
   <g transform="translate(14, 13)">
     <circle cx="16" cy="16" r="16" fill="#DDECE3"/>
-    <circle cx="16" cy="16" r="10" fill="none" stroke="#09431B" stroke-width="1.8"/>
-    <path d="M16 11 V16 H19" stroke="#09431B" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="16" cy="16" r="10" fill="none" stroke="#F06A05" stroke-width="1.8"/>
+    <path d="M16 11 V16 H19" stroke="#F06A05" stroke-width="1.8" stroke-linecap="round"/>
   </g>
-  <text x="56" y="25" font-size="11.5" font-weight="800" fill="#0A2E20">Operating Hours &amp; Live Kitchen</text>
-  <text x="56" y="42" font-size="10" font-weight="600" fill="#5C7A6D">Mon – Sat: 8:00 AM – 9:30 PM • Hot snacks from 4 PM</text>
+  <text x="56" y="25" font-size="11.5" font-weight="800" fill="#1F140A">Operating Hours &amp; Live Kitchen</text>
+  <text x="56" y="42" font-size="10" font-weight="600" fill="#7A6658">Mon – Sat: 8:00 AM – 9:30 PM • Hot snacks from 4 PM</text>
 </g>
 
 <!-- Campus Radar Canteen Summary Card -->
@@ -89,8 +89,8 @@
     <circle cx="16" cy="16" r="16" fill="#FFEAD9"/>
     <text x="16" y="21" font-size="13" text-anchor="middle">⚡</text>
   </g>
-  <text x="56" y="25" font-size="11.5" font-weight="800" fill="#0A2E20">3 Active Canteens Inside Campus</text>
-  <text x="56" y="42" font-size="10" font-weight="600" fill="#5C7A6D">Main Canteen • Nescafe Corner • Chai Point</text>
+  <text x="56" y="25" font-size="11.5" font-weight="800" fill="#1F140A">3 Active Canteens Inside Campus</text>
+  <text x="56" y="42" font-size="10" font-weight="600" fill="#7A6658">Main Canteen • Nescafe Corner • Chai Point</text>
 </g>
 
 <!-- Bottom Onboarding Action Button (Unified 12px Corner Radius) -->
@@ -100,5 +100,5 @@
 </g>
 
 <!-- Merchant Switch Link (No Clash Home Bar) -->
-<text x="187.5" y="728" font-size="11" font-weight="600" fill="#5C7A6D" text-anchor="middle">Canteen owner? <tspan fill="#09431B" font-weight="800">Switch to Business Portal</tspan></text>
+<text x="187.5" y="728" font-size="11" font-weight="600" fill="#7A6658" text-anchor="middle">Canteen owner? <tspan fill="#F06A05" font-weight="800">Switch to Business Portal</tspan></text>
 </svg>

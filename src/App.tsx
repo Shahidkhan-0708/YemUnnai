@@ -13,6 +13,7 @@ import { Tabs, TabsContent } from './components/watermelon/tabs';
 import { MotionConfig } from '@watermelon-motion';
 import { useVendorSession } from './lib/hooks';
 import { safeStorage } from './lib/storage';
+import { trackPageView, trackViewItem } from './lib/analytics';
 import { Download, ExternalLink, Eye } from 'lucide-react';
 import { Toaster, toast } from './components/ui/sonner';
 
@@ -108,6 +109,14 @@ export function App() {
     setIsAddEditOpen(false);
   }, [vendor?.vendorId]);
 
+  // Track virtual page views for SPA navigation in Google Analytics
+  useEffect(() => {
+    const pageTitle = activePortal === 'consumer' 
+      ? `YEMUNNAI - ${buyerTab.charAt(0).toUpperCase() + buyerTab.slice(1)}`
+      : `YEMUNNAI - ${activePortal.charAt(0).toUpperCase() + activePortal.slice(1)}`;
+    trackPageView(pageTitle, `/?portal=${activePortal}&tab=${buyerTab}`);
+  }, [activePortal, buyerTab]);
+
   const showToast = (msg: string) => {
     toast(msg);
   };
@@ -195,6 +204,7 @@ export function App() {
                     }}
                     onSelectItem={(item) => {
                       playTapSound();
+                      trackViewItem(item);
                       setSelectedDetailFood(item);
                     }}
                   />

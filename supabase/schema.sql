@@ -358,7 +358,7 @@ create policy "food_photos_owner_update" on storage.objects
 insert into public.vendors (id, name, image_url, is_active, is_online) values
   ('a0000000-0000-4000-8000-000000000001', 'MITS Canteen', '/images/shop_mits_canteen.jpg', true, true),
   ('a0000000-0000-4000-8000-000000000006', 'MITS Cafe',    '/images/shop_mits_cafe.jpg',    true, true),
-  ('a0000000-0000-4000-8000-000000000007', "Ekdant's Cafe", '/images/shop_ekdants_cafe.jpg', true, true),
+  ('a0000000-0000-4000-8000-000000000007', 'Ekdant''s Cafe', '/images/shop_ekdants_cafe.jpg', true, true),
   ('a0000000-0000-4000-8000-000000000008', 'Lickies',      '/images/shop_lickies.jpg',      true, true),
   ('a0000000-0000-4000-8000-000000000009', 'New Cafe',     '/images/shop_new_cafe.jpg',     true, true)
 on conflict (name) do nothing;

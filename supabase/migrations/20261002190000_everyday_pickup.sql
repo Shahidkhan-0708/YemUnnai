@@ -38,7 +38,7 @@ create index orders_buyer_created on public.orders(buyer_id, created_at desc);
 create index orders_expiry on public.orders(expires_at) where status = 'pending' and not is_legacy;
 alter table public.orders add constraint orders_new_amount check
   (is_legacy or (buyer_id is not null and attempt_id is not null and quantity is not null
-    and total = unit_price * quantity and pickup_number is not null and operating_date is not null));
+    and total is not null and total = unit_price * quantity and pickup_number is not null and operating_date is not null));
 
 create table public.pickup_counters (
   vendor_id uuid references public.vendors(id), operating_date date, last_number bigint not null,
@@ -127,7 +127,7 @@ declare
   day date := (clock_timestamp() at time zone 'Asia/Kolkata')::date;
   number bigint;
 begin
-  if p_actor is null or not exists(select 1 from auth.users where id = p_actor) then raise exception 'Unauthorized'; end if;
+  if p_actor is null then raise exception 'Unauthorized'; end if;
   if attempt is null or qty is null or qty not between 1 and 20 or expected is null or expected <= 0 then
     return jsonb_build_object('error','invalid_checkout');
   end if;
@@ -165,7 +165,7 @@ create function public.pickup_action(p_actor uuid, p_action text, p_input jsonb 
 language plpgsql security invoker set search_path = '' as $$
 declare o public.orders; s public.order_support; vendor boolean; target text; result jsonb; admin boolean;
 begin
-  if p_actor is null or not exists(select 1 from auth.users where id = p_actor) then raise exception 'Unauthorized'; end if;
+  if p_actor is null then raise exception 'Unauthorized'; end if;
   select exists(select 1 from public.app_admins where user_id = p_actor) into admin;
   if p_action in ('list','vendor_list','recover','detail') then
     perform public.expire_pickup_orders();
@@ -175,7 +175,8 @@ begin
       where ((p_action <> 'vendor_list' and o.buyer_id = p_actor) or (p_action = 'vendor_list' and v.owner_id = p_actor and v.id = (p_input->>'vendorId')::uuid))
         and (p_action <> 'recover' or o.attempt_id = (p_input->>'attemptId')::uuid)
         and (p_action <> 'detail' or o.id = (p_input->>'orderId')::uuid)
-      order by o.created_at desc limit 200
+        and (p_action not in ('list','vendor_list') or o.status in ('pending','preparing','ready') or o.created_at >= now() - interval '30 days')
+      order by o.created_at desc
     ) q;
     return jsonb_build_object('orders',result);
   end if;
@@ -224,7 +225,7 @@ begin
       update public.orders set cancellation_requested = true, cancellation_result = null where id = o.id returning * into o;
     else return jsonb_build_object('error','invalid_transition'); end if;
   elsif p_action = 'cancellation_decision' and vendor then
-    if not o.cancellation_requested or o.status not in ('preparing','ready') or p_input->>'decision' not in ('approve','reject') then
+    if not o.cancellation_requested or o.status not in ('preparing','ready') or coalesce(p_input->>'decision','') not in ('approve','reject') then
       return jsonb_build_object('error','invalid_transition');
     end if;
     update public.orders set cancellation_requested = false,
@@ -253,6 +254,14 @@ end $$;
 revoke execute on function public.pickup_action(uuid,text,jsonb) from public, anon, authenticated;
 grant execute on function public.pickup_action(uuid,text,jsonb) to service_role;
 grant all on public.orders to service_role;
+grant select, update on public.food_items to service_role;
+grant select on public.vendors to service_role;
+
+-- Shop availability changes refresh discovery just like menu changes.
+do $$ begin
+  alter publication supabase_realtime add table public.vendors;
+exception when duplicate_object or undefined_object then null;
+end $$;
 
 -- Required for autonomous expiry, even when no browser is connected.
 create extension if not exists pg_cron;

@@ -278,7 +278,7 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
   const visual=<div id={id} data-svg-visual={screen} className={`svg-screen-visual${isModal?' svg-screen-modal':''}`} style={{maxWidth:size.width,...(isModal?{left:hostBox?.left??0,width:modalWidth}: {})}} role={isModal?'dialog':undefined} aria-modal={isModal||undefined} aria-label={screen?svgScreens[screen].replace(/^\d+_/,'').replaceAll('_',' '):undefined} tabIndex={isModal?-1:undefined} onKeyDown={event=>{if(event.key==='Tab')event.currentTarget.dataset.keyboard='true';}} onPointerMove={event=>{event.currentTarget.dataset.pointer='true';}} onPointerDown={event=>{delete event.currentTarget.dataset.keyboard;}}>
     <div className="svg-screen-canvas" style={{aspectRatio:`${size.width}/${size.height}`}}>
       <div ref={artwork} className="svg-screen-art" dangerouslySetInnerHTML={{__html:markup}}/>
-      {screen==='intro'&&showIntroVideo&&<video className="svg-intro-video" src="/videos/yemunnai_intro_clean.mp4" poster="/videos/preview_intro.png" autoPlay muted playsInline onEnded={()=>setShowIntroVideo(false)}/>}
+      {screen==='intro'&&showIntroVideo&&<video className="svg-intro-video" src="/videos/yemunnai_intro_original.mp4" poster="/videos/preview_intro.png" autoPlay muted playsInline onEnded={()=>setShowIntroVideo(false)}/>}
       {controls.map(control=>{
         const {element,box,label,key}=control;
         const style={left:box.x/size.width*100+'%',top:box.y/size.height*100+'%',width:box.width/size.width*100+'%',height:box.height/size.height*100+'%'};

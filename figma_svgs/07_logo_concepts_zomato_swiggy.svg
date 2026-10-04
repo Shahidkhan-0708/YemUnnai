@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&amp;display=swap');
+      .font-sans { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+    </style>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A1A" />
+      <stop offset="100%" stop-color="#E05D00" />
+    </linearGradient>
+    <linearGradient id="zomatoRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E23744" />
+      <stop offset="100%" stop-color="#CB202D" />
+    </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="900" height="650" fill="#F8FAFC" />
+
+  <!-- Sheet Header -->
+  <g transform="translate(60, 48)">
+    <rect x="0" y="0" width="110" height="24" rx="12" fill="#FFEAD9" />
+    <text x="55" y="16" fill="#C2410C" font-size="11" font-weight="800" text-anchor="middle" class="font-sans" letter-spacing="0.5">BRAND IDENTITY</text>
+    <text x="0" y="56" fill="#0F172A" font-size="28" font-weight="900" class="font-sans" letter-spacing="-0.5">YEMUNNAI — Logo Design Concepts</text>
+    <text x="0" y="82" fill="#64748B" font-size="14" font-weight="600" class="font-sans">Simple, high-trust, and professional — inspired by Swiggy's iconic glyph &amp; Zomato's bold wordmark.</text>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- CONCEPT 1: Swiggy-Inspired Minimal "Y-Pin" Monogram (Recommended) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(60, 160)">
+    <!-- Card Container -->
+    <rect width="365" height="430" rx="28" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" filter="url(#cardShadow)" />
+    
+    <!-- Top Concept Badge -->
+    <rect x="24" y="24" width="160" height="26" rx="8" fill="#FFF7ED" stroke="#FFEDD5" stroke-width="1" />
+    <text x="32" y="41" fill="#F06A05" font-size="11" font-weight="800" class="font-sans">CONCEPT 1 • THE "Y-PIN"</text>
+
+    <!-- Glyph Canvas (Light Background) -->
+    <rect x="24" y="66" width="317" height="150" rx="20" fill="#F8FAFC" stroke="#F1F5F9" />
+
+    <!-- Icon: Swiggy-inspired Location Marker + Fork / 'Y' Monogram -->
+    <g transform="translate(100, 88)">
+      <!-- App Icon Squircle -->
+      <rect x="0" y="0" width="105" height="105" rx="26" fill="url(#brandGrad)" />
+      
+      <!-- Minimalist 'Y' Geometry crafted from a food-pin -->
+      <!-- Outer pin head -->
+      <path d="M 52.5 22 C 37 22 26 33.5 26 48 C 26 66 52.5 86 52.5 86 C 52.5 86 79 66 79 48 C 79 33.5 68 22 52.5 22 Z" fill="#FFFFFF" opacity="0.2" />
+      
+      <!-- Vector 'Y' with culinary curves -->
+      <path d="M 37 34 L 52.5 54 L 68 34" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 52.5 54 L 52.5 76" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" />
+      <!-- Golden culinary plate dot -->
+      <circle cx="52.5" cy="40" r="4.5" fill="#FFEAD9" />
+    </g>
+
+    <!-- Small scale icon test (Favicon / Header size preview 36x36) -->
+    <g transform="translate(230, 102)">
+      <rect x="0" y="0" width="40" height="40" rx="10" fill="url(#brandGrad)" />
+      <path d="M 14 13 L 20 21 L 26 13" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 20 21 L 20 29" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+      <circle cx="20" cy="15.5" r="1.5" fill="#FFEAD9" />
+      <text x="20" y="55" fill="#94A3B8" font-size="10" font-weight="700" text-anchor="middle" class="font-sans">36px App Icon</text>
+    </g>
+
+    <!-- Brand Typography Pair -->
+    <g transform="translate(24, 240)">
+      <text x="0" y="24" fill="#0F172A" font-size="26" font-weight="900" class="font-sans" letter-spacing="-0.8">yemunnai</text>
+      <circle cx="132" cy="18" r="4" fill="#F06A05" />
+      <text x="0" y="44" fill="#64748B" font-size="12" font-weight="700" class="font-sans" letter-spacing="1.2">CAMPUS FOOD RADAR</text>
+    </g>
+
+    <!-- Rationale / Swiggy DNA -->
+    <g transform="translate(24, 310)">
+      <line x1="0" y1="0" x2="317" y2="0" stroke="#F1F5F9" stroke-width="1.5" />
+      <text x="0" y="22" fill="#0F172A" font-size="12" font-weight="800" class="font-sans">Why this works:</text>
+      <text x="0" y="42" fill="#475569" font-size="11.5" font-weight="500" class="font-sans">• Instantly recognized as a delivery/campus pin.</text>
+      <text x="0" y="60" fill="#475569" font-size="11.5" font-weight="500" class="font-sans">• Scales from 16px tab icon to 1080px splash.</text>
+      <text x="0" y="78" fill="#475569" font-size="11.5" font-weight="500" class="font-sans">• No messy cartoon illustration; pure vector elegance.</text>
+      <text x="0" y="98" fill="#059669" font-size="11" font-weight="800" class="font-sans">✓ RECOMMENDED FOR YEMUNNAI</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- CONCEPT 2: Zomato-Inspired Bold Geometric Wordmark -->
+  <!-- ========================================================================= -->
+  <g transform="translate(475, 160)">
+    <!-- Card Container -->
+    <rect width="365" height="430" rx="28" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" filter="url(#cardShadow)" />
+    
+    <!-- Top Concept Badge -->
+    <rect x="24" y="24" width="170" height="26" rx="8" fill="#FEF2F2" stroke="#FEE2E2" stroke-width="1" />
+    <text x="32" y="41" fill="#DC2626" font-size="11" font-weight="800" class="font-sans">CONCEPT 2 • THE WORDMARK</text>
+
+    <!-- Wordmark Canvas (Dark High-Contrast Showcase) -->
+    <rect x="24" y="66" width="317" height="150" rx="20" fill="#0F172A" />
+
+    <!-- Pure Typographic Wordmark with Smile Accent -->
+    <g transform="translate(45, 125)">
+      <!-- Zomato-style italicized bold lowercase -->
+      <text x="0" y="32" fill="#FFFFFF" font-size="38" font-weight="900" font-style="italic" class="font-sans" letter-spacing="-1">yemunnai</text>
+      <!-- Warm accent dot -->
+      <circle cx="218" cy="20" r="5" fill="#F06A05" />
+      <!-- Subtle culinary smile underline -->
+      <path d="M 4 44 Q 110 58 215 44" fill="none" stroke="#F06A05" stroke-width="4" stroke-linecap="round" />
+    </g>
+
+    <!-- Inverted Brand Typography Pair on White -->
+    <g transform="translate(24, 240)">
+      <text x="0" y="24" fill="#E05D00" font-size="28" font-weight="900" font-style="italic" class="font-sans" letter-spacing="-0.8">yemunnai</text>
+      <circle cx="160" cy="14" r="4.5" fill="#0F172A" />
+      <text x="0" y="44" fill="#64748B" font-size="12" font-weight="700" class="font-sans" letter-spacing="1.2">FAST FOOD • INSTANT PICKUP</text>
+    </g>
+
+    <!-- Rationale / Zomato DNA -->
+    <g transform="translate(24, 310)">
+      <line x1="0" y1="0" x2="317" y2="0" stroke="#F1F5F9" stroke-width="1.5" />
+      <text x="0" y="22" fill="#0F172A" font-size="12" font-weight="800" class="font-sans">Why this works:</text>
+      <text x="0" y="42" fill="#475569" font-size="11.5" font-weight="500" class="font-sans">• High-impact typographic authority like Zomato.</text>
+      <text x="0" y="60" fill="#475569" font-size="11.5" font-weight="500" class="font-sans">• Zero visual ambiguity; name is 100% readable.</text>
+      <text x="0" y="78" fill="#475569" font-size="11.5" font-weight="500" class="font-sans">• Dynamic italic slope conveys speed and campus life.</text>
+      <text x="0" y="98" fill="#64748B" font-size="11" font-weight="800" class="font-sans">ALTERNATE SLEEK OPTION</text>
+    </g>
+  </g>
+</svg>

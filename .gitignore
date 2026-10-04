@@ -32,3 +32,11 @@ supabase/.temp/
 .vercel
 .env*
 .tmp/
+
+.codex/
+.firecrawl/
+.mcp.json
+.tmp-logo-study/
+/*.png
+/*.mp4
+/*.zip

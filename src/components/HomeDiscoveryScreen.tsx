@@ -10,6 +10,7 @@ import { SavedSyncNotice } from './SavedSyncNotice';
 import { CatalogImage } from './CatalogImage';
 import { DietaryBadge } from './DietaryBadge';
 import { DiscoveryHeader } from './DiscoveryHeader';
+import { trackSelectCategory, trackSaveItem } from '../lib/analytics';
 import type { FoodCategory, FoodItem } from '../lib/types';
 
 export type { FoodItem } from '../lib/types';
@@ -105,7 +106,10 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     const hasRating = typeof item.rating === 'number' && Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 5;
     return <article className="food-card" key={item.id}>
       <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={item.id === displayedItems[0]?.id || item.id === displayedItems[1]?.id} /></button>
-        <SaveToggle size="sm" idleText="" savedText="" isSaved={saved.ids.has(item.id)} onToggle={value => saved.toggle(item.id, value)} className="food-save" />
+        <SaveToggle size="sm" idleText="" savedText="" isSaved={saved.ids.has(item.id)} onToggle={value => {
+          trackSaveItem(item.id, item.name, value);
+          saved.toggle(item.id, value);
+        }} className="food-save" />
       </div>
       <div className="food-name-row"><h3 title={item.name}>{item.name}</h3></div>
       <div className="food-diet-row"><DietaryBadge isVeg={item.isVeg} /></div>
@@ -126,7 +130,10 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       {(savedOnly || saved.error === 'storage_unavailable') && <SavedSyncNotice error={saved.error} syncing={saved.syncing} retry={saved.retry} />}
       {savedOnly && <h1 className="saved-heading">{t('Saved items','భద్రపరచిన వంటకాలు')}</h1>}
       <fieldset className="discovery-filters"><legend className="sr-only">Filter food</legend><label className="price-filter"><span>₹</span><input type="number" min="0" aria-label="Maximum price" value={maxPrice} placeholder="Max" onChange={e => setMaxPrice(e.target.value)}/><ChevronRight size={15}/></label><label className="availability-filter" data-selected={availableOnly}><input type="checkbox" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)}/><i/>{t('Available now','అందుబాటులో ఉన్నాయి')}</label><label className="veg-filter" data-selected={vegOnly}><input type="checkbox" checked={vegOnly} onChange={e => setVegOnly(e.target.checked)}/><span className="diet-mark"><i/></span>{t('Pure veg','శాకాహారం')}</label></fieldset>
-      <div className="discovery-categories" aria-label="Food categories">{(['cooked','packed'] as const).map(cat => <button key={cat} type="button" aria-pressed={selectedCategory === cat} onClick={() => setSelectedCategory(cat)}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({totalByCategory[cat]})</button>)}</div>
+      <div className="discovery-categories" aria-label="Food categories">{(['cooked','packed'] as const).map(cat => <button key={cat} type="button" aria-pressed={selectedCategory === cat} onClick={() => {
+        trackSelectCategory(cat);
+        setSelectedCategory(cat);
+      }}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({totalByCategory[cat]})</button>)}</div>
       {loading ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : shopGroups ? <div className="discovery-groups">{shopGroups.map(group => <section className="discovery-group" key={group.vendorName}><div className="discovery-group-heading">{group.shopMeta?.image && <CatalogImage src={group.shopMeta.image} alt=""/>}<div><h2>{group.vendorName}</h2><p>{t('Food Court','ఫుడ్ కోర్ట్')}</p></div><button type="button" onClick={() => {setSelectedShop(group.vendorName);onSelectShop?.(group.vendorName);}}>{t('View menu','మెనూ చూడండి')} ({group.items.length})</button></div><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{displayedItems.map(renderFoodCard)}</div>}
       {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{savedOnly ? (saved.ids.size ? 'No saved dishes match' : 'No saved dishes yet') : 'No dishes found'}</h2><p>{savedOnly ? (saved.ids.size ? 'Try clearing your filters or switching food categories.' : 'Tap the bookmark on a dish to keep it here.') : 'Try clearing your search or filters.'}</p><Button variant="outline" onClick={() => {setSearchQuery('');setSelectedShop('All');setMaxPrice('');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button></div>}
     </div>

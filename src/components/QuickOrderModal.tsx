@@ -1,6 +1,6 @@
 import { DietaryBadge } from './DietaryBadge';
 import { SvgScreenFrame } from './SvgScreenFrame';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Stepper } from './Stepper';
@@ -8,6 +8,7 @@ import { placeOrder, pendingCheckout, PickupError } from '../lib/pickup';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage, pickupErrorText } from '../lib/language';
 import { playSuccessChime, fireOrderConfetti } from '../lib/celebration';
+import { trackBeginCheckout, trackPurchase } from '../lib/analytics';
 import type { FoodItem, OrderRow } from '../lib/types';
 
 export interface OrderSuccessData { token: string; orderId: string; vendor: string; status: string; order: OrderRow }
@@ -23,6 +24,14 @@ export function QuickOrderModal({ isOpen, item, initialQty = 1, onClose, onSucce
   const lock = useRef(false);
   const close = () => { if (!lock.current) onClose(); };
   const ref = useModalA11y<HTMLDivElement>(isOpen && !!item, close);
+
+  // Track beginning of checkout in Google Analytics
+  useEffect(() => {
+    if (isOpen && item) {
+      trackBeginCheckout(item, qty);
+    }
+  }, [isOpen, item?.id]);
+
   if (!isOpen || !item) return null;
   const confirm = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -31,6 +40,18 @@ export function QuickOrderModal({ isOpen, item, initialQty = 1, onClose, onSucce
     try {
       const confirmed = await placeOrder({ foodItem: { ...item, price }, quantity: qty });
       setOrder(confirmed);
+      // Track conversion / purchase in Google Analytics
+      trackPurchase({
+        id: confirmed.id,
+        pickupNumber: confirmed.pickup_number ?? undefined,
+        name: confirmed.item_name || item.name,
+        itemId: confirmed.food_item_id || item.id,
+        price,
+        quantity: confirmed.quantity ?? qty,
+        total: confirmed.total ?? price * qty,
+        vendor: confirmed.shop_name ?? item.vendor,
+        category: item.category,
+      });
       // Publish the server-confirmed record before any sound or animation.
       onSuccess?.({ token: String(confirmed.pickup_number), orderId: confirmed.id, vendor: confirmed.shop_name ?? item.vendor, status: confirmed.status, order: confirmed });
       playSuccessChime(); fireOrderConfetti();
