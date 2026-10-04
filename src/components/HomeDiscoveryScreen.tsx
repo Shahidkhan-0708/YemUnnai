@@ -52,7 +52,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   // Filter by query + shop, hiding offline shop items when browsing all shops
   const displayedItems = items
     .filter(item => {
-      const q = searchQuery.toLowerCase();
+      const q = searchQuery.trim().toLowerCase();
       const matchesQuery = item.name.toLowerCase().includes(q) ||
                            item.vendor.toLowerCase().includes(q);
       const matchesShop = selectedShop === 'All' || item.vendor.toLowerCase().includes(selectedShop.toLowerCase());
@@ -66,9 +66,9 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
         return false;
       }
 
-      return matchesQuery && matchesShop && (!savedOnly || saved.ids.has(item.id))
+      return matchesQuery && matchesShop && item.category === selectedCategory && (!savedOnly || saved.ids.has(item.id))
         && (!maxPrice || (item.price > 0 && item.price <= Number(maxPrice)))
-        && (!availableOnly || (item.inStock && item.isShopOnline !== false && item.price > 0))
+        && (!availableOnly || (item.inStock && !isShopOffline && item.price > 0))
         && (!vegOnly || item.isVeg === true);
     })
     .map(item => {
@@ -129,7 +129,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       <fieldset className="discovery-filters"><legend className="sr-only">Filter food</legend><label className="price-filter"><span>₹</span><input type="number" min="0" aria-label="Maximum price" value={maxPrice} placeholder="Max" onChange={e => setMaxPrice(e.target.value)}/><ChevronRight size={15}/></label><label className="availability-filter" data-selected={availableOnly}><input type="checkbox" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)}/><i/>{t('Available now','అందుబాటులో ఉన్నాయి')}</label><label className="veg-filter" data-selected={vegOnly}><input type="checkbox" checked={vegOnly} onChange={e => setVegOnly(e.target.checked)}/><span className="diet-mark"><i/></span>{t('Pure veg','శాకాహారం')}</label></fieldset>
       <div className="discovery-categories" aria-label="Food categories">{(['cooked','packed'] as const).map(cat => <button key={cat} type="button" aria-pressed={selectedCategory === cat} onClick={() => setSelectedCategory(cat)}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({totalByCategory[cat]})</button>)}</div>
       {loading ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : shopGroups ? <div className="discovery-groups">{shopGroups.map(group => <section className="discovery-group" key={group.vendorName}><div className="discovery-group-heading">{group.shopMeta?.image && <CatalogImage src={group.shopMeta.image} alt=""/>}<div><h2>{group.vendorName}</h2><p>{t('Food Court','ఫుడ్ కోర్ట్')}</p></div><button type="button" onClick={() => {setSelectedShop(group.vendorName);onSelectShop?.(group.vendorName);}}>{t('View menu','మెనూ చూడండి')} ({group.items.length})</button></div><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{displayedItems.map(renderFoodCard)}</div>}
-      {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{savedOnly ? 'No saved dishes yet' : 'No dishes found'}</h2><p>{savedOnly ? 'Tap the bookmark on a dish to keep it here.' : 'Try clearing your search or filters.'}</p><Button variant="outline" onClick={() => {setSearchQuery('');setSelectedShop('All');setMaxPrice('');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button></div>}
+      {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{savedOnly ? (saved.ids.size ? 'No saved dishes match' : 'No saved dishes yet') : 'No dishes found'}</h2><p>{savedOnly ? (saved.ids.size ? 'Try clearing your filters or switching food categories.' : 'Tap the bookmark on a dish to keep it here.') : 'Try clearing your search or filters.'}</p><Button variant="outline" onClick={() => {setSearchQuery('');setSelectedShop('All');setMaxPrice('');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button></div>}
     </div>
   </section></SvgScreenFrame>;
 };
