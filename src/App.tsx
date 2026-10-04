@@ -25,6 +25,7 @@ const AddEditFoodItemScreen = lazy(() => import('./components/AddEditFoodItemScr
 const LocationPermissionScreen = lazy(() => import('./components/LocationPermissionScreen').then(m => ({ default: m.LocationPermissionScreen })));
 const FoodItemDetailScreen = lazy(() => import('./components/FoodItemDetailScreen').then(m => ({ default: m.FoodItemDetailScreen })));
 const MenuStockManagementScreen = lazy(() => import('./components/MenuStockManagementScreen').then(m => ({ default: m.MenuStockManagementScreen })));
+const VendorLoginModal = lazy(() => import('./components/VendorLoginModal').then(m => ({ default: m.VendorLoginModal })));
 const ErrorPage = lazy(() => import('./components/ErrorPage'));
 const SaveToggleDemo = lazy(() => import('./components/SaveToggleDemo'));
 const StepperDemo = lazy(() => import('./components/StepperDemo'));
@@ -100,6 +101,7 @@ export function App() {
     return false;
   });
   const [showMenuStock, setShowMenuStock] = useState(false);
+  const [sellerLoginOpen, setSellerLoginOpen] = useState(false);
   const buyerOrders = useBuyerOrders(activePortal === 'consumer');
   const [showLaunchSplash, setShowLaunchSplash] = useState(() => safeStorage.getItem('yemunnai-intro-seen') !== 'true');
   useEffect(() => {
@@ -114,7 +116,7 @@ export function App() {
   // Splash first: a clean brand animation, then straight into the app (no buttons needed).
   if (showLaunchSplash) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="h-dvh overflow-hidden bg-[#F06A05]">
         <BrandIntroSplash onStart={() => { safeStorage.setItem('yemunnai-intro-seen', 'true'); setShowLaunchSplash(false); }} />
       </div>
     );
@@ -136,7 +138,7 @@ export function App() {
               }}>
                 <TabsContent className="buyer-tab-panel" value={buyerTab} id={`buyer-panel-${buyerTab}`} aria-labelledby={`buyer-tab-${buyerTab}`}>
                 
-                {buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
+                {buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onDiscover={() => setBuyerTab('discover')} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
                   <div className="relative">
                     <LocationPermissionScreen
                       onAllow={() => {
@@ -171,7 +173,8 @@ export function App() {
                     cartCount={buyerOrders.orders.filter(o => ['pending','preparing','ready'].includes(o.status)).length}
                     onBusinessPortal={() => {
                       playTapSound();
-                      setActivePortal('business');
+                      if (vendor) setActivePortal('business');
+                      else setSellerLoginOpen(true);
                     }}
                     onOrderNow={(item) => {
                       playTapSound();
@@ -227,6 +230,9 @@ export function App() {
                 />}
               </Tabs>
               </MotionConfig>
+            </Suspense>
+            <Suspense fallback={null}>
+              {sellerLoginOpen && <VendorLoginModal isOpen onClose={() => setSellerLoginOpen(false)} onSignedIn={() => setActivePortal('business')} />}
             </Suspense>
           </MobileDeviceShell>
         )}

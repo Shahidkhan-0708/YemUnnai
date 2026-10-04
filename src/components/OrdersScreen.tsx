@@ -1,9 +1,9 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Button } from './ui/button';
-import { Navigation, RefreshCw, ChevronDown } from 'lucide-react';
+import { Navigation, RefreshCw, ChevronDown, ShoppingBag } from 'lucide-react';
 import { buyerSupabase, supabase } from '../lib/supabase';
-import { ensureBuyer, fetchBuyerOrders, recoverCheckout, pendingCheckout, cancelBuyerOrder, recheckItem, requestBuyerEmail, pickupRequest, PickupError } from '../lib/pickup';
+import { fetchBuyerOrders, recoverCheckout, pendingCheckout, cancelBuyerOrder, recheckItem, requestBuyerEmail, pickupRequest, PickupError } from '../lib/pickup';
 import { useLanguage, statusLabels, pickupErrorText } from '../lib/language';
 import type { FoodItem, OrderRow, SupportRequest } from '../lib/types';
 
@@ -28,7 +28,9 @@ export function useBuyerOrders(enabled: boolean) {
       } catch (cause) { if (!stopped) setError(cause instanceof PickupError ? cause.code : 'unavailable'); }
       finally { busy = false; if (!stopped) setLoading(false); }
     };
-    void ensureBuyer().then(id => {
+    void buyerSupabase?.auth.getSession().then(({ data }) => {
+      const id = data.session?.user.id;
+      if (!id) return;
       if (stopped || !buyerSupabase) return;
       channel = buyerSupabase.channel(`buyer-orders-${id}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `buyer_id=eq.${id}` }, () => void load())
@@ -123,7 +125,7 @@ export function SupportPanel({ vendor = false }: { vendor?: boolean }) {
   </section></SvgScreenFrame>;
 }
 
-export function OrdersScreen({ orders, loading, error, retry, onReorder }: ReturnType<typeof useBuyerOrders> & { onReorder: (item: FoodItem) => void }) {
+export function OrdersScreen({ orders, loading, error, retry, onReorder, onDiscover }: ReturnType<typeof useBuyerOrders> & { onReorder: (item: FoodItem) => void; onDiscover?: () => void }) {
   const { t } = useLanguage();
   const [busy, setBusy] = useState<string | null>(null);
   const lock = useRef(false);
@@ -168,7 +170,7 @@ export function OrdersScreen({ orders, loading, error, retry, onReorder }: Retur
       <div className="order-card-help"><button type="button" aria-expanded={activeHelpId===order.id} onClick={()=>setActiveHelpId(activeHelpId===order.id?null:order.id)}><span>Need help with this order?</span><ChevronDown size={13} className={activeHelpId===order.id?'rotate-180':''}/></button>{activeHelpId===order.id&&<form className="mt-3 space-y-2 screen-enter" onSubmit={event=>{event.preventDefault();const form=event.currentTarget,message=new FormData(form).get('message');void act(order.id,async()=>{await pickupRequest({action:'support',orderId:order.id,message});form.reset();setActiveHelpId(null);setNotice('Help request sent to the shop.');window.dispatchEvent(new Event('pickup-support-changed'));});}}><textarea name="message" required maxLength={2000} className="pickup-input" placeholder="Describe what went wrong with your order…"/><Button type="submit" disabled={busy!==null}>Send to shop</Button></form>}</div>
     </article>;
   };
-  return <SvgScreenFrame screen={'orders'}><section className="pickup-page orders-screen space-y-5 screen-enter">
+  return <SvgScreenFrame screen={null}><section className="pickup-page orders-screen space-y-5 screen-enter">
     <div className="flex items-center justify-between gap-2 pb-1">
       <div>
         <h1 className="text-[28px] font-semibold text-[#1F140A] tracking-tight">{t('My orders', 'నా ఆర్డర్లు')}</h1>
@@ -189,16 +191,21 @@ export function OrdersScreen({ orders, loading, error, retry, onReorder }: Retur
     {pending && <p className="pickup-card">{t('Checkout outcome unknown. Recover the original attempt before placing another order.', 'ఆర్డర్ ఫలితం తెలియదు. మరో ఆర్డర్ ముందు అసలు ఆర్డర్‌ను తిరిగి పొందండి.')} <Button disabled={busy !== null} onClick={() => void act('recover', async () => { await recoverCheckout(); })}>{t('Recover checkout', 'ఆర్డర్‌ను తిరిగి పొందండి')}</Button></p>}
     {actionError && <p role="alert" className="pickup-error">{actionError}</p>}
     <p role="status">{notice}</p>
-    {!loading && !error && !orders.length && <p className="pickup-card">{t('No orders yet. Choose a dish in Discover.', 'ఇంకా ఆర్డర్లు లేవు. వంటకాలను కనుగొని ఎంచుకోండి.')}</p>}
+    {!loading && !error && !orders.length && <div className="orders-empty pickup-card">
+      <span className="orders-empty-icon"><ShoppingBag size={26} strokeWidth={1.5} aria-hidden="true" /></span>
+      <h2>{t('Your next meal starts here', 'మీ తదుపరి భోజనం ఇక్కడ మొదలవుతుంది')}</h2>
+      <p>{t('Choose a dish in Discover. Your pickup updates and order history will appear here.', 'Discoverలో వంటకాన్ని ఎంచుకోండి. మీ ఆర్డర్ వివరాలు ఇక్కడ కనిపిస్తాయి.')}</p>
+      {onDiscover && <Button onClick={onDiscover}>{t('Explore food', 'వంటకాలను చూడండి')}</Button>}
+    </div>}
     {active.length > 0 && <><h2 className="text-[13px] font-semibold text-[#1F140A] mt-2">{t('Active orders', 'ప్రస్తుత ఆర్డర్లు')}</h2>{active.map(render)}</>}
     {history.length > 0 && <><h2 className="text-sm font-medium text-[#1F140A] mt-4">{t('Recent orders', 'ఇటీవలి ఆర్డర్లు')}</h2>{history.map(render)}</>}
-    <details className="rounded-2xl bg-white border border-stone-200/90 shadow-2xs p-4 text-xs group mt-4">
-      <summary className="font-bold text-stone-700 hover:text-stone-900 cursor-pointer list-none flex items-center justify-between">
+    <details className="orders-account text-xs group">
+      <summary className="cursor-pointer list-none flex items-center justify-end gap-1.5">
         <span className="flex items-center gap-1.5">
           
-          <span>{t('Recover orders on another device', 'మరో పరికరంలో ఆర్డర్లను పొందండి')}</span>
+          <span>{t('Account', 'ఖాతా')}</span>
         </span>
-        <ChevronDown className="w-3.5 h-3.5 text-stone-400 transition-transform group-open:rotate-180" />
+        <ChevronDown className="size-3 transition-transform group-open:rotate-180" />
       </summary>
       <p className="mt-3 leading-relaxed text-stone-500">{verifiedEmail ? `${t('Verified email', 'నిర్ధారించిన ఇమెయిల్')}: ${verifiedEmail}` : t('Guests can order now. Link a verified email to keep this account across devices. Signing into an existing account shows that account’s orders.', 'అతిథులు ఇప్పుడే ఆర్డర్ చేయవచ్చు. ఇతర పరికరాల్లో ఇదే ఖాతా కోసం ఇమెయిల్ నిర్ధారించండి. పాత ఖాతాలో ప్రవేశిస్తే ఆ ఖాతా ఆర్డర్లు కనిపిస్తాయి.')}</p>
       <form className="mt-3 space-y-2.5" onSubmit={event => { event.preventDefault(); void act('email', async () => { await requestBuyerEmail(email, emailMode === 'login'); setNotice(t('Check your email for the verification link.', 'నిర్ధారణ లింక్ కోసం మీ ఇమెయిల్ చూడండి.')); }); }}>

@@ -69,17 +69,17 @@
 
 .discover-disclosure { margin:16px; }
 .discovery-screen { width:100%; min-height:812px; background:#E8ECEF; color:#1F140A; padding-bottom:20px; }
-.discovery-header { padding:22px 20px 14px; background:#F06A05; color:white; }
+.discovery-header { padding:22px 20px 14px; background:radial-gradient(ellipse at 95% 0%,#FFAC3F55,transparent 62%),radial-gradient(ellipse at 0% 100%,#A8370024,transparent 65%),linear-gradient(135deg,#F8790C 0%,#F06A05 48%,#DB5603 100%); color:white; }
 .discovery-brand { display:flex; align-items:center; gap:12px; text-align:left; background:transparent; border:0; padding:0; height:40px; }
 .discovery-brand>img { width:40px; height:40px; border-radius:10px; }
 .discovery-brand strong { display:block; font-size:19px; line-height:24px; font-weight:600; letter-spacing:1.3px; }
 .discovery-brand small { display:block; margin-top:2px; font-size:11px; }
 .discovery-search-row { display:flex; gap:12px; margin-top:20px; }
-.discovery-search { display:flex; align-items:center; gap:12px; flex:1; min-width:0; height:48px; padding:0 14px; background:white; border-radius:14px; color:#7A6658; }
+.discovery-search { display:flex; align-items:center; gap:12px; flex:1; min-width:0; height:48px; padding:0 14px; background:white; border-radius:14px; color:#7A6658; box-shadow:0 6px 18px #8B2B0014; }
 .discovery-search input { flex:1; width:0; border:0; background:transparent; font-size:12px; color:#1F140A; outline:none; }
 .discovery-search:focus-within { box-shadow:0 0 0 2px #1F140A40; }
 .discovery-search button { padding:3px; }
-.discovery-cart { width:46px; height:48px; border:1px solid #FFF; border-radius:12px; display:grid; place-items:center; position:relative; }
+.discovery-cart { width:46px; height:48px; border:1px solid #FFFFFFC0; border-radius:12px; display:grid; place-items:center; position:relative; background:#FFFFFF10; box-shadow:inset 0 1px 0 #FFFFFF20; }
 .discovery-cart>span { position:absolute; right:-5px; top:-5px; background:white; color:#F06A05; border-radius:12px; min-width:18px; padding:2px; font-size:10px; }
 .discovery-shops-heading { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
 .discovery-shops-heading h2 { margin:0; font-size:15px; font-weight:600; }
@@ -325,6 +325,16 @@ html,body,#root { width:100%; min-height:100%; }
 .orders-screen>div:first-child>div>p { font-size:12px; color:#7A6658; font-weight:400; margin-top:8px; }
 .orders-screen>h2 { margin-top:28px; margin-bottom:16px; }
 .orders-screen>p[role=status]:empty { display:none; }
+.orders-empty { padding:36px 24px; text-align:center; }
+.orders-empty-icon { display:inline-flex; padding:16px; margin-bottom:18px; border-radius:20px; color:#F06A05; background:#FFF1E5; }
+.orders-empty h2 { margin:0 0 10px; font-size:18px; font-weight:600; }
+.orders-empty p { margin:0 auto 24px; max-width:280px; font-size:13px; line-height:1.7; color:#7A6658; }
+.orders-account { margin-top:24px; color:#7A6658; }
+.orders-account summary { width:fit-content; min-height:44px; margin-left:auto; font-size:11px; font-weight:400; }
+.orders-account[open] { padding-bottom:16px; }
+.vendor-login { padding-bottom:env(safe-area-inset-bottom); overscroll-behavior:contain; }
+.brand-intro video { object-fit:cover; }
+@media (min-aspect-ratio:1/1) { .brand-intro video { object-fit:contain; } }
 .order-card { padding:16px; border:1px solid #D6DCE2; background:white; border-radius:20px; }
 .order-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding-bottom:12px; border-bottom:1px solid #D6DCE2; }
 .order-card-header h3 { margin:0; font-size:19px; font-weight:600; }

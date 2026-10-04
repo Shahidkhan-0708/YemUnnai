@@ -1,4 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
+import { createPortal } from 'react-dom';
+import { CatalogImage } from './CatalogImage';
 import { useEffect, useRef, useState } from 'react';
 import { X, AlertCircle, Delete } from 'lucide-react';
 import { useVendorSession } from '../lib/hooks';
@@ -9,9 +11,10 @@ import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 interface VendorLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSignedIn?: () => void;
 }
 
-export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
+export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginModalProps) {
   const { t } = useLanguage();
   const { signInWithOutlet } = useVendorSession();
   const [outletId, setOutletId] = useState(VENDOR_OUTLETS[0].id);
@@ -44,7 +47,7 @@ export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
     try {
       const result = await signInWithOutlet(outletId, candidate);
       if (current !== generation.current) return;
-      if (result.ok) onClose();
+      if (result.ok) { onSignedIn?.(); onClose(); }
       else {
         setError(t(result.error ?? 'Unable to sign in. Please try again.', 'ప్రవేశించలేకపోయాం. మళ్లీ ప్రయత్నించండి లేదా దుకాణ సహాయం కోరండి.'));
         setPin('');
@@ -76,7 +79,7 @@ export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
   if (!isOpen) return null;
   const disabled = busy || retrySeconds > 0;
 
-  return <SvgScreenFrame screen={'login'}>
+  return createPortal(<SvgScreenFrame screen={null}>
     <div ref={rootRef} role="dialog" aria-modal="true" aria-labelledby="vendor-login-title"
       className="vendor-login fixed inset-0 z-50 overflow-y-auto bg-[#E8ECEF] text-[#1F140A]">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-6 sm:py-9">
@@ -87,7 +90,7 @@ export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
           </button>
           <span className="text-sm font-semibold">{t("Business Portal","వ్యాపార పేజీ")}</span>
         </header>
-        <img src="/images/NewLogo.svg" alt="YEMUNNAI" className="mx-auto mt-5 size-18 rounded-full bg-[#F06A05] object-contain p-1" />
+        <CatalogImage src="/images/NewLogo.svg" size="thumbnail" priority alt="YEMUNNAI" className="mx-auto mt-5 size-18 rounded-full bg-[#F06A05] object-contain p-1" />
         <h2 id="vendor-login-title" className="mt-4 text-center text-xl font-semibold">{t("Canteen sign in","కేఫ్ యజమాని ప్రవేశం")}</h2>
         <p className="mt-2 text-center text-sm text-[#7A6658]">{t("Choose a canteen and enter its PIN.","మీ కేఫ్ ఎంచుకుని నాలుగు అంకెల PIN నమోదు చేయండి.")}</p>
         <form className="mt-6 flex flex-1 flex-col" onSubmit={event => { event.preventDefault(); void attemptPin(pin); }}>
@@ -122,5 +125,5 @@ export function VendorLoginModal({ isOpen, onClose }: VendorLoginModalProps) {
         </form>
       </div>
     </div>
-  </SvgScreenFrame>;
+  </SvgScreenFrame>, document.body);
 }

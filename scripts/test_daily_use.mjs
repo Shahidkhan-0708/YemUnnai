@@ -43,7 +43,8 @@ async function savedStore({ storage = new Map(), cloud = new Map(), user = null,
   globalThis.__savedEnv = env;
   const modified = source.replace(/import .* from 'react';/, "const useEffect = cb => env.effects.push(cb), useSyncExternalStore = (_subscribe, snapshot) => snapshot();")
     .replace(/import .* from '\.\/supabase';/, 'const buyerSupabase = env.client;')
-    .replace(/import .* from '\.\/storage';/, 'const safeStorage = env.storageApi;');
+    .replace(/import .* from '\.\/storage';/, 'const safeStorage = env.storageApi;')
+    .replace(/import .* from '\.\/bookmarkBackup';/, 'const bookmarkBackup = async () => { throw Error("IndexedDB blocked"); };');
   const code = ts.transpileModule(`const env = globalThis.__savedEnv;\n${modified}\n// instance ${sequence++}`, { compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext } }).outputText;
   const module = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
   const view = () => module.useSaved();
@@ -146,7 +147,7 @@ const channel = { on() { return this; }, subscribe() { return this; } };
 globalThis.__ordersEnv = {
   useState: initial => { const index = states.length; states.push(initial); return [initial, value => { states[index] = typeof value === 'function' ? value(states[index]) : value; }]; },
   useEffect: effect => effects.push(effect),
-  buyerSupabase: { channel: () => channel, removeChannel() {}, auth: { onAuthStateChange: callback => { authCallback = callback; return { data: { subscription: { unsubscribe() {} } } }; } } },
+  buyerSupabase: { channel: () => channel, removeChannel() {}, auth: { getSession: async () => ({ data: { session: { user: { id: 'old-account' } } } }), onAuthStateChange: callback => { authCallback = callback; return { data: { subscription: { unsubscribe() {} } } }; } } },
   ensureBuyer: async () => 'old-account', fetchBuyerOrders: () => list, recoverCheckout: async () => null,
   PickupError: class extends Error {},
 };

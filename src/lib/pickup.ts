@@ -108,11 +108,18 @@ export async function placeOrder(input: { foodItem: FoodItem; quantity: number }
   if (!order) throw new PickupError('uncertain');
   return order;
 }
-export async function fetchBuyerOrders() { return (await pickupRequest({ action: 'list' })).orders ?? []; }
+export async function fetchBuyerOrders() {
+  if (!buyerSupabase) throw new PickupError('unavailable');
+  const { data, error } = await buyerSupabase.auth.getSession();
+  if (error) throw new PickupError('session_unavailable');
+  // Browsing an empty order history does not create an account.
+  if (!data.session) return [];
+  return (await pickupRequest({ action: 'list' })).orders ?? [];
+}
 export async function cancelBuyerOrder(orderId: string) { await pickupRequest({ action: 'cancel', orderId }); notifyOrders(); }
 export async function requestBuyerEmail(email: string, existing: boolean) {
   if (pendingCheckout()) throw new PickupError('resolve_attempt_first');
-  await ensureBuyer();
+  if (!existing) await ensureBuyer();
   const result = existing
     ? await buyerSupabase!.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: window.location.origin } })
     : await buyerSupabase!.auth.updateUser({ email }, { emailRedirectTo: window.location.origin });

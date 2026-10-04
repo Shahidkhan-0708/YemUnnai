@@ -106,14 +106,14 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       </div>
       <div className="food-name-row">{item.isVeg !== undefined && <span className={`diet-mark ${item.isVeg ? '' : 'diet-mark-nonveg'}`} aria-label={item.isVeg ? 'Vegetarian' : 'Non-vegetarian'}><i /></span>}<h3>{item.name}</h3></div>
       <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'}>{item.price > 0 ? `₹${item.price}` : t('Unavailable','అందుబాటులో లేదు')}</span>{item.rating != null && <span className="food-rating">★ {Number(item.rating).toFixed(1)}</span>}</div>
-      <p className="food-availability">{item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Currently unavailable','అందుబాటులో లేదు') : t('Available','అందుబాటులో ఉంది')}</p>
+      {!unavailable && <p className="food-availability">{t('Available','అందుబాటులో ఉంది')}</p>}
       <div className="food-social"><button type="button" aria-label={`Like ${item.name}`} aria-pressed={isLiked} className={isLiked ? 'is-liked' : ''} onClick={() => void toggleLike(item.id)}><ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />{item.likes}</button><button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}><MessageSquare size={13} strokeWidth={1.4} />{item.reviews}</button></div>
       <Button className="food-action" variant={item.actionType === 'walkin' ? 'walkin' : 'order'} disabled={unavailable} onClick={() => item.actionType === 'walkin' ? onWalkIn?.(item) : onOrderNow?.(item)}>{item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : item.actionType === 'walkin' ? t('Walk In','నేరుగా వెళ్లండి') : `${t('Order','ఆర్డర్')} · ₹${item.price}`}</Button>
     </article>;
   };
   const savedReference = displayedItems.length === 1 && displayedItems[0].name === 'Samosa' && displayedItems[0].vendor === 'MITS Canteen' && (displayedItems[0].price <= 0 || !displayedItems[0].inStock || displayedItems[0].isShopOnline === false) && !!shopGroups;
   // Avoid downloading the large artwork when live data requires the native view.
-  const referenceMatches = !loading && !error && !shopsError && !saved.error && (savedOnly ? savedReference : displayedItems.length === 40);
+  const referenceMatches = !loading && !error && !shopsError && !saved.error && displayedItems.every(item => item.inStock && item.isShopOnline !== false && item.price > 0) && (savedOnly ? savedReference : displayedItems.length === 40);
   return <SvgScreenFrame screen={referenceMatches ? savedOnly ? 'saved' : 'home' : null}><section className="discovery-screen screen-enter">
     <header className="discovery-header">
       <button className="discovery-brand" type="button" onClick={onBusinessPortal} aria-label="Open business portal"><CatalogImage src="/images/NewLogo.svg" alt="" priority /><span><strong>YEMUNNAI</strong><small>{t('Food on campus','క్యాంపస్‌లో ఆహారం')}</small></span></button>
