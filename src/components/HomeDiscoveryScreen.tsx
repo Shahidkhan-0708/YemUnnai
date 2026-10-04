@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, ThumbsUp, MessageSquare, ChevronRight, X } from 'lucide-react';
+import { Search, ShoppingCart, ThumbsUp, MessageSquare, ChevronRight, X, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { useFoodItems, useShops, useReactions } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
@@ -100,13 +100,14 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   const renderFoodCard = (item: FoodItem) => {
     const isLiked = myReactions[item.id] === 'like';
     const unavailable = !!error || !item.inStock || item.price <= 0 || item.isShopOnline === false;
+    const hasRating = typeof item.rating === 'number' && Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 5;
     return <article className="food-card" key={item.id}>
       <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={item.id === displayedItems[0]?.id || item.id === displayedItems[1]?.id} /></button>
         <SaveToggle size="sm" idleText="" savedText="" isSaved={saved.ids.has(item.id)} onToggle={value => saved.toggle(item.id, value)} className="food-save" />
       </div>
-      <div className="food-name-row">{item.isVeg !== undefined && <span className={`diet-mark ${item.isVeg ? '' : 'diet-mark-nonveg'}`} aria-label={item.isVeg ? 'Vegetarian' : 'Non-vegetarian'}><i /></span>}<h3>{item.name}</h3></div>
-      <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'}>{item.price > 0 ? `₹${item.price}` : t('Unavailable','అందుబాటులో లేదు')}</span>{item.rating != null && <span className="food-rating">★ {Number(item.rating).toFixed(1)}</span>}</div>
-      {!unavailable && <p className="food-availability">{t('Available','అందుబాటులో ఉంది')}</p>}
+      <div className="food-name-row">{item.isVeg !== undefined && <span className={`diet-mark ${item.isVeg ? '' : 'diet-mark-nonveg'}`} aria-label={item.isVeg ? 'Vegetarian' : 'Non-vegetarian'}><i /></span>}<h3 title={item.name}>{item.name}</h3></div>
+      <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'}>{item.price > 0 ? `₹${item.price}` : t('Unavailable','అందుబాటులో లేదు')}</span><span className="food-rating" data-rated={hasRating} aria-label={hasRating ? `${t('Rating','రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')} title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')}><Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />{hasRating ? Number(item.rating).toFixed(1) : '—'}</span></div>
+      <p className="food-availability" aria-hidden={unavailable || undefined}>{!unavailable ? t('Available','అందుబాటులో ఉంది') : null}</p>
       <div className="food-social"><button type="button" aria-label={`Like ${item.name}`} aria-pressed={isLiked} className={isLiked ? 'is-liked' : ''} onClick={() => void toggleLike(item.id)}><ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />{item.likes}</button><button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}><MessageSquare size={13} strokeWidth={1.4} />{item.reviews}</button></div>
       <Button className="food-action" variant={item.actionType === 'walkin' ? 'walkin' : 'order'} disabled={unavailable} onClick={() => item.actionType === 'walkin' ? onWalkIn?.(item) : onOrderNow?.(item)}>{item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : item.actionType === 'walkin' ? t('Walk In','నేరుగా వెళ్లండి') : `${t('Order','ఆర్డర్')} · ₹${item.price}`}</Button>
     </article>;
