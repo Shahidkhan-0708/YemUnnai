@@ -456,6 +456,18 @@ export async function fetchVendorItems(vendorId: string): Promise<FoodItem[]> {
   return (data as unknown as FoodItemRow[]).map(rowToItem);
 }
 
+export async function deleteFoodItem(foodItemId: string, vendorId: string): Promise<void> {
+  if (!supabase) throw new Error('Business portal is unavailable.');
+  const vendor = await getMyVendor();
+  if (!vendor || vendor.id !== vendorId) throw new Error('Sign in to this canteen to delete its dishes.');
+  const { data, error } = await supabase.from('food_items').delete()
+    .eq('id', foodItemId).eq('vendor_id', vendor.id).select('id').single();
+  if (error?.code === '23503') throw new Error('This dish is linked to an order. Turn stock off instead.');
+  if (error || data?.id !== foodItemId) throw new Error('Could not delete this dish. Please retry or refresh your menu.');
+  inMemoryFoodItems = inMemoryFoodItems.filter(item => item.id !== foodItemId);
+  notifySubscribers();
+}
+
 export async function setItemStock(foodItemId: string, inStock: boolean): Promise<void> {
   if (!supabase) throw new Error('Business portal is unavailable.');
   let { data, error } = await supabase.from('food_items').update({ in_stock: inStock, remaining_quantity: null }).eq('id', foodItemId).select('id').single();

@@ -86,7 +86,8 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
     const count=source.querySelectorAll('.food-card:not(.food-skeleton)').length;
     const savedMatches= count===1 && source.querySelector('.food-name-row h3')?.textContent==='Samosa' && source.querySelector('.discovery-group-heading h2')?.textContent==='MITS Canteen' && !!source.querySelector('.food-action:disabled');
     const notTemplateData=(screen==='home'&&count!==template.current.cards)||(screen==='saved'&&!savedMatches)||(screen==='orders'&&(source.querySelectorAll('.order-card').length!==3||wrongOrders))||(screen==='dashboard'&&(source.querySelectorAll('.business-order').length!==2||wrongOrders))||(screen==='stock'&&source.querySelectorAll('.stock-item').length!==16);
-    const useNative=hasError||hasConfirmation||hasLogin||differentDetail||differentMap||notTemplateData;
+    const hasMenuActions=screen==='stock'&&!!source.querySelector('.stock-item-delete');
+    const useNative=hasError||hasConfirmation||hasLogin||differentDetail||differentMap||notTemplateData||hasMenuActions;
     if(useNative!==nativeState){setNativeState(useNative);return;}
     if(useNative||!artwork.current)return;
     const art=artwork.current;
