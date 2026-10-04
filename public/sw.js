@@ -1,5 +1,5 @@
 /* YEMUNNAI service worker — offline shell + stale-while-revalidate static assets. */
-const CACHE = 'yemunnai-v8';
+const CACHE = 'yemunnai-v9';
 const PRECACHE = ['/'];
 
 self.addEventListener('install', (event) => {
@@ -56,10 +56,13 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     (async () => {
       const cached = await caches.match(request);
+      // Content-hashed assets are immutable; avoid downloading them again.
+      if (cached && (url.pathname.startsWith('/images/optimized/') || url.pathname.startsWith('/assets/'))) return cached;
       const network = fetch(request)
-        .then((response) => {
-          if (response && response.status === 200 && response.type === 'same-origin') {
-            caches.open(CACHE).then((cache) => cache.put(request, response.clone()));
+        .then(async (response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const cache = await caches.open(CACHE);
+            await cache.put(request, response.clone());
           }
           return response;
         })

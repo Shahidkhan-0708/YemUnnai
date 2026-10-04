@@ -6,6 +6,7 @@ import { Stepper } from './Stepper';
 import { useSaved } from '../lib/saved';
 import { useLanguage } from '../lib/language';
 import { SavedSyncNotice } from './SavedSyncNotice';
+import { CatalogImage } from './CatalogImage';
 import { recheckItem, PickupError } from '../lib/pickup';
 import { pickupErrorText } from '../lib/language';
 import type { FoodItem } from '../lib/types';
@@ -25,10 +26,10 @@ export function FoodItemDetailScreen({ item, onBack, onMap, onOrder }: Props) {
     catch (cause) { setError(pickupErrorText(cause instanceof PickupError ? cause.code : 'unavailable', t)); }
     finally { setBusy(false); }
   };
-  return <SvgScreenFrame screen={'detail'}><section className="pickup-page detail-screen space-y-5 screen-enter">
+  return <SvgScreenFrame screen={item.name === 'Samosa' && item.price === 0 ? 'detail' : null}><section className="pickup-page detail-screen space-y-5 screen-enter">
     <div className="flex justify-between gap-3"><Button variant="outline" onClick={onBack}>{t('Back', 'వెనుకకు')}</Button><SaveToggle isSaved={saved.ids.has(item.id)} onToggle={value => saved.toggle(item.id, value)} idleText={t('Save', 'భద్రపరచండి')} savedText={t('Saved', 'భద్రపరచబడింది')} /></div>
     <SavedSyncNotice error={saved.error} syncing={saved.syncing} retry={saved.retry} />
-    <img src={item.image} alt={item.name} className="w-full rounded-3xl aspect-4/3 object-cover" />
+    <CatalogImage src={item.image} alt={item.name} size="detail" priority className="w-full rounded-3xl aspect-4/3 object-cover" />
     <div className="flex flex-wrap justify-between gap-3"><h1 className="text-2xl font-semibold">{item.name}</h1><strong className="text-2xl">₹{item.price}</strong></div>
     <p className="font-bold">{item.vendor}</p>
     <p>{t('Pickup location', 'తీసుకునే స్థలం')}: {item.locationLandmark || item.vendor}</p>

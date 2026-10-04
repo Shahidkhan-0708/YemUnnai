@@ -7,6 +7,7 @@ import type { FoodItem } from '../lib/types';
 import { useLanguage } from '../lib/language';
 import { Button } from './ui/button';
 import { DeleteFoodItemDialog } from './DeleteFoodItemDialog';
+import { CatalogImage } from './CatalogImage';
 
 interface MenuStockManagementScreenProps {
   onBack?: () => void;
@@ -77,7 +78,7 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
     finally { lock.current=false; setBusy(false); }
   };
   const visible=items.filter(item=>category==='all'||(category==='chai')===/tea|coffee|milk/i.test(item.name));
-  return <SvgScreenFrame screen={'stock'}><section className="stock-screen screen-enter">
+  return <SvgScreenFrame screen={null}><section className="stock-screen screen-enter">
     <button type="button" onClick={onBack} className="stock-back"><ArrowLeft size={13}/>{t('Back to dashboard','నిర్వహణ పేజీకి తిరిగి వెళ్లండి')}</button>
     {!vendor || checking ? <p role="status">{checking ? 'Checking your session…' : 'Sign in to manage your menu.'}</p> : <>
       <header className="stock-heading"><div><h1 tabIndex={-1}>{t('Menu & stock','మెనూ మరియు నిల్వ')}</h1><p>{vendor.vendorName}</p></div><span>{vendor.isOnline ? t('Online','అందుబాటులో ఉంది') : t('Offline','మూసివేయబడింది')}</span></header>
@@ -87,7 +88,7 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
       {notice && <p className="stock-delete-success" role="status">{notice}</p>}
       {loading && <p role="status">Loading your menu…</p>}
       <div className="stock-list">{visible.map(item => <article key={item.id} className="stock-item">
-        <div className="stock-item-top"><img src={item.image} alt=""/><div><h2>{item.name}</h2><p>₹{item.price} · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
+        <div className="stock-item-top"><CatalogImage src={item.image} alt=""/><div><h2>{item.name}</h2><p>₹{item.price} · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
         <form key={String(item.isVeg)} className="stock-item-form" onSubmit={event => {event.preventDefault();if(lock.current)return;const diet=new FormData(event.currentTarget).get('diet');lock.current=true;setBusy(true);setError(null);void updateItemAvailability(item.id,null,diet === 'unknown' ? null : diet === 'yes').catch(cause=>setError(cause instanceof Error?cause.message:'Could not save.')).finally(()=>{lock.current=false;setBusy(false);});}}>
           <label className="field-label">{t('Dietary information','ఆహార సమాచారం')}<select name="diet" className="pickup-input" defaultValue={item.isVeg === undefined?'unknown':item.isVeg?'yes':'no'}><option value="unknown">Not specified</option><option value="yes">{t('Vegetarian','శాకాహారం')}</option><option value="no">{t('Non-vegetarian','మాంసాహారం')}</option></select></label><Button type="submit" disabled={busy}>{t('Save','భద్రపరచండి')}</Button>
         </form>

@@ -13,6 +13,7 @@ import { SupportPanel } from './OrdersScreen';
 import { Button } from './ui/button';
 import { useLanguage, statusLabels, pickupErrorText } from '../lib/language';
 import { PickupError } from '../lib/pickup';
+import { CatalogImage } from './CatalogImage';
 
 interface BusinessDashboardScreenProps {
   onAddNewItem?: () => void;
@@ -133,7 +134,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   }
 
   return <SvgScreenFrame screen={'dashboard'}><section className="business-screen pickup-business screen-enter">
-    <header className="business-header"><div className="business-identity"><img src={shopImage} alt=""/><div><h1>{vendor.vendorName}</h1><p>{t('Dashboard','నిర్వహణ పేజీ')}</p></div><div className="business-tools"><Popover6/><select aria-label="Language" value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select><button type="button" onClick={signOut} aria-label="Sign out"><LogOut size={18}/></button></div></div>
+    <header className="business-header"><div className="business-identity"><CatalogImage src={shopImage} alt="" loading="eager"/><div><h1>{vendor.vendorName}</h1><p>{t('Dashboard','నిర్వహణ పేజీ')}</p></div><div className="business-tools"><Popover6/><select aria-label="Language" value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select><button type="button" onClick={signOut} aria-label="Sign out"><LogOut size={18}/></button></div></div>
       <div className="business-online"><span>{isOnline?t('Accepting orders','ఆర్డర్లు అంగీకరిస్తున్నారు'):t('Shop closed','దుకాణం మూసివేయబడింది')}</span><div className="segmented">{[true,false].map(value=><button key={String(value)} type="button" aria-pressed={isOnline===value} disabled={busyAction!==null} onClick={()=>{if(isOnline!==value)void toggleOnline();}}>{value?t('Online','అందుబాటులో ఉంది'):t('Offline','మూసివేయబడింది')}</button>)}</div></div>
     </header>
     <div className="business-content">
@@ -145,7 +146,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
         {ordersLoading && <p role="status">Loading orders…</p>}
         {!ordersLoading&&!orders.length&&!ordersError&&<p className="business-empty">New orders will appear here.</p>}
         {orders.map(ord=><article key={ord.id} className="business-order">
-          <div className="business-order-item"><img src={ord.image} alt=""/><div><h3>{ord.quantity??1} × {ord.item}</h3><p>#{ord.row.pickup_number??'—'} · {t(...statusLabels[ord.status])}</p></div><strong>₹{ord.price}</strong></div>
+          <div className="business-order-item"><CatalogImage src={ord.image} alt=""/><div><h3>{ord.quantity??1} × {ord.item}</h3><p>#{ord.row.pickup_number??'—'} · {t(...statusLabels[ord.status])}</p></div><strong>₹{ord.price}</strong></div>
           <p className="business-pickup"><MapPin size={14}/>{ord.row.pickup_location||ord.location}</p>
           {ord.phone && <a className="business-phone" href={`tel:${ord.phone}`}>{ord.phone}</a>}
           {ord.row.is_legacy?<p className="business-empty">Historical order. Pickup state cannot be verified.</p>:<div className="business-order-actions">
