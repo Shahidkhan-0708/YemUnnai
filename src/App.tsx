@@ -114,7 +114,7 @@ export function App() {
   };
 
   // Splash first: a clean brand animation, then straight into the app (no buttons needed).
-  if (showLaunchSplash) {
+  if (showLaunchSplash && activePortal !== '404') {
     return (
       <div className="h-dvh overflow-hidden bg-[#F06A05]">
         <BrandIntroSplash onStart={() => { safeStorage.setItem('yemunnai-intro-seen', 'true'); setShowLaunchSplash(false); }} />
@@ -637,7 +637,7 @@ export function App() {
                     <span className="text-xs font-bold text-white">10. ErrorPage (404)</span>
                     <span className="text-[9px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded font-mono">ErrorPage.tsx</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1">High-tech retro cyberpunk 404 page with scanlines, matrix particles, and CRT glow.</p>
+                  <p className="text-[11px] text-slate-400 mt-1">A simple portrait page in our orange theme, with a direct path back to Discover.</p>
                 </div>
                 <div className="my-4 py-3 bg-[#0D1410] rounded-xl flex items-center justify-center border border-white/5">
                   <button
@@ -663,7 +663,7 @@ export function App() {
 
 
       {/* PWA install sheet — appears when the browser offers install */}
-      <InstallPrompt />
+      {activePortal !== '404' && <InstallPrompt />}
     </div>
   </SvgScreenFrame>;
 }

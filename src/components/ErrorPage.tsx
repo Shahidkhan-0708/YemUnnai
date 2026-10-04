@@ -1,4 +1,22 @@
-import { SvgScreenFrame } from './SvgScreenFrame';
-﻿export default function ErrorPage() {
-  return <SvgScreenFrame screen={'error'}><main className="error-screen screen-enter"><img src="/images/NewLogo.svg" alt="YEMUNNAI"/><span className="error-code">404</span><h1>Page not found</h1><p>This page is unavailable.<br/>Return to the menu or try again.</p><div className="error-actions"><a href="/">Back to menu</a><button type="button" onClick={()=>window.location.reload()}>Try again</button></div><div className="error-shortcuts"><a href="/">Meals</a><a href="/">Tea and snacks</a><a href="/">Canteens</a></div></main></SvgScreenFrame>;
+﻿import { ArrowLeft } from 'lucide-react';
+import { CatalogImage } from './CatalogImage';
+
+export default function ErrorPage({ kind = 'not-found' }: { kind?: 'not-found' | 'error' }) {
+  const missing = kind === 'not-found';
+  return (
+    <section className="error-screen screen-enter" aria-labelledby="error-title">
+      <a className="error-brand" href="/" aria-label="YEMUNNAI home">
+        <CatalogImage src="/images/NewLogo.svg" alt="" priority />
+        <span>YEMUNNAI<small>Food on campus</small></span>
+      </a>
+      <div className="error-content">
+        <span className="error-code" aria-hidden="true">{missing ? '404' : 'Oops'}</span>
+        <h1 id="error-title">{missing ? 'Page not found' : 'Something went wrong'}</h1>
+        <p>{missing ? 'This page is no longer here.' : 'We couldn’t load this screen.'}<br />Your next meal is a tap away.</p>
+        <a className="error-home" href="/"><ArrowLeft size={18} aria-hidden="true" />Back to Discover</a>
+        {!missing && <button className="error-retry" type="button" onClick={() => window.location.reload()}>Try again</button>}
+      </div>
+      <span className="error-footer">Good food. Right here.</span>
+    </section>
+  );
 }
