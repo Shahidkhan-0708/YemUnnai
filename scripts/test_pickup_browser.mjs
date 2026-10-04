@@ -117,8 +117,16 @@ const journey = async function () {
     button('Done').click(); button('Orders').click();
     await until(() => document.body.textContent.includes('#1001'), 'confirmed order did not reach Orders');
     passed('single submission and four-digit pickup');
-    const language = document.querySelector('select[aria-label=Language]'); language.value = 'te'; language.dispatchEvent(new Event('change', { bubbles: true }));
+    button('Discover').click();
+    await until(() => document.querySelector('.discovery-brand'), 'Discover header');
+    document.querySelector('.discovery-brand').click();
+    await until(() => document.querySelector('.business-tools select'), 'Seller language control');
+    const language = document.querySelector('.business-tools select'); language.value = 'te'; language.dispatchEvent(new Event('change', { bubbles: true }));
     await until(() => document.documentElement.lang === 'te', 'Telugu selection');
+    document.querySelector('.pickup-link').click();
+    await until(() => document.querySelector('#buyer-tab-orders'), 'Return to Discover');
+    document.querySelector('#buyer-tab-orders').click();
+    await until(() => document.body.textContent.includes('నా ఆర్డర్లు'), 'Telugu orders view');
     check(document.body.textContent.includes('నా ఆర్డర్లు'), 'Telugu order strings');
     check(document.documentElement.scrollWidth <= window.innerWidth, 'narrow viewport overflow');
     check(matchMedia('(prefers-reduced-motion: reduce)').matches, 'reduced motion'); passed('Telugu, narrow layout, reduced motion');
@@ -188,7 +196,7 @@ const resumed = async function () {
   } catch (error) { await fetch('/__result', { method: 'POST', body: JSON.stringify({ result: 'fail', message: error.message, steps }) }); }
 };
 
-export async function runPickupBrowser({ directory = 'dist', bootstrap, exercise, output = '.tmp/pickup-browser-results', timeout = 45000 }) {
+export async function runPickupBrowser({ directory = 'dist', bootstrap, exercise, output = '.tmp/pickup-browser-results', timeout = 45000, reducedMotion = true }) {
 const chrome = process.env.CHROME_PATH ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const dist = path.resolve(directory);
 await fs.access(path.join(dist, 'index.html'));
@@ -221,7 +229,7 @@ const server = createServer(async (request, response) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 try {
   const url = `http://127.0.0.1:${server.address().port}`;
-  child = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-crash-reporter', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--force-prefers-reduced-motion', '--window-size=320,740', `--user-data-dir=${profile}`, url], { windowsHide: true, stdio: 'ignore' });
+  child = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-crash-reporter', '--disable-gpu', '--no-first-run', '--no-default-browser-check', ...(reducedMotion ? ['--force-prefers-reduced-motion'] : []), '--window-size=320,740', `--user-data-dir=${profile}`, url], { windowsHide: true, stdio: 'ignore' });
   let launchError, exitCode; child.on('error', error => { launchError = error; }); child.on('exit', code => { exitCode = code; });
   const deadline = Date.now() + timeout;
   while (!result && Date.now() < deadline) {

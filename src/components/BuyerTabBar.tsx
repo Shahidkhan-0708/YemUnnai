@@ -1,4 +1,4 @@
-import { Bookmark, Compass, Globe2, ShoppingBag } from 'lucide-react';
+import { Bookmark, Compass, ShoppingBag } from 'lucide-react';
 import { TabsList, TabsTrigger } from './watermelon/tabs';
 import { useLanguage } from '../lib/language';
 
@@ -11,7 +11,7 @@ const tabs = [
 ] as const;
 
 export function BuyerTabBar({ activeTab }: { activeTab: BuyerTab }) {
-  const { t, lang, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   return (
     <nav className="buyer-dock pickup-nav" aria-label={t('Buyer navigation', 'కొనుగోలుదారు నావిగేషన్')}>
       <div className="buyer-dock-surface">
@@ -24,14 +24,6 @@ export function BuyerTabBar({ activeTab }: { activeTab: BuyerTab }) {
             </TabsTrigger>
           ))}
         </TabsList>
-        <div className="buyer-language-control">
-          <Globe2 aria-hidden="true" size={19} strokeWidth={1.6} />
-          <span aria-hidden="true">{lang === 'en' ? 'EN' : 'తె'}</span>
-          <select className="buyer-language" aria-label={t('Language', 'భాష')} value={lang}
-            onChange={event => setLanguage(event.target.value as 'en' | 'te')}>
-            <option value="en">English</option><option value="te">తెలుగు</option>
-          </select>
-        </div>
       </div>
       <div className="buyer-home-indicator" aria-hidden="true" />
     </nav>

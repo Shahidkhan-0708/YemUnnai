@@ -27,16 +27,18 @@ const isStandalone = () =>
  * Install YEMUNNAI as an app — centered modal:
  *  - Chrome/Android: captures `beforeinstallprompt` and shows the native install flow.
  *  - iOS Safari: shows the "Add to Home Screen" instructions instead.
- *  - Opens only after an explicit install action, never during checkout.
+ *  - Offers installation after successful login, once per session, without interrupting another dialog.
  */
 export const InstallPrompt: React.FC = () => {
   const { t } = useLanguage();
+  const [loginRequest, setLoginRequest] = useState(0);
   const [requested, setRequested] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [installError, setInstallError] = useState('');
   const installLock = useRef(false);
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOS, setShowIOS] = useState(false);
+  const [installed, setInstalled] = useState(isStandalone);
   const [dismissed, setDismissed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
     if (isStandalone()) return true;
@@ -51,27 +53,53 @@ export const InstallPrompt: React.FC = () => {
     // Catch events that fired before this component mounted.
     onPromptAvailable();
     window.addEventListener('yem-install-available', onPromptAvailable);
+    const onLogin = () => setLoginRequest(value => value + 1);
+    window.addEventListener('yem-login-success', onLogin);
+    const displayMode = window.matchMedia('(display-mode: standalone)');
+    const onInstalled = () => { setInstalled(true); setRequested(false); window.__yemDeferredInstall = undefined; };
+    const onDisplayMode = () => { if (isStandalone()) onInstalled(); };
+    window.addEventListener('appinstalled', onInstalled);
+    displayMode.addEventListener('change', onDisplayMode);
 
     const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
     if (isIOS && !isStandalone()) setShowIOS(true);
 
-    return () => window.removeEventListener('yem-install-available', onPromptAvailable);
+    return () => {
+      window.removeEventListener('yem-install-available', onPromptAvailable);
+      window.removeEventListener('yem-login-success', onLogin);
+      window.removeEventListener('appinstalled', onInstalled);
+      displayMode.removeEventListener('change', onDisplayMode);
+    };
   }, []);
 
-  const available = !dismissed && (!!deferred || showIOS);
+  const available = !installed && (!!deferred || showIOS);
+  useEffect(() => {
+    if (!loginRequest || dismissed || !available) return;
+    // A delayed browser offer is still eligible. Wait until login or another sheet closes.
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      clearTimeout(timer);
+      if (document.querySelector('[role="dialog"]')) return;
+      timer = setTimeout(() => {
+        if (!document.querySelector('[role="dialog"]')) setRequested(true);
+      }, 450);
+    };
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.body, { childList: true, subtree: true });
+    schedule();
+    return () => { clearTimeout(timer); observer.disconnect(); };
+  }, [loginRequest, dismissed, available]);
   const open = requested && available;
-  const sheetRef = useModalA11y<HTMLDivElement>(open, () => {
-    setDismissed(true);
-    try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch { /* Storage can be disabled. */ }
-  });
-
-  if (!available) return null;
-  if (!open) return <div className="app-install-entry"><button type="button" className="app-install-button" onClick={() => setRequested(true)}><Smartphone size={17} aria-hidden="true"/>{t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')}</button></div>;
-
   const close = () => {
+    if (installLock.current) return;
+    setRequested(false);
     setDismissed(true);
     try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch { /* Storage can be disabled. */ }
   };
+  const sheetRef = useModalA11y<HTMLDivElement>(open, close);
+
+  if (!available) return null;
+  if (!open) return <div className="app-install-entry"><button type="button" className="app-install-button" onClick={() => setRequested(true)}><Smartphone size={17} aria-hidden="true"/>{t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')}</button></div>;
 
   const install = async () => {
     if (!deferred || installLock.current) return;
@@ -80,14 +108,15 @@ export const InstallPrompt: React.FC = () => {
       await deferred.prompt();
       const choice = await deferred.userChoice;
       setDeferred(null); window.__yemDeferredInstall = undefined;
-      if (choice.outcome === 'accepted') close();
-      else setRequested(false);
+      setRequested(false); setDismissed(true);
+      try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch { /* Storage can be disabled. */ }
+      if (choice.outcome === 'accepted') setInstalled(true);
     } catch { setInstallError(t('Installation could not start. Please try again.', 'ఇన్‌స్టాల్ చేయలేకపోయాం. మళ్లీ ప్రయత్నించండి.')); }
     finally { installLock.current = false; setInstalling(false); }
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
+    <div className="install-overlay fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
       {/* Dimmed backdrop — tap to dismiss */}
       <div
         className="absolute inset-0"
@@ -100,12 +129,13 @@ export const InstallPrompt: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-label={t('Install YEMUNNAI', 'YEMUNNAI ఇన్‌స్టాల్ చేయండి')}
-        className="relative w-full max-w-sm rounded-3xl bg-[#FFFCF8] border border-[#E7DED5] shadow-2xl p-6 text-center text-[#1F140A]"
+        className="install-sheet relative w-full max-w-sm rounded-3xl bg-[#FFFCF8] border border-[#E7DED5] shadow-2xl p-6 text-center text-[#1F140A]"
       >
         {/* Close */}
         <button
           type="button"
           onClick={close}
+          disabled={installing}
           aria-label={t('Dismiss install prompt', 'ఇన్‌స్టాల్ సూచన మూసివేయండి')}
           className="absolute top-3 right-3 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-white/10"
         >
@@ -132,11 +162,12 @@ export const InstallPrompt: React.FC = () => {
               className="mt-4 w-full min-h-11 rounded-2xl bg-[#F26A00] text-white font-bold flex items-center justify-center gap-2"
             >
               <Download className="w-4 h-4" aria-hidden="true" />
-              <span>{t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')}</span>
+              <span>{installing ? t('Opening installer…', 'ఇన్‌స్టాలర్ తెరుస్తున్నాం…') : t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')}</span>
             </button>
             <button
               type="button"
               onClick={close}
+              disabled={installing}
               className="mt-2 min-h-11 text-xs text-[#7A6658] underline"
             >
               {t('Not now', 'ఇప్పుడు వద్దు')}

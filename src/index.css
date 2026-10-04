@@ -316,20 +316,25 @@ html,body,#root { width:100%; min-height:100%; }
 .vendor-login form input,.vendor-login form select { background:white; border:0; border-radius:10px; }
 
 .business-screen { background:#E8ECEF; min-height:812px; color:#1F140A; }
-.business-header { padding:24px 20px 20px; background:radial-gradient(ellipse at 95% 0%,#FFAC3F55,transparent 62%),linear-gradient(135deg,#F8790C,#F06A05 48%,#DB5603); color:white; }
+.business-header { padding:24px 20px 20px; border-radius:0 0 24px 24px; background:radial-gradient(circle at 100% 0%,#FFC06A55,transparent 48%),radial-gradient(circle at 14% 120%,#FFB04F55,transparent 50%),linear-gradient(180deg,#B53F00,#BE4100 35%,#F06A05 72%,#E75C00); color:white; }
 .business-identity { display:flex; align-items:center; gap:14px; }
-.business-identity>img { width:48px; height:48px; border-radius:50%; object-fit:cover; }
+.business-identity>img { width:48px; height:48px; flex-shrink:0; border:2px solid #FFF7EF; border-radius:16px; object-fit:cover; }
 .business-identity>div:not(.business-tools) { min-width:0; flex:1; }
-.business-identity h1 { font-size:20px; font-weight:600; margin:0; line-height:26px; }
-.business-identity p { font-size:12px; margin:5px 0 0; }
+.business-identity h1 { font-size:20px; font-weight:700; margin:0; line-height:26px; overflow-wrap:anywhere; }
+.business-identity p { font-size:12px; margin:3px 0 0; color:#FFF7EF; }
 .business-tools { display:flex; gap:6px; align-items:center; }
-.business-tools select,.business-tools>button { min-width:40px; min-height:44px; border-radius:12px; background:#FFFFFF12; border:1px solid #FFFFFF30; color:white; }
+.business-tools select,.business-tools>button { min-width:44px; min-height:44px; border-radius:14px; background:#FFFFFF14; border:1px solid #FFFFFF66; color:white; }
 .business-tools>button { display:grid; place-items:center; }
 .business-tools select { font-size:11px; padding:0 4px; }
 .business-tools select option { color:#1F140A; }
-.business-online { display:flex; align-items:center; justify-content:space-between; margin-top:28px; font-size:13px; gap:8px; }
+.business-online { display:flex; align-items:center; justify-content:space-between; margin-top:24px; padding:12px; border-radius:18px; background:#6B260055; border:1px solid #FFFFFF35; font-size:12px; font-weight:600; gap:8px; }
+.business-online>span { display:flex; align-items:center; gap:7px; }
+.business-online>span::before { content:''; width:6px; height:6px; flex-shrink:0; border-radius:50%; background:currentColor; }
 .business-online .segmented { width:152px; background:white; flex-shrink:0; min-height:44px; padding:4px; }
 .business-online button { font-size:11px; min-height:36px; }
+html[lang=te] .business-online { flex-direction:column; align-items:stretch; }
+html[lang=te] .business-online .segmented { width:100%; }
+html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywhere; }
 .business-content { padding:22px 20px 24px; }
 .business-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:16px; border:1px solid #D6DCE2; border-radius:18px; background:white; margin:0 0 28px; }
 .business-stats div { padding:0 16px; border-right:1px solid #D6DCE2; }
@@ -367,6 +372,11 @@ html,body,#root { width:100%; min-height:100%; }
 .feed-notice button { flex-shrink:0; min-height:44px; }
 .business-orders>.feed-notice { border:0; padding:0; background:transparent; }
 .app-install-entry { display:flex; justify-content:center; max-width:480px; margin:16px auto; padding:0 20px 20px; }
+.install-overlay { animation:overlay-enter 180ms ease-out; }
+.install-sheet { max-height:calc(100dvh - 32px); overflow-y:auto; animation:install-enter 260ms cubic-bezier(.2,.8,.2,1); }
+.install-sheet button:active:not(:disabled) { transform:scale(.97); }
+.install-sheet button { transition:transform 120ms ease-out; }
+@keyframes install-enter { from { opacity:0; transform:translateY(18px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
 .app-install-button { display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:0 16px; border:1px solid #D6DCE2; border-radius:14px; background:#FFF; color:#1F140A; font-size:12px; font-weight:500; }
 @media(max-width:360px) { .business-identity { gap:10px; } .business-identity h1 { font-size:17px; line-height:23px; } .business-identity>img { width:40px; height:40px; } .business-stats div { padding-inline:10px; } }
 .support-empty { border:1px solid #D6DCE2; border-radius:14px; padding:18px; background:white; color:#7A6658; font-size:11px; }

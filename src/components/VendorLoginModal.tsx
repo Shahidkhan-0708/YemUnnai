@@ -47,7 +47,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
     try {
       const result = await signInWithOutlet(outletId, candidate);
       if (current !== generation.current) return;
-      if (result.ok) { onSignedIn?.(); onClose(); }
+      if (result.ok) { onSignedIn?.(); onClose(); window.dispatchEvent(new Event('yem-login-success')); }
       else {
         setError(t(result.error ?? 'Unable to sign in. Please try again.', 'ప్రవేశించలేకపోయాం. మళ్లీ ప్రయత్నించండి లేదా దుకాణ సహాయం కోరండి.'));
         setPin('');
