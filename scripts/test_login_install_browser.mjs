@@ -25,7 +25,7 @@ const journey = async function () {
   const clickPin = async () => { for(const n of ['1','2','3','4']) { document.querySelector(`.vendor-login button[aria-label="${n}"]`).click(); await wait(25); } };
   try {
     await until(()=>document.querySelector('.food-card:not(.food-skeleton)'), 'Discover loads');
-    check(!document.querySelector('.buyer-language-control') && document.querySelectorAll('.buyer-tab').length===3,'Customer navigation has three tabs and no language selector');
+    check(!document.querySelector('.buyer-language-control') && document.querySelectorAll('.buyer-tab').length===4 && document.querySelector('#buyer-tab-profile'),'Customer navigation has four tabs including Profile and no language selector');
     document.querySelector('.discovery-brand').click();
     await until(()=>document.querySelector('.vendor-login'), 'Login opens');
     await clickPin();
@@ -55,7 +55,7 @@ const journey = async function () {
     await until(()=>!dialog(),'Accepted installation closes dialog');
     check(window.__installCalls===1&&!document.querySelector('.app-install-entry'),'Single installation and installed entry hidden');
     check(document.documentElement.scrollWidth<=innerWidth,'Narrow dashboard has no horizontal overflow');
-    await fetch('/__result',{method:'POST',body:JSON.stringify({result:'pass',steps:['Three customer tabs without language','Failed and successful login','Late install eligibility','One modal at a time','Reduced motion','Session dismissal and manual retry','Native gesture, single submission and pending guard','Installed suppression','320px dashboard layout']})});
+    await fetch('/__result',{method:'POST',body:JSON.stringify({result:'pass',steps:['Four customer tabs including Profile','Failed and successful login','Late install eligibility','One modal at a time','Reduced motion','Session dismissal and manual retry','Native gesture, single submission and pending guard','Installed suppression','320px dashboard layout']})});
   }catch(error){await fetch('/__result',{method:'POST',body:JSON.stringify({result:'fail',message:error.message})});}
 };
 const result = await runPickupBrowser({ bootstrap:`(${mockPickupTransport.toString()})();(${bootstrap.toString()})();`,exercise:`(${journey.toString()})()`,output:'.tmp/login-install-browser' });

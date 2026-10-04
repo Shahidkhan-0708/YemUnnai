@@ -123,7 +123,7 @@ const journey = async function () {
     await until(() => document.querySelector('.business-tools select'), 'Seller language control');
     const language = document.querySelector('.business-tools select'); language.value = 'te'; language.dispatchEvent(new Event('change', { bubbles: true }));
     await until(() => document.documentElement.lang === 'te', 'Telugu selection');
-    document.querySelector('.pickup-link').click();
+    document.querySelector('.business-back').click();
     await until(() => document.querySelector('#buyer-tab-orders'), 'Return to Discover');
     document.querySelector('#buyer-tab-orders').click();
     await until(() => document.body.textContent.includes('నా ఆర్డర్లు'), 'Telugu orders view');
@@ -250,7 +250,7 @@ try {
   await new Promise(resolve => server.close(resolve));
   assert.equal(path.dirname(profile), profileRoot);
   assert.ok(path.basename(profile).startsWith('yemunnai-browser-'));
-  await fs.rm(profile, { recursive: true, force: true, maxRetries: 3 }).catch(() => { process.exitCode = 1; console.error('Browser profile cleanup failed.'); });
+  await fs.rm(profile, { recursive: true, force: true, maxRetries: 6, retryDelay: 300 }).catch(() => { process.exitCode = 1; console.error('Browser profile cleanup failed.'); });
 }
 }
 

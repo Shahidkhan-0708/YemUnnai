@@ -8,7 +8,6 @@ import { InstallPrompt } from './components/InstallPrompt';
 import { MobileDeviceShell } from './components/MobileDeviceShell';
 import { playTapSound, playSuccessChime } from './lib/celebration';
 import { OrdersScreen, useBuyerOrders } from './components/OrdersScreen';
-import { useLanguage } from './lib/language';
 import { BuyerTabBar, type BuyerTab } from './components/BuyerTabBar';
 import { Tabs, TabsContent } from './components/watermelon/tabs';
 import { MotionConfig } from '@watermelon-motion';
@@ -21,6 +20,7 @@ import { Toaster, toast } from './components/ui/sonner';
 const FeedbackModal = lazy(() => import('./components/FeedbackModal').then(m => ({ default: m.FeedbackModal })));
 const WalkInMapModal = lazy(() => import('./components/WalkInMapModal').then(m => ({ default: m.WalkInMapModal })));
 const BusinessDashboardScreen = lazy(() => import('./components/BusinessDashboardScreen').then(m => ({ default: m.BusinessDashboardScreen })));
+const BuyerProfileScreen = lazy(() => import('./components/BuyerProfileScreen').then(m => ({ default: m.BuyerProfileScreen })));
 const AddEditFoodItemScreen = lazy(() => import('./components/AddEditFoodItemScreen').then(m => ({ default: m.AddEditFoodItemScreen })));
 const LocationPermissionScreen = lazy(() => import('./components/LocationPermissionScreen').then(m => ({ default: m.LocationPermissionScreen })));
 const FoodItemDetailScreen = lazy(() => import('./components/FoodItemDetailScreen').then(m => ({ default: m.FoodItemDetailScreen })));
@@ -69,8 +69,7 @@ const DEFAULT_ORDER_ITEM: FoodItem = {
 
 export function App() {
   const { vendor } = useVendorSession();
-  const { t } = useLanguage();
-  const [buyerTab, setBuyerTab] = useState<'discover' | 'saved' | 'orders'>('discover');
+  const [buyerTab, setBuyerTab] = useState<BuyerTab>('discover');
   const [activePortal, setActivePortal] = useState<'consumer' | 'business' | 'artifacts' | 'gallery' | 'components' | '404'>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('portal');
@@ -138,7 +137,7 @@ export function App() {
               }}>
                 <TabsContent className="buyer-tab-panel" value={buyerTab} id={`buyer-panel-${buyerTab}`} aria-labelledby={`buyer-tab-${buyerTab}`}>
                 
-                {buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onDiscover={() => setBuyerTab('discover')} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
+                {buyerTab === 'profile' ? <BuyerProfileScreen onNavigate={setBuyerTab} /> : buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onDiscover={() => setBuyerTab('discover')} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
                   <div className="relative">
                     <LocationPermissionScreen
                       onAllow={() => {
@@ -240,7 +239,6 @@ export function App() {
         {/* 2. BUSINESS PORTAL SCREEN — reachable via ?portal=business (vendor login) */}
         {activePortal === 'business' && (
           <MobileDeviceShell>
-            <button type="button" className="pickup-link" onClick={() => setActivePortal('consumer')}>{t('Back to Discover', 'కనుగొనే పేజీకి తిరిగి వెళ్ళండి')}</button>
             <Suspense fallback={<ScreenFallback />}>
               <div className="relative">
                 {vendor && showMenuStock ? (
@@ -255,6 +253,7 @@ export function App() {
                   </div>
                 ) : (
                   <BusinessDashboardScreen
+                    onDiscover={() => setActivePortal('consumer')}
                     onAddNewItem={() => setIsAddEditOpen(true)}
                     onManageStock={() => setShowMenuStock(true)}
                   />

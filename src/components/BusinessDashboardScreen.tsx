@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useEffect, useRef, useState } from 'react';
-import { MapPin, LogIn, LogOut, RefreshCw, CloudOff } from 'lucide-react';
+import { ArrowLeft, MapPin, LogIn, LogOut, RefreshCw, CloudOff } from 'lucide-react';
 import { FamilyReceiveComponent } from './FamilyReceiveComponent';
 import { useVendorSession, useVendorOrders, useVendorStats } from '../lib/hooks';
 import { setOrderStatus, setVendorOnline, pickupRequest } from '../lib/api';
@@ -15,12 +15,14 @@ import { PickupError } from '../lib/pickup';
 import { CatalogImage } from './CatalogImage';
 
 interface BusinessDashboardScreenProps {
+  onDiscover?: () => void;
   onAddNewItem?: () => void;
   onManageStock?: () => void;
 }
 
 
 export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = ({
+  onDiscover,
   onAddNewItem,
   onManageStock
 }) => {
@@ -100,6 +102,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   if (!isBackendConfigured || checking || !vendor) {
     return (
       <div className="relative">
+        {onDiscover && <button type="button" className="business-back business-back-guest" onClick={onDiscover}><ArrowLeft size={18} aria-hidden="true" />{t('Back to Discover', 'కనుగొనే పేజీకి తిరిగి వెళ్ళండి')}</button>}
         <div className="w-full bg-[#EBF2EE] min-h-screen pb-10 select-none relative flex flex-col items-center justify-center gap-4 px-8 text-center">
           {!isBackendConfigured ? (
             <><h2 className="text-base font-black text-[#1F140A]">{t("Business Portal Unavailable","వ్యాపార పేజీ అందుబాటులో లేదు")}</h2><p className="text-sm text-[#7A6658]">{t("The server connection has not been configured.","సర్వర్ కనెక్షన్ సిద్ధంగా లేదు.")}</p></>
@@ -133,7 +136,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   }
 
   return <SvgScreenFrame screen={null}><section className="business-screen pickup-business screen-enter">
-    <header className="business-header"><div className="business-identity"><CatalogImage src={shopImage} alt="" loading="eager"/><div><h1>{vendor.vendorName}</h1><p>{t('Dashboard','నిర్వహణ పేజీ')}</p></div><div className="business-tools"><select aria-label="Language" value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select><button type="button" onClick={signOut} aria-label="Sign out"><LogOut size={18}/></button></div></div>
+    <header className="business-header">{onDiscover && <button type="button" className="business-back" onClick={onDiscover}><ArrowLeft size={18} aria-hidden="true" />{t('Back to Discover', 'కనుగొనే పేజీకి తిరిగి వెళ్ళండి')}</button>}<div className="business-identity"><CatalogImage src={shopImage} alt="" loading="eager"/><div><h1>{vendor.vendorName}</h1><p>{t('Dashboard','నిర్వహణ పేజీ')}</p></div><div className="business-tools"><select aria-label="Language" value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select><button type="button" onClick={signOut} aria-label="Sign out"><LogOut size={18}/></button></div></div>
       <div className="business-online"><span>{isOnline?t('Accepting orders','ఆర్డర్లు అంగీకరిస్తున్నారు'):t('Shop closed','దుకాణం మూసివేయబడింది')}</span><div className="segmented">{[true,false].map(value=><button key={String(value)} type="button" aria-pressed={isOnline===value} disabled={busyAction!==null} onClick={()=>{if(isOnline!==value)void toggleOnline();}}>{value?t('Online','అందుబాటులో ఉంది'):t('Offline','మూసివేయబడింది')}</button>)}</div></div>
     </header>
     <div className="business-content">
