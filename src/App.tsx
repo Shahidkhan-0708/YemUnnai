@@ -112,8 +112,11 @@ export function App() {
   // Track virtual page views for SPA navigation in Google Analytics
   useEffect(() => {
     const pageTitle = activePortal === 'consumer' 
-      ? `YEMUNNAI - ${buyerTab.charAt(0).toUpperCase() + buyerTab.slice(1)}`
-      : `YEMUNNAI - ${activePortal.charAt(0).toUpperCase() + activePortal.slice(1)}`;
+      ? `Yemunnai - ${buyerTab.charAt(0).toUpperCase() + buyerTab.slice(1)}`
+      : `Yemunnai - ${activePortal.charAt(0).toUpperCase() + activePortal.slice(1)}`;
+    document.title = activePortal === 'consumer' && buyerTab === 'discover'
+      ? 'Yemunnai — Food between lectures'
+      : pageTitle;
     trackPageView(pageTitle, `/?portal=${activePortal}&tab=${buyerTab}`);
   }, [activePortal, buyerTab]);
 
