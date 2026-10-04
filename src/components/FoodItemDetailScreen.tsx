@@ -5,6 +5,7 @@ import { SaveToggle } from './SaveToggle';
 import { Stepper } from './Stepper';
 import { useSaved } from '../lib/saved';
 import { useLanguage } from '../lib/language';
+import { SavedSyncNotice } from './SavedSyncNotice';
 import { recheckItem, PickupError } from '../lib/pickup';
 import { pickupErrorText } from '../lib/language';
 import type { FoodItem } from '../lib/types';
@@ -26,7 +27,7 @@ export function FoodItemDetailScreen({ item, onBack, onMap, onOrder }: Props) {
   };
   return <SvgScreenFrame screen={'detail'}><section className="pickup-page detail-screen space-y-5 screen-enter">
     <div className="flex justify-between gap-3"><Button variant="outline" onClick={onBack}>{t('Back', 'వెనుకకు')}</Button><SaveToggle isSaved={saved.ids.has(item.id)} onToggle={value => saved.toggle(item.id, value)} idleText={t('Save', 'భద్రపరచండి')} savedText={t('Saved', 'భద్రపరచబడింది')} /></div>
-    {saved.error && <p role="alert" className="pickup-error">{saved.error === 'storage_unavailable' ? t('Bookmarks could not be saved on this device. They may be lost after refresh.', 'ఈ పరికరంలో భద్రపరచలేకపోయాం. పేజీ తాజాకరిస్తే ఇవి పోవచ్చు.') : t('Bookmarks could not sync. Retry when your connection returns.', 'సమకాలీకరించలేకపోయాం. కనెక్షన్ వచ్చినప్పుడు మళ్లీ ప్రయత్నించండి.')} <Button variant="outline" onClick={() => void saved.retry()}>{t('Retry', 'మళ్లీ ప్రయత్నించండి')}</Button></p>}
+    <SavedSyncNotice error={saved.error} syncing={saved.syncing} retry={saved.retry} />
     <img src={item.image} alt={item.name} className="w-full rounded-3xl aspect-4/3 object-cover" />
     <div className="flex flex-wrap justify-between gap-3"><h1 className="text-2xl font-semibold">{item.name}</h1><strong className="text-2xl">₹{item.price}</strong></div>
     <p className="font-bold">{item.vendor}</p>

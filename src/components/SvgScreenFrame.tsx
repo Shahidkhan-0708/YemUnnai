@@ -76,7 +76,7 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
   useLayoutEffect(()=>{
     if(!markup||!controller.current||skip)return;
     const source=controller.current;
-    const hasError=!['gallery','artifacts','components'].includes(screen??'')&&!!source.querySelector('[role=alert]');
+    const hasError=!['gallery','artifacts','components'].includes(screen??'')&&!!source.querySelector('[role=alert], .saved-sync-notice');
     const hasConfirmation=['checkout','feedback','add'].includes(screen??'')&&!!source.querySelector('[role=status]');
     const hasLogin=screen==='dashboard'&&!source.querySelector('.business-screen');
     const differentDetail=screen==='detail'&&(source.querySelector('.detail-screen h1')?.textContent!=='Samosa'||source.querySelector('.detail-screen strong')?.textContent!=='₹0');

@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 
 const source = await fs.readFile(new URL('../src/lib/saved.ts', import.meta.url), 'utf8');
 let sequence = 0;
-async function savedStore({ storage = new Map(), cloud = new Map(), user = null } = {}) {
-  const env = { storage, cloud, user, offline: false, blocked: false, effects: [], callbacks: [], paused: null };
+async function savedStore({ storage = new Map(), cloud = new Map(), user = null, missingSaved = false } = {}) {
+  const env = { storage, cloud, user, offline: false, blocked: false, effects: [], callbacks: [], paused: null, authError: null, authThrows: false, missingSaved, savedReads: 0 };
   globalThis.window = new EventTarget();
   env.storageApi = {
     getItem: key => storage.get(key) ?? null,
@@ -18,11 +18,13 @@ async function savedStore({ storage = new Map(), cloud = new Map(), user = null 
   };
   env.client = {
     auth: {
-      getSession: async () => ({ data: { session: env.user ? { user: env.user } : null } }),
+      getSession: async () => { if (env.authThrows) throw Error('Auth unavailable'); return { data: { session: env.user ? { user: env.user } : null }, error: env.authError }; },
       onAuthStateChange: callback => { env.callbacks.push(callback); return { data: { subscription: { unsubscribe() {} } } }; },
     },
     from: () => ({
       select: () => ({ eq: async (_key, actor) => {
+        env.savedReads++;
+        if (env.missingSaved) return { data: null, error: { code: 'PGRST205', message: "Could not find the table 'public.saved_items' in the schema cache" } };
         if (env.paused) { const paused = env.paused; env.paused = null; await paused; }
         return { data: [...(cloud.get(actor) ?? [])].map(food_item_id => ({ food_item_id })), error: env.offline ? new Error('offline') : null };
       } }),
@@ -104,6 +106,35 @@ await guest.view().retry();
 assert.equal(guest.view().error, '');
 assert.ok(JSON.parse(guest.env.storage.get('yemunnai_saved_items')).includes('unsaved'));
 console.log('PASS: actual Saved module: cloud deletions, guest merge, offline edit replay, cross-device additions, reload, account-switch races, token refresh, and storage failures.');
+
+guest.env.authError = Error('Invalid refresh token');
+await guest.view().retry();
+assert.equal(guest.view().error, '', 'guest bookmarks must not report cloud failure for a stale session');
+guest.env.authThrows = true;
+await guest.view().retry();
+assert.equal(guest.view().error, '', 'thrown guest Auth failures must preserve local bookmarks');
+assert.ok(guest.view().ids.has('unsaved'));
+assert.equal(guest.env.savedReads, 0, 'guest bookmarks do not query private cloud rows');
+
+const fallbackStorage = new Map([['yemunnai_saved_items', '["guest-bookmark"]']]);
+const fallback = await savedStore({ storage: fallbackStorage, user: verified('local-account'), missingSaved: true });
+fallback.env.missingSaved = true;
+await fallback.view().retry();
+assert.equal(fallback.view().error, 'sync_unavailable');
+fallback.view().toggle('local-add', true); await fallback.settle();
+const requests = fallback.env.savedReads;
+fallback.view().toggle('guest-bookmark', false); await fallback.settle();
+assert.equal(fallback.env.savedReads, requests, 'known missing table must not cause a failing request on every bookmark');
+assert.ok(JSON.parse(fallbackStorage.get(cacheKey('local-account'))).includes('local-add'));
+assert.equal(JSON.parse(fallbackStorage.get(cacheKey('local-account')+'-edits'))['guest-bookmark'], false);
+const localReload = await savedStore({ storage: fallbackStorage, user: verified('local-account') });
+assert.ok(localReload.view().ids.has('local-add'), 'locally saved items survive reload and replay when the table returns');
+assert.ok(!localReload.view().ids.has('guest-bookmark'), 'removed guest saves cannot reappear when merging local edits');
+fallback.env.missingSaved = false;
+await fallback.view().retry();
+assert.equal(fallback.view().error, '', 'retry recovers when cloud Saved becomes available');
+assert.ok(fallback.env.cloud.get('local-account').has('local-add'));
+console.log('PASS: Saved fallback: failed guest Auth, missing cloud table, durable local additions/removals, suppressed repeat failures, and recovery.');
 
 // Run the actual Orders hook and deliver a late response before React cleanup.
 const ordersSource = (await fs.readFile(new URL('../src/components/OrdersScreen.tsx', import.meta.url), 'utf8')).split('export function SupportPanel')[0].replace(/^import .*;\r?\n/gm, '');

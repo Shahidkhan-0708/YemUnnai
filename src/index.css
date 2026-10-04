@@ -171,6 +171,13 @@ html,body,#root { width:100%; min-height:100%; }
 .buyer-language { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 .buyer-language-control:focus-within { outline:2px solid #F06A05; outline-offset:2px; border-radius:12px; }
 .buyer-home-indicator { height:4px; width:110px; margin:10px auto 0; border-radius:3px; background:#1F140ACC; }
+.saved-sync-notice { display:flex; align-items:center; gap:10px; padding:14px; margin-bottom:16px; border:1px solid #DED8D1; border-radius:16px; background:#FFFCF8; color:#7A6658; }
+.saved-sync-notice>svg { flex-shrink:0; }
+.saved-sync-notice>div { flex:1; min-width:0; }
+.saved-sync-notice strong { display:block; font-size:12px; font-weight:600; color:#1F140A; }
+.saved-sync-notice p { margin:4px 0 0; font-size:11px; line-height:1.5; }
+.saved-sync-notice button { flex-shrink:0; min-height:40px; padding:8px 12px; font-size:11px; border-radius:12px; }
+.saved-storage-error { border-color:#E5B6AB; background:#FFF7F5; }
 @media (max-width:600px) { .buyer-dock { width:100%; } }
 @media (max-width:360px) { .buyer-dock { padding-inline:10px; } .buyer-dock-surface { gap:5px; } .buyer-tab { font-size:9px; } }
 .stock-screen { padding:20px 16px 24px; min-height:812px; background:#E8ECEF; color:#1F140A; }

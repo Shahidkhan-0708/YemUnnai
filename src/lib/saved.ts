@@ -14,6 +14,7 @@ let edits: Record<string, boolean> = {};
 let revision = 0;
 let identityRevision = 0;
 let initialized = false;
+let cloudUnavailable = false;
 const listeners = new Set<() => void>();
 const publish = (patch: Partial<typeof state>) => { state = { ...state, ...patch }; listeners.forEach(cb => cb()); };
 const key = () => userId ? `yemunnai-saved-${userId}` : guestKey;
@@ -30,6 +31,9 @@ let queue = Promise.resolve();
 export function syncSaved() {
   queue = queue.catch(() => {}).then(async () => {
     if (!buyerSupabase || !userId) { if (persist()) publish({ error: '' }); return; }
+    // Keep durable local edits when this project's cloud Saved feature is absent.
+    // Explicit retry and reconnect can recheck after the backend is repaired.
+    if (cloudUnavailable) { if (persist()) publish({ error: 'sync_unavailable' }); return; }
     const actor = userId;
     const version = revision;
     const identity = identityRevision;
@@ -58,24 +62,42 @@ export function syncSaved() {
       edits = {};
       publish({ ids: desired, error: '' });
       if (persist()) { safeStorage.removeItem(guestKey); safeStorage.removeItem(`${key()}-dirty`); }
-    } catch { if (current()) publish({ error: 'sync_failed' }); }
+    } catch (cause) {
+      if (current()) {
+        const problem = cause as { code?: string; message?: string } | null;
+        cloudUnavailable = !!problem && ['PGRST205', '42P01'].includes(problem.code ?? '') && !!problem.message?.includes('saved_items');
+        if (persist()) publish({ error: cloudUnavailable ? 'sync_unavailable' : 'sync_failed' });
+      }
+    }
     finally { if (actor === userId) publish({ syncing: false }); }
   });
   return queue;
 }
 async function refreshIdentity() {
   const identity = identityRevision;
-  const { data, error } = await buyerSupabase!.auth.getSession();
+  let sessionResult;
+  try { sessionResult = await buyerSupabase!.auth.getSession(); }
+  catch {
+    if (identity === identityRevision && persist()) publish({ error: userId ? 'sync_failed' : '' });
+    return;
+  }
+  const { data, error } = sessionResult;
   if (identity !== identityRevision) return;
-  if (error) { publish({ error: 'sync_failed' }); return; }
+  if (error) {
+    // Guest bookmarks do not require a working Auth session or cloud request.
+    if (persist()) publish({ error: userId ? 'sync_failed' : '' });
+    return;
+  }
   const user = data.session?.user;
   const nextId = user && !user.is_anonymous && user.email_confirmed_at ? user.id : null;
   if (nextId !== userId) {
-    userId = nextId; revision++;
+    userId = nextId; revision++; cloudUnavailable = false;
     edits = readEdits(key());
     const guests = read(guestKey);
     if (nextId) for (const id of guests) if (!(id in edits)) edits[id] = true;
-    publish({ ids: new Set([...read(key()), ...(nextId ? guests : [])]), error: '', syncing: false });
+    const ids = new Set([...read(key()), ...(nextId ? guests : [])]);
+    for (const [id, saved] of Object.entries(edits)) { if (saved) ids.add(id); else ids.delete(id); }
+    publish({ ids, error: '', syncing: false });
     persist();
   }
   await syncSaved();
@@ -95,14 +117,14 @@ export function useSaved() {
       if (nextId !== userId) { revision++; publish({ ids: new Set(), error: '', syncing: false }); }
       setTimeout(refresh, 0);
     });
-    window.addEventListener('online', refresh);
+    window.addEventListener('online', () => { cloudUnavailable = false; refresh(); });
     window.addEventListener('storage', event => {
       if (event.key === key() || event.key === `${key()}-edits`) {
         revision++; edits = readEdits(key()); publish({ ids: new Set(read(key())) }); refresh();
       }
     });
   }, []);
-  return { ...snapshot, retry: () => buyerSupabase ? refreshIdentity() : syncSaved(),
+  return { ...snapshot, retry: () => { cloudUnavailable = false; return buyerSupabase ? refreshIdentity() : syncSaved(); },
     toggle: (id: string, saved: boolean) => {
       const ids = new Set(state.ids);
       if (saved) ids.add(id); else ids.delete(id);
