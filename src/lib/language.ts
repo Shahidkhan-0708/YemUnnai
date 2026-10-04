@@ -23,6 +23,13 @@ export const statusLabels: Record<OrderStatus, [string, string]> = {
 };
 export function pickupErrorText(code: string, t: (en: string, te: string) => string) {
   const errors: Record<string, [string, string]> = {
+    email_invalid: ['Enter a valid email address.', 'సరైన ఇమెయిల్ చిరునామా నమోదు చేయండి.'],
+    email_request_in_progress: ['Your email request is still being sent. Please wait.', 'ఇమెయిల్ అభ్యర్థన పంపుతున్నాం. వేచి ఉండండి.'],
+    email_rate_limited: ['Please wait a minute before requesting another email link.', 'మరో ఇమెయిల్ లింక్ కోసం ఒక నిమిషం వేచి ఉండండి.'],
+    email_delivery_unavailable: ['Email delivery is temporarily unavailable. You can keep browsing and use this device for saved food and orders.', 'ఇమెయిల్ పంపడం ప్రస్తుతం అందుబాటులో లేదు. ఈ పరికరంలో ఆహారాన్ని చూడవచ్చు, భద్రపరచవచ్చు.'],
+    email_account_not_found: ['No existing account was found for this email. Choose “Create account or keep this account” to get started.', 'ఈ ఇమెయిల్‌కు పాత ఖాతా లేదు. కొత్త ఖాతా సృష్టించే ఎంపికను ఎంచుకోండి.'],
+    email_already_linked: ['This email is linked to another account. Choose “Sign in to an existing account”.', 'ఈ ఇమెయిల్ మరో ఖాతాకు జోడించబడింది. పాత ఖాతాలో ప్రవేశించండి.'],
+    email_signin_unavailable: ['Email sign-in is currently unavailable. Please try again later.', 'ఇమెయిల్ ప్రవేశం ప్రస్తుతం అందుబాటులో లేదు. తర్వాత ప్రయత్నించండి.'],
     invalid_checkout: ['Choose a whole quantity from 1 to 20 and a valid whole-rupee price.', '1 నుండి 20 వరకు పరిమాణం మరియు సరైన రూపాయల ధర ఎంచుకోండి.'],
     unavailable: ['The service is unavailable. Retry when your connection returns.', 'సేవ అందుబాటులో లేదు. కనెక్షన్ వచ్చినప్పుడు మళ్లీ ప్రయత్నించండి.'],
     not_found: ['This order is unavailable in your account. Refresh your orders.', 'ఈ ఆర్డర్ మీ ఖాతాలో అందుబాటులో లేదు. ఆర్డర్లను తాజాకరించండి.'],

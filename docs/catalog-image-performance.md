@@ -31,3 +31,28 @@ eager/lazy priorities, and absence of unused artwork. Seller delete browser
 checks passed with optimized thumbnails. Worker tests cover actual cache writes,
 immutable reuse, mutable refresh and data/POST bypass. These results do not
 promise a fixed load time on every connection; catalog API latency still varies.
+
+## 2026-10-04: render before catalog latency
+
+The loading screenshot showed missing catalog metadata, rather than slow photo
+decoding alone. Canteen branding now renders from the existing five local photo
+paths while the live directory loads. These placeholder entries cannot be
+selected until the live directory arrives; they never supply availability.
+
+Successful public menu reads save a five-minute browser snapshot. Return visits
+render actual previously fetched dishes and photos immediately, while refreshing
+prices and stock. Ordering stays disabled until that refresh succeeds. Seller
+changes clear the local snapshot and bypass the shared catalog briefly. Corrupt,
+expired, and future-dated snapshots are rejected; blocked storage falls back to
+memory and the normal live reads. Buyer identities and order history are not
+stored in this public snapshot.
+
+The shared catalog read starts during app mounting, coalesces requests, and reuses
+responses for two seconds. A failed proxy now falls back after 3.5 seconds instead
+of waiting ten. The first four dish photos are eager; other photos remain lazy.
+Optimized WebP variants and immutable service-worker caching are retained.
+
+Delayed-network Chrome tests confirm all five canteen photos decode before the
+catalog response, cached cards render before a 3.5-second menu response, and fresh
+price/stock replace cached values. Test timings describe a controlled browser
+fixture, not a production load-time guarantee.

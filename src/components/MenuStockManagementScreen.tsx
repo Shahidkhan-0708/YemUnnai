@@ -8,6 +8,7 @@ import { useLanguage } from '../lib/language';
 import { Button } from './ui/button';
 import { DeleteFoodItemDialog } from './DeleteFoodItemDialog';
 import { CatalogImage } from './CatalogImage';
+import { DietaryBadge } from './DietaryBadge';
 
 interface MenuStockManagementScreenProps {
   onBack?: () => void;
@@ -22,6 +23,7 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
   const [items, setItems] = useState<FoodItem[]>([]);
   const [category, setCategory] = useState<'all' | 'snacks' | 'chai'>('all');
   const [loading, setLoading] = useState(true);
+  const [onlyUnlabelled,setOnlyUnlabelled]=useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
@@ -77,21 +79,32 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
     catch { setItems(previous); setError('Could not save stock. Please try again.'); }
     finally { lock.current=false; setBusy(false); }
   };
-  const visible=items.filter(item=>category==='all'||(category==='chai')===/tea|coffee|milk/i.test(item.name));
+  const visible=items.filter(item=>(!onlyUnlabelled || item.isVeg===undefined) && (category==='all'||(category==='chai')===/tea|coffee|milk/i.test(item.name)));
+  const unlabelled=items.filter(item=>item.isVeg===undefined).length;
+  const saveDiet = async (item: FoodItem, isVeg: boolean | null) => {
+    if (!vendorId || lock.current || item.vendorId !== vendorId || (item.isVeg ?? null) === isVeg) return;
+    const actor = vendorId;
+    lock.current = true; setBusy(true); setError(null); setNotice('');
+    try {
+      await updateItemAvailability(item.id, null, isVeg, actor);
+      if (identity.current !== actor) return;
+      setItems(current => current.map(row => row.id === item.id ? { ...row, isVeg: isVeg ?? undefined } : row));
+      setNotice(t(`${item.name}: food type saved.`, `${item.name}: ఆహార రకం భద్రపరచబడింది.`));
+    } catch { if (identity.current === actor) setError(t('Could not save the food type. Please try again.', 'ఆహార రకం భద్రపరచలేకపోయాం. మళ్లీ ప్రయత్నించండి.')); }
+    finally { lock.current = false; setBusy(false); }
+  };
   return <SvgScreenFrame screen={null}><section className="stock-screen screen-enter">
     <button type="button" onClick={onBack} className="stock-back"><ArrowLeft size={13}/>{t('Back to dashboard','నిర్వహణ పేజీకి తిరిగి వెళ్లండి')}</button>
     {!vendor || checking ? <p role="status">{checking ? 'Checking your session…' : 'Sign in to manage your menu.'}</p> : <>
       <header className="stock-heading"><div><h1 tabIndex={-1}>{t('Menu & stock','మెనూ మరియు నిల్వ')}</h1><p>{vendor.vendorName}</p></div><span>{vendor.isOnline ? t('Online','అందుబాటులో ఉంది') : t('Offline','మూసివేయబడింది')}</span></header>
       <p className="stock-instruction">{t('Turn stock off when a product is finished.','ఉత్పత్తి పూర్తయినప్పుడు నిల్వను ఆఫ్ చేయండి.')}</p>
-      <div className="stock-filters">{(['all','snacks','chai'] as const).map(value => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)}>{value === 'all' ? `All (${items.length})` : value === 'snacks' ? t('Snacks','చిరుతిళ్లు') : t('Chai','టీ')}</button>)}<button className="stock-refresh" type="button" disabled={busy} onClick={() => setReload(n => n+1)}><RefreshCw size={12}/>{t('Refresh','తాజాకరించండి')}</button></div>
+      <div className="stock-filters">{(['all','snacks','chai'] as const).map(value => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)}>{value === 'all' ? `All (${items.length})` : value === 'snacks' ? t('Snacks','చిరుతిళ్లు') : t('Chai','టీ')}</button>)}<button type="button" aria-pressed={onlyUnlabelled} onClick={()=>{setOnlyUnlabelled(value=>!value);setCategory('all');}}>{t('Not labelled','పేర్కొనలేదు')} ({unlabelled})</button><button className="stock-refresh" type="button" disabled={busy} onClick={() => setReload(n => n+1)}><RefreshCw size={12}/>{t('Refresh','తాజాకరించండి')}</button></div>
       {error && <p className="pickup-error" role="alert">{error}</p>}
       {notice && <p className="stock-delete-success" role="status">{notice}</p>}
       {loading && <p role="status">Loading your menu…</p>}
       <div className="stock-list">{visible.map(item => <article key={item.id} className="stock-item">
         <div className="stock-item-top"><CatalogImage src={item.image} alt=""/><div><h2>{item.name}</h2><p>₹{item.price} · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
-        <form key={String(item.isVeg)} className="stock-item-form" onSubmit={event => {event.preventDefault();if(lock.current)return;const diet=new FormData(event.currentTarget).get('diet');lock.current=true;setBusy(true);setError(null);void updateItemAvailability(item.id,null,diet === 'unknown' ? null : diet === 'yes').catch(cause=>setError(cause instanceof Error?cause.message:'Could not save.')).finally(()=>{lock.current=false;setBusy(false);});}}>
-          <label className="field-label">{t('Dietary information','ఆహార సమాచారం')}<select name="diet" className="pickup-input" defaultValue={item.isVeg === undefined?'unknown':item.isVeg?'yes':'no'}><option value="unknown">Not specified</option><option value="yes">{t('Vegetarian','శాకాహారం')}</option><option value="no">{t('Non-vegetarian','మాంసాహారం')}</option></select></label><Button type="submit" disabled={busy}>{t('Save','భద్రపరచండి')}</Button>
-        </form>
+        <div className="stock-diet"><DietaryBadge isVeg={item.isVeg} /><div className="stock-diet-options" role="group" aria-label={`Food type for: ${item.name}`}>{[{value:true,label:t('Veg','శాకాహారం')},{value:false,label:t('Non-veg','మాంసాహారం')},{value:null,label:t('Not set','పేర్కొనలేదు')}].map(choice=><button key={String(choice.value)} type="button" data-diet={String(choice.value)} aria-pressed={(item.isVeg??null)===choice.value} disabled={busy} onClick={()=>void saveDiet(item,choice.value)}>{choice.label}</button>)}</div></div>
         <div className="stock-item-actions"><button type="button" className="stock-item-delete" disabled={busy} aria-label={t(`Delete ${item.name}`, `${item.name} తొలగించండి`)} onClick={() => { setDeleteTarget(item); setDeleteError(''); setNotice(''); }}><Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />{t('Delete dish', 'వంటకాన్ని తొలగించండి')}</button></div>
       </article>)}</div>
       {!loading && !visible.length && <p className="stock-instruction">{items.length ? 'No items in this category.' : 'No dishes yet. Add your first item.'}</p>}

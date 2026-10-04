@@ -3,7 +3,7 @@ import { Bookmark, ChevronRight, ShoppingBag, UserRound } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import type { BuyerTab } from './BuyerTabBar';
 import { buyerSupabase } from '../lib/supabase';
-import { pendingCheckout, PickupError, requestBuyerEmail } from '../lib/pickup';
+import { buyerEmailRetryAt, pendingCheckout, PickupError, requestBuyerEmail } from '../lib/pickup';
 import { pickupErrorText, useLanguage } from '../lib/language';
 
 export function BuyerProfileScreen({ onNavigate }: { onNavigate: (tab: BuyerTab) => void }) {
@@ -15,8 +15,17 @@ export function BuyerProfileScreen({ onNavigate }: { onNavigate: (tab: BuyerTab)
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [errorCode, setErrorCode] = useState('');
+  const [retryAt, setRetryAt] = useState(buyerEmailRetryAt);
+  const [now, setNow] = useState(Date.now);
+  const retrySeconds = Math.max(0, Math.ceil((retryAt - now) / 1000));
   const lock = useRef(false);
   const mounted = useRef(false);
+  useEffect(() => {
+    if (retryAt <= Date.now()) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [retryAt]);
   useEffect(() => {
     mounted.current = true;
     let active = true, revision = 0;
@@ -34,13 +43,14 @@ export function BuyerProfileScreen({ onNavigate }: { onNavigate: (tab: BuyerTab)
   try { unresolved = !!pendingCheckout(); } catch { unresolved = true; }
   const submit = async () => {
     if (lock.current || !buyerSupabase || unresolved) return;
-    lock.current = true; setBusy(true); setError(''); setNotice('');
+    lock.current = true; setBusy(true); setError(''); setErrorCode(''); setNotice('');
     try {
       await requestBuyerEmail(email.trim(), existing);
       if (mounted.current) setNotice(t('Check your email for the verification link.', 'నిర్ధారణ లింక్ కోసం మీ ఇమెయిల్ చూడండి.'));
     } catch (cause) {
+      if (mounted.current) setErrorCode(cause instanceof PickupError ? cause.code : '');
       if (mounted.current) setError(cause instanceof PickupError ? pickupErrorText(cause.code, t) : t('Could not send the email link. Please try again.', 'ఇమెయిల్ లింక్ పంపలేకపోయాం. మళ్లీ ప్రయత్నించండి.'));
-    } finally { lock.current = false; if (mounted.current) setBusy(false); }
+    } finally { lock.current = false; if (mounted.current) { setBusy(false); setRetryAt(buyerEmailRetryAt()); setNow(Date.now()); } }
   };
   return <section className="buyer-profile screen-enter" aria-labelledby="profile-title">
     <header className="buyer-profile-header"><p>YEMUNNAI</p><h1 id="profile-title">{t('Your profile', 'మీ ప్రొఫైల్')}</h1></header>
@@ -56,11 +66,12 @@ export function BuyerProfileScreen({ onNavigate }: { onNavigate: (tab: BuyerTab)
       <p>{t('Link a verified email to keep this account across devices, or sign in to an existing account.', 'ఇతర పరికరాల్లో ఇదే ఖాతా కోసం ఇమెయిల్ నిర్ధారించండి, లేదా పాత ఖాతాలో ప్రవేశించండి.')}</p>
       {unresolved && <p role="status">{t('Check My orders to resolve your checkout before changing accounts.', 'ఖాతాను మార్చే ముందు నా ఆర్డర్లలో మీ చెక్అవుట్ పూర్తి చేయండి.')}</p>}
       <form onSubmit={event => { event.preventDefault(); void submit(); }}>
-        <label htmlFor="profile-email">{t('Email', 'ఇమెయిల్')}</label><input id="profile-email" type="email" autoComplete="email" required value={email} disabled={busy} onChange={event => { setEmail(event.target.value); setNotice(''); setError(''); }} />
-        <label htmlFor="profile-account-action">{t('Account action', 'ఖాతా చర్య')}</label><select id="profile-account-action" value={existing ? 'login' : 'link'} disabled={busy} onChange={event => { setExisting(event.target.value === 'login'); setNotice(''); setError(''); }}><option value="link">{verified ? t('Update account email', 'ఖాతా ఇమెయిల్ మార్చండి') : t('Link email to this guest account', 'ఈ అతిథి ఖాతాకు ఇమెయిల్ జోడించండి')}</option><option value="login">{t('Sign in to an existing account', 'పాత ఖాతాలో ప్రవేశించండి')}</option></select>
-        <button type="submit" disabled={busy || unresolved || !buyerSupabase || loading}>{busy ? t('Sending…', 'పంపుతున్నాం…') : t('Send email link', 'ఇమెయిల్ లింక్ పంపండి')}</button>
+        <label htmlFor="profile-email">{t('Email', 'ఇమెయిల్')}</label><input id="profile-email" type="email" autoComplete="email" required aria-describedby={error ? 'profile-email-error' : undefined} value={email} disabled={busy} onChange={event => { setEmail(event.target.value); setNotice(''); setError(''); setErrorCode(''); }} />
+        <label htmlFor="profile-account-action">{t('Account action', 'ఖాతా చర్య')}</label><select id="profile-account-action" value={existing ? 'login' : 'link'} disabled={busy} onChange={event => { setExisting(event.target.value === 'login'); setNotice(''); setError(''); }}><option value="link">{verified ? t('Update account email', 'ఖాతా ఇమెయిల్ మార్చండి') : t('Create account or keep this account', 'కొత్త ఖాతా లేదా ఈ ఖాతాను కొనసాగించండి')}</option><option value="login">{t('Sign in to an existing account', 'పాత ఖాతాలో ప్రవేశించండి')}</option></select>
+        <button type="submit" disabled={busy || unresolved || !buyerSupabase || loading || retrySeconds > 0}>{busy ? t('Sending…', 'పంపుతున్నాం…') : retrySeconds > 0 ? `${t('Resend in', 'మళ్లీ పంపండి')} ${retrySeconds}s` : t('Send email link', 'ఇమెయిల్ లింక్ పంపండి')}</button>
       </form>
-      {notice && <p role="status">{notice}</p>}{error && <p role="alert" className="pickup-error">{error}</p>}
+      {notice && <p role="status">{notice}</p>}{error && <p id="profile-email-error" role="alert" className="pickup-error">{error}</p>}
+      {errorCode === 'email_account_not_found' && <button type="button" className="profile-create-account" onClick={() => { setExisting(false); setError(''); setErrorCode(''); }}>{t('Create account or keep this account', 'కొత్త ఖాతా సృష్టించండి')}</button>}
     </details>
     <p className="buyer-profile-footer">A Food Discovery Platform</p>
   </section>;

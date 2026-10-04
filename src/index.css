@@ -107,7 +107,7 @@ html[lang=te] .discovery-shops-heading button { width:auto; min-width:78px; padd
 .discovery-shop-check { position:absolute; right:-5px; bottom:-5px; display:grid; place-items:center; width:20px; height:20px; border:2px solid #FFFBF7; border-radius:50%; background:#BF4900; color:#FFFFFF; z-index:1; }
 .discovery-shop-name { display:block; color:#1F140A; font-size:12px; line-height:18px; font-weight:600; text-align:center; }
 .discovery-shop-name>span { display:block; }
-.discovery-shop-name small { display:block; color:#746052; font-size:11.5px; line-height:16px; font-weight:400; }
+.discovery-shop-name small { display:block; color:inherit; font-size:inherit; line-height:inherit; font-weight:inherit; }
 .discovery-shop[aria-pressed=true] .discovery-shop-name { color:#A23D00; }
 .discovery-shop:focus-visible { outline:none; }
 .discovery-shop:focus-visible .discovery-shop-photo { outline:2px solid #3E1B08; outline-offset:3px; }
@@ -255,8 +255,8 @@ html,body,#root { width:100%; min-height:100%; }
 .stock-heading p { margin:6px 0 0; color:#7A6658; font-size:12px; }
 .stock-heading>span { font-size:11px; color:#007A55; }
 .stock-instruction { font-size:11px; color:#7A6658; margin:28px 4px 20px; }
-.stock-filters { display:flex; align-items:center; gap:12px; margin:0 4px 22px; }
-.stock-filters button { min-height:32px; padding:0 12px; font-size:11px; border-radius:9px; color:#7A6658; }
+.stock-filters { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 4px 22px; }
+.stock-filters button { min-height:44px; padding:0 12px; font-size:11px; border-radius:9px; color:#7A6658; }
 .stock-filters button[aria-pressed=true] { background:#F06A05; color:white; }
 .stock-filters .stock-refresh { display:flex; align-items:center; gap:4px; margin-left:auto; background:white; color:#1F140A; }
 .stock-list { display:flex; flex-direction:column; gap:16px; }
@@ -407,6 +407,14 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 .feed-notice button { flex-shrink:0; min-height:44px; }
 .business-orders>.feed-notice { border:0; padding:0; background:transparent; }
 .app-install-entry { display:flex; justify-content:center; max-width:480px; margin:16px auto; padding:0 20px 20px; }
+.stock-diet { display:flex; flex-direction:column; gap:10px; margin:16px 0; }
+.stock-diet-options { display:flex; gap:6px; padding:4px; border:1px solid #DED8D1; border-radius:14px; background:#FFFCF8; }
+.stock-diet-options button { flex:1; min-width:0; min-height:44px; padding:7px 6px; border-radius:10px; font-size:11px; color:#7A6658; overflow-wrap:anywhere; }
+.stock-diet-options button[aria-pressed=true][data-diet=true] { background:#E6F5ED; color:#007A55; }
+.stock-diet-options button[aria-pressed=true][data-diet=false] { background:#FCEAE4; color:#A23D24; }
+.stock-diet-options button[aria-pressed=true][data-diet=null] { background:#E8ECEF; color:#1F140A; }
+.profile-create-account { width:100%; margin:0 0 16px; }
+.menu-refresh-status { margin:12px 0; color:#7A6658; font-size:11px; }
 .install-overlay { animation:overlay-enter 180ms ease-out; }
 .install-sheet { max-height:calc(100dvh - 32px); overflow-y:auto; animation:install-enter 260ms cubic-bezier(.2,.8,.2,1); }
 .install-sheet button:active:not(:disabled) { transform:scale(.97); }
@@ -507,6 +515,58 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 @media (max-width:360px) { .business-header { padding-inline:16px; } .business-content { padding-inline:16px; } .business-tools { gap:6px; } .business-identity { gap:10px; } .business-identity h1 { font-size:18px; } .business-collection .pickup-input { width:92px; } .stock-filters { gap:4px; } .stock-filters button { padding-inline:10px; } .order-card-status { flex-wrap:wrap; } }
 
 .map-sheet { width:calc(100% - 24px); margin:12px auto; padding:0; display:flex; flex-direction:column; }
+.canteen-map-backdrop{position:fixed;inset:0;z-index:80;background:#21170f80;backdrop-filter:blur(5px);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.canteen-map-sheet{width:100%;max-width:480px;max-height:calc(100dvh - 24px);overflow:auto;background:#fffaf5;border-radius:28px;box-shadow:0 20px 60px #25190e38;color:#1f140a;animation:sheetIn .2s ease-out}
+.canteen-map-sheet .sheet-handle{margin:10px auto 0}
+.canteen-map-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 20px;gap:12px}
+.canteen-map-header p{font-size:10px;font-weight:700;letter-spacing:1.5px;color:#a24b16;margin:0 0 7px}
+.canteen-map-header h1{font-size:25px;letter-spacing:-.8px;font-weight:700;margin:0}
+.canteen-map-close,.canteen-map-destination button{height:44px;width:44px;flex-shrink:0;display:grid;place-items:center;border:1px solid #e9ded4;border-radius:14px;background:#fff;color:#665044}
+.canteen-map-frame{position:relative;margin:0 12px;border:1px solid #e8ded4;border-radius:20px;overflow:hidden;isolation:isolate}
+.canteen-real-map{height:clamp(260px,46dvh,440px);width:100%;background:#eeece5;font-family:inherit}
+.canteen-real-map .leaflet-control-zoom a{height:44px;width:44px;line-height:44px;color:#6b3a1d}
+.canteen-real-map .leaflet-control-attribution{font-size:10px;padding:3px 6px;background:#fffdf7ec}
+.canteen-map-marker{background:transparent;border:0}
+.canteen-map-logo{display:flex;flex-direction:column;align-items:center;position:relative;width:52px}
+.canteen-map-logo img{width:48px;height:48px;object-fit:cover;border-radius:50%;border:3px solid white;box-shadow:0 4px 12px #37271844;background:#fff}
+.canteen-map-logo.is-selected img{border-color:#f06a05;box-shadow:0 0 0 3px white,0 5px 16px #37271855}
+.canteen-map-logo:after{content:'';width:10px;height:10px;background:white;transform:rotate(45deg);position:absolute;top:43px;z-index:-1}
+.canteen-map-logo span{white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;padding:4px 7px;margin-top:7px;border-radius:7px;background:#fff;color:#342519;box-shadow:0 2px 6px #37271822;font-size:11px;font-weight:700}
+.canteen-map-logo:not(.is-selected) span{display:none}
+.leaflet-marker-icon:focus .canteen-map-logo span,.leaflet-marker-icon:hover .canteen-map-logo span{display:block}
+.canteen-map-status{position:absolute;top:12px;left:12px;right:12px;z-index:600;width:fit-content;max-width:calc(100% - 24px);border-radius:12px;padding:9px 12px;background:#fffef7eb;font-size:12px;color:#6e5140;box-shadow:0 2px 10px #37271815;pointer-events:none}
+.canteen-map-status button{min-height:44px;color:#a9450c;text-decoration:underline;pointer-events:auto}
+.canteen-map-content{padding:18px 20px 20px}
+.canteen-map-rail{display:flex;gap:8px;overflow:auto;padding-bottom:12px;margin-bottom:10px}
+.canteen-map-rail button{display:flex;align-items:center;gap:7px;flex-shrink:0;min-height:44px;padding:5px 10px 5px 5px;border:1px solid #e9ded4;background:white;border-radius:99px;font-size:11px;color:#685245}
+.canteen-map-rail button[aria-pressed=true]{border-color:#ed772a;background:#fff0e3;color:#923909;font-weight:700}
+.canteen-map-rail img{height:30px;width:30px;border-radius:50%;object-fit:cover}
+.canteen-map-destination{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.canteen-map-destination h2{font-weight:700;font-size:18px;margin:0 0 8px}
+.canteen-map-destination p{display:flex;align-items:flex-start;gap:6px;color:#7a6658;font-size:12px;line-height:1.6}
+.canteen-map-destination svg{flex-shrink:0;margin-top:2px}
+.canteen-map-note{font-size:12px;line-height:1.6;color:#8b6c52;margin:12px 0;user-select:text}
+.canteen-map-directions{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;background:linear-gradient(120deg,#dc5900,#f58218);color:white;border-radius:15px;margin-top:18px;font-size:13px;font-weight:700;text-decoration:none}
+.vendor-location-card{padding:18px;margin-bottom:20px;background:#fffbf6;border:1px solid #eadbca;border-radius:20px}
+.vendor-location-heading{display:flex;gap:10px;align-items:flex-start;color:#9f4b14}
+.vendor-location-heading>div{flex:1;min-width:0}
+.vendor-location-heading h2{font-size:15px;font-weight:700;color:#342519;margin:0 0 5px}
+.vendor-location-heading p,.vendor-location-message{font-size:12px;line-height:1.6;color:#7a6658}
+.vendor-location-heading button{min-height:44px;padding:0 8px;font-size:11px;color:#a94509}
+.vendor-location-card form{margin-top:16px}
+.vendor-location-current{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;background:white;border:1px solid #e6d9ca;border-radius:12px;font-size:12px;color:#70482c}
+.vendor-location-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.vendor-location-fields label,.vendor-location-landmark{display:block;font-size:12px;color:#7a6658}
+.vendor-location-fields input,.vendor-location-landmark input{width:100%;min-height:44px;padding:9px 10px;margin-top:7px;font-size:16px;border-radius:10px;background:white;border:1px solid #d6dce2;color:#1f140a;min-width:0}
+.vendor-location-landmark{margin-top:12px}
+.vendor-location-campus{display:flex;align-items:center;gap:8px;font-size:12px;min-height:44px;margin:8px 0;color:#685245}
+.vendor-location-campus input{accent-color:#f06a05;width:18px;height:18px}
+.vendor-location-actions{display:flex;gap:10px}
+.vendor-location-actions button{min-height:44px;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:600;background:#f06a05;color:white}
+.vendor-location-actions button+button{background:white;color:#7a6658;border:1px solid #e6d9ca}
+.vendor-location-message{margin-top:12px}
+.vendor-location-card button:disabled{opacity:.6}
+@media(prefers-reduced-motion:reduce){.canteen-map-sheet{animation:none}}
 .support-empty { padding:18px; border:1px solid #D6DCE2; border-radius:16px; background:white; color:#7A6658; font-size:12px; }
 .svg-screen-frame { width:100%; }
 .svg-screen-controller { display:none; }

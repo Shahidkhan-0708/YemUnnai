@@ -31,7 +31,6 @@ const ErrorPage = lazy(() => import('./components/ErrorPage'));
 const SaveToggleDemo = lazy(() => import('./components/SaveToggleDemo'));
 const StepperDemo = lazy(() => import('./components/StepperDemo'));
 const InlineDisclosureMenuDemo = lazy(() => import('./components/InlineDisclosureMenuDemo'));
-const ViewOnMapDemo = lazy(() => import('./components/ViewOnMapDemo'));
 const Alert3 = lazy(() => import('./components/Alert3'));
 const Popover6 = lazy(() => import('./components/Popover6'));
 const RunActionButtonDemo = lazy(() => import('./components/RunActionButtonDemo'));
@@ -333,7 +332,7 @@ export function App() {
                 },
                 {
                   n: '06 · Walk-In Map Modal',
-                  d: 'Schematic campus map, dashed route, ETA chip, Google Maps handoff.',
+                  d: 'Real interactive map, canteen logo pins, and walking directions.',
                   action: () => { setActivePortal('consumer'); setTimeout(() => setSelectedWalkInFood(DEFAULT_ORDER_ITEM), 60); },
                   cta: 'Open modal'
                 },
@@ -538,23 +537,6 @@ export function App() {
                   </Suspense>
                 </div>
                 <span className="text-[9px] text-slate-500">Integrated in: MenuStockManagementScreen (canteen quick actions)</span>
-              </div>
-
-              {/* 4. ViewOnMap */}
-              <div className="bg-[#121A15] p-4 rounded-2xl border border-emerald-950 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-white">04. ViewOnMap</span>
-                    <span className="text-[9px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded font-mono">ViewOnMap.tsx</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1">Interactive stylized map card with vector schematic, GPS coordinates, and copy address.</p>
-                </div>
-                <div className="my-4 py-2 bg-[#0D1410] rounded-xl flex items-center justify-center border border-white/5">
-                  <Suspense fallback={<ScreenFallback />}>
-                    <ViewOnMapDemo />
-                  </Suspense>
-                </div>
-                <span className="text-[9px] text-slate-500">Integrated in: WalkInMapModal (campus destination card)</span>
               </div>
 
               {/* 5. Alert3 */}

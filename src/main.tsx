@@ -4,6 +4,10 @@ import './index.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary.tsx'
 import type { BeforeInstallPromptEvent } from './components/InstallPrompt.tsx'
+import { publicCatalog } from './lib/publicCatalog'
+
+// Begin the shared catalog read while the intro and app are mounting.
+if (import.meta.env.PROD && !new URLSearchParams(location.search).has('portal')) void publicCatalog().catch(() => {});
 
 // PWA: capture the install prompt as early as possible so the in-app install sheet can use it.
 window.addEventListener('beforeinstallprompt', (event) => {

@@ -1,6 +1,8 @@
 import { supabase, isBackendConfigured } from './supabase';
 import { retryRead } from './retryRead';
 import { publicCatalog, invalidatePublicCatalog } from './publicCatalog';
+import { clearCatalogSnapshot } from './catalogSnapshot';
+import { shopCoordinates } from './mapLocations';
 import { DEFAULT_FOOD_ITEMS, LOCAL_SHOPS } from './mockData';
 import { VENDOR_OUTLETS } from './vendorAuth';
 import type {
@@ -22,6 +24,15 @@ import type {
 // ---------------------------------------------------------------------------
 
 import { safeStorage } from './storage';
+
+export async function updateVendorLocation(vendorId: string, input: { latitude: number; longitude: number; landmark: string; isOnCampus: boolean }): Promise<void> {
+  if (!supabase || !shopCoordinates({ ...input, isOnCampus: input.isOnCampus })) throw new Error('Invalid map coordinates');
+  const owner = await getMyVendor();
+  if (!owner || owner.id !== vendorId) throw new Error('Sign in to the correct canteen before changing its location');
+  const { data, error } = await supabase.from('vendors').update({ latitude: input.latitude, longitude: input.longitude, location_landmark: input.landmark.slice(0, 160), is_on_campus: input.isOnCampus }).eq('id', vendorId).select('id').single();
+  if (error || !data) throw error ?? new Error('Location was not saved');
+  notifySubscribers();
+}
 
 /** Stable per-browser visitor key, e.g. "anon:9f3c…" (consumers have no account). */
 export function getUserKey(): string {
@@ -51,6 +62,7 @@ let inMemoryShops: ShopEntry[] = LOCAL_SHOPS.map(s => ({ ...s, isOnline: true })
 const catalogSubscribers = new Set<() => void>();
 
 function notifySubscribers() {
+  clearCatalogSnapshot();
   invalidatePublicCatalog();
   catalogSubscribers.forEach(cb => {
     try {
@@ -493,10 +505,12 @@ export async function setItemStock(foodItemId: string, inStock: boolean): Promis
 
 }
 
-export async function updateItemAvailability(foodItemId: string, remainingQuantity: number | null, isVeg: boolean | null): Promise<void> {
+export async function updateItemAvailability(foodItemId: string, remainingQuantity: number | null, isVeg: boolean | null, vendorId?: string): Promise<void> {
   if (!supabase) throw new Error('Business portal is unavailable.');
   if (remainingQuantity !== null && (!Number.isSafeInteger(remainingQuantity) || remainingQuantity < 0 || remainingQuantity > 1000000)) throw new Error('Enter a whole quantity from 0 to 1000000.');
-  const { data, error } = await supabase.from('food_items').update({ remaining_quantity: remainingQuantity, is_vegetarian: isVeg }).eq('id', foodItemId).select('id').single();
+  let query = supabase.from('food_items').update({ ...(remainingQuantity !== null ? { remaining_quantity: remainingQuantity } : {}), is_vegetarian: isVeg }).eq('id', foodItemId);
+  if (vendorId) query = query.eq('vendor_id', vendorId);
+  const { data, error } = await query.select('id').single();
   if (error || !data) throw new Error('Could not save availability. Please retry.');
   notifySubscribers();
 }

@@ -15,6 +15,7 @@ import {
 } from './api';
 import type { FoodCategory, FoodItem, ShopEntry, DashboardOrder, VendorStats } from './types';
 import { supabase } from './supabase';
+import { cachedFoods, cachedShops, saveFoodSnapshot, saveShopSnapshot } from './catalogSnapshot';
 
 // ---------------------------------------------------------------------------
 // Consumer discovery
@@ -31,7 +32,7 @@ export function useFoodItems(category?: FoodCategory): {
   retry: () => void;
   totalByCategory: Record<FoodCategory, number>;
 } {
-  const [allItems, setAllItems] = useState<FoodItem[]>([]);
+  const [allItems, setAllItems] = useState<FoodItem[]>(cachedFoods);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -44,7 +45,7 @@ export function useFoodItems(category?: FoodCategory): {
       const current = ++request;
       fetchFoodItems()
         .then(list => {
-          if (!cancelled && current === request) { setAllItems(list); setError(null); }
+          if (!cancelled && current === request) { saveFoodSnapshot(list); setAllItems(list); setError(null); }
         })
         .catch(() => { if (!cancelled && current === request) setError('Unable to refresh the menu. Check your connection and try again.'); })
         .finally(() => {
@@ -84,7 +85,7 @@ export function useFoodItems(category?: FoodCategory): {
 
 /** Shop avatars for the "Local Shops" row. Uses the public catalog cache and visible-page refreshes. */
 export function useShops() {
-  const [shops, setShops] = useState<ShopEntry[]>([]);
+  const [shops, setShops] = useState<ShopEntry[]>(cachedShops);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
@@ -96,7 +97,7 @@ export function useShops() {
     const reload = () => {
       const current = ++request;
       fetchShops().then(list => {
-        if (!cancelled && current === request) { setShops(list); setError(null); }
+        if (!cancelled && current === request) { saveShopSnapshot(list); setShops(list); setError(null); }
       }).catch(() => { if (!cancelled && current === request) setError('Unable to refresh shops.'); })
         .finally(() => { if (!cancelled && current === request) setLoading(false); });
     };

@@ -220,6 +220,8 @@ const server = createServer(async (request, response) => {
     const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg' };
     response.setHeader('Content-Type', mime[path.extname(file)] ?? 'application/octet-stream');
     if (path.extname(file) === '.html') {
+      // Local fixture journeys must never send events to the production GA property.
+      response.setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co; img-src * data: blob:; media-src 'self' blob:");
       body = body.toString().replace('<head>', `<head><script>${bootstrap}</script>`);
       body = body.replace('</body>', `<script>${exercise}</script></body>`);
     }

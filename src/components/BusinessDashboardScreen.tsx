@@ -13,6 +13,7 @@ import { Button } from './ui/button';
 import { useLanguage, statusLabels, pickupErrorText } from '../lib/language';
 import { PickupError } from '../lib/pickup';
 import { CatalogImage } from './CatalogImage';
+import { VendorLocationSettings } from './VendorLocationSettings';
 
 interface BusinessDashboardScreenProps {
   onDiscover?: () => void;
@@ -140,6 +141,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
       <div className="business-online"><span>{isOnline?t('Accepting orders','ఆర్డర్లు అంగీకరిస్తున్నారు'):t('Shop closed','దుకాణం మూసివేయబడింది')}</span><div className="segmented">{[true,false].map(value=><button key={String(value)} type="button" aria-pressed={isOnline===value} disabled={busyAction!==null} onClick={()=>{if(isOnline!==value)void toggleOnline();}}>{value?t('Online','అందుబాటులో ఉంది'):t('Offline','మూసివేయబడింది')}</button>)}</div></div>
     </header>
     <div className="business-content">
+      <VendorLocationSettings key={vendor.vendorId} vendorId={vendor.vendorId}/>
       <dl className="business-stats">{[['Orders today',stats.error||stats.loading?'—':stats.ordersToday],['Likes',stats.error||stats.loading?'—':stats.totalLikes],['Rating',stats.loading||stats.avgRating==null?'—':Number(stats.avgRating).toFixed(1)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
       {error && <p className="pickup-error" role="alert">{error}</p>}
       {stats.error && <div className="feed-notice" role="status"><span>{stats.error}</span></div>}

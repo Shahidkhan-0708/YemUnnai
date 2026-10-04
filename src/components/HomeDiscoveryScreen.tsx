@@ -102,10 +102,10 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 
   const renderFoodCard = (item: FoodItem) => {
     const isLiked = myReactions[item.id] === 'like';
-    const unavailable = !!error || !item.inStock || item.price <= 0 || item.isShopOnline === false;
+    const unavailable = loading || !!error || !item.inStock || item.price <= 0 || item.isShopOnline === false;
     const hasRating = typeof item.rating === 'number' && Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 5;
     return <article className="food-card" key={item.id}>
-      <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={item.id === displayedItems[0]?.id || item.id === displayedItems[1]?.id} /></button>
+      <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={displayedItems.slice(0,4).some(first => first.id === item.id)} /></button>
         <SaveToggle size="sm" idleText="" savedText="" isSaved={saved.ids.has(item.id)} onToggle={value => {
           trackSaveItem(item.id, item.name, value);
           saved.toggle(item.id, value);
@@ -116,7 +116,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'} aria-label={item.price > 0 ? undefined : t('Price not specified','ధర పేర్కొనలేదు')} title={item.price > 0 ? undefined : t('Price not specified','ధర పేర్కొనలేదు')}>{item.price > 0 ? `₹${item.price}` : '—'}</span><span className="food-rating" data-rated={hasRating} aria-label={hasRating ? `${t('Rating','రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')} title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')}><Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />{hasRating ? Number(item.rating).toFixed(1) : '—'}</span></div>
       <p className="food-availability" aria-hidden={unavailable || undefined}>{!unavailable ? t('Available','అందుబాటులో ఉంది') : null}</p>
       <div className="food-social"><button type="button" aria-label={`Like ${item.name}`} aria-pressed={isLiked} disabled={pendingReactions.has(item.id)} className={isLiked ? 'is-liked' : ''} onClick={() => void toggleLike(item.id)}><ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />{item.likes}</button><button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}><MessageSquare size={13} strokeWidth={1.4} />{item.reviews}</button></div>
-      <Button className="food-action" variant={item.actionType === 'walkin' ? 'walkin' : 'order'} disabled={unavailable} onClick={() => item.actionType === 'walkin' ? onWalkIn?.(item) : onOrderNow?.(item)}>{item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : item.actionType === 'walkin' ? t('Walk In','నేరుగా వెళ్లండి') : `${t('Order','ఆర్డర్')} · ₹${item.price}`}</Button>
+      <Button className="food-action" variant={item.actionType === 'walkin' ? 'walkin' : 'order'} disabled={unavailable} onClick={() => item.actionType === 'walkin' ? onWalkIn?.(item) : onOrderNow?.(item)}>{loading ? t('Checking…','తనిఖీ చేస్తున్నాం…') : item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : item.actionType === 'walkin' ? t('Walk In','నేరుగా వెళ్లండి') : `${t('Order','ఆర్డర్')} · ₹${item.price}`}</Button>
     </article>;
   };
   // Product labels and prices always come from live data, including a 40-item menu.
@@ -125,6 +125,8 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       onSearch={setSearchQuery} onShop={name => {setSelectedShop(name);onSelectShop?.(name);}} onCart={onCartClick} onBusinessPortal={onBusinessPortal}/>
 
     <div className="discovery-content">
+      {loading && items.length > 0 && <p className="menu-refresh-status" role="status">{t('Updating prices and availability…','ధరలు మరియు లభ్యత నవీకరిస్తున్నాం…')}</p>}
+      {!loading && vegOnly && !displayedItems.length && <p className="menu-refresh-status" role="status">{t('Only seller-confirmed veg dishes appear in Pure veg. Items without a food label stay hidden.','శాకాహారంగా విక్రేత నిర్ధారించిన వంటకాలు మాత్రమే కనిపిస్తాయి. ఆహార రకం పేర్కొనని వంటకాలు కనిపించవు.')}</p>}
       {reactionError && <p className="pickup-error" role="alert">{reactionError}</p>}
       {(error || shopsError) && <div role="alert" className="pickup-error">{t('Unable to load the menu.','మెనూ లోడ్ కాలేదు')}<Button variant="outline" onClick={() => {retry();retryShops();}}>Retry</Button></div>}
       {(savedOnly || saved.error === 'storage_unavailable') && <SavedSyncNotice error={saved.error} syncing={saved.syncing} retry={saved.retry} />}
@@ -133,8 +135,8 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       <div className="discovery-categories" aria-label="Food categories">{(['cooked','packed'] as const).map(cat => <button key={cat} type="button" aria-pressed={selectedCategory === cat} onClick={() => {
         trackSelectCategory(cat);
         setSelectedCategory(cat);
-      }}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({totalByCategory[cat]})</button>)}</div>
-      {loading ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : shopGroups ? <div className="discovery-groups">{shopGroups.map(group => <section className="discovery-group" key={group.vendorName}><div className="discovery-group-heading">{group.shopMeta?.image && <CatalogImage src={group.shopMeta.image} alt=""/>}<div><h2>{group.vendorName}</h2><p>{t('Food Court','ఫుడ్ కోర్ట్')}</p></div><button type="button" onClick={() => {setSelectedShop(group.vendorName);onSelectShop?.(group.vendorName);}}>{t('View menu','మెనూ చూడండి')} ({group.items.length})</button></div><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{displayedItems.map(renderFoodCard)}</div>}
+      }}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({loading && !items.length ? '…' : totalByCategory[cat]})</button>)}</div>
+      {loading && !items.length ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : shopGroups ? <div className="discovery-groups">{shopGroups.map(group => <section className="discovery-group" key={group.vendorName}><div className="discovery-group-heading">{group.shopMeta?.image && <CatalogImage src={group.shopMeta.image} alt=""/>}<div><h2>{group.vendorName}</h2><p>{t('Food Court','ఫుడ్ కోర్ట్')}</p></div><button type="button" onClick={() => {setSelectedShop(group.vendorName);onSelectShop?.(group.vendorName);}}>{t('View menu','మెనూ చూడండి')} ({group.items.length})</button></div><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{displayedItems.map(renderFoodCard)}</div>}
       {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{savedOnly ? (saved.ids.size ? 'No saved dishes match' : 'No saved dishes yet') : 'No dishes found'}</h2><p>{savedOnly ? (saved.ids.size ? 'Try clearing your filters or switching food categories.' : 'Tap the bookmark on a dish to keep it here.') : 'Try clearing your search or filters.'}</p><Button variant="outline" onClick={() => {setSearchQuery('');setSelectedShop('All');setMaxPrice('');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button></div>}
     </div>
   </section></SvgScreenFrame>;

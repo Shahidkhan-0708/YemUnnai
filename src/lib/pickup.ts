@@ -117,13 +117,39 @@ export async function fetchBuyerOrders() {
   return (await pickupRequest({ action: 'list' })).orders ?? [];
 }
 export async function cancelBuyerOrder(orderId: string) { await pickupRequest({ action: 'cancel', orderId }); notifyOrders(); }
+let emailRequestActive = false;
+let emailRetryAt = 0;
+export function buyerEmailRetryAt() { return emailRetryAt; }
 export async function requestBuyerEmail(email: string, existing: boolean) {
   if (pendingCheckout()) throw new PickupError('resolve_attempt_first');
-  if (!existing) await ensureBuyer();
-  const result = existing
-    ? await buyerSupabase!.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: window.location.origin } })
-    : await buyerSupabase!.auth.updateUser({ email }, { emailRedirectTo: window.location.origin });
-  if (result.error) throw result.error;
+  if (!buyerSupabase) throw new PickupError('unavailable');
+  if (emailRequestActive) throw new PickupError('email_request_in_progress');
+  if (Date.now() < emailRetryAt) throw new PickupError('email_rate_limited');
+  email = email.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new PickupError('email_invalid');
+  emailRequestActive = true;
+  try {
+    const { data, error } = await buyerSupabase.auth.getSession();
+    if (error) throw new PickupError('session_unavailable');
+    // Preserve an existing guest's identity. A fresh visitor can register by email
+    // without requiring anonymous sign-in to be enabled on the project.
+    const result = !existing && data.session
+      ? await buyerSupabase.auth.updateUser({ email }, { emailRedirectTo: window.location.origin })
+      : await buyerSupabase.auth.signInWithOtp({ email, options: { shouldCreateUser: !existing, emailRedirectTo: window.location.origin } });
+    if (result.error) {
+      const code = result.error.code;
+      if (result.error.status === 429 || code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit') {
+        emailRetryAt = Date.now() + 60000; throw new PickupError('email_rate_limited');
+      }
+      if (code === 'email_address_not_authorized') throw new PickupError('email_delivery_unavailable');
+      if (code === 'email_address_invalid') throw new PickupError('email_invalid');
+      if (code === 'email_exists' || code === 'identity_already_exists') throw new PickupError('email_already_linked');
+      if (code === 'signup_disabled' && existing) throw new PickupError('email_account_not_found');
+      if (['signup_disabled','email_provider_disabled','otp_disabled'].includes(code ?? '')) throw new PickupError('email_signin_unavailable');
+      throw result.error;
+    }
+    emailRetryAt = Date.now() + 60000;
+  } finally { emailRequestActive = false; }
 }
 export async function recheckItem(itemId: string): Promise<FoodItem> {
   const { fetchFoodItems } = await import('./api');

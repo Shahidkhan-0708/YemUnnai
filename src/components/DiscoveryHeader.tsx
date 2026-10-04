@@ -3,6 +3,10 @@ import { ChevronRight, X } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
 import { useLanguage } from '../lib/language';
 import type { ShopEntry } from '../lib/types';
+import { VENDOR_OUTLETS } from '../lib/vendorAuth';
+
+const CANTEEN_PHOTOS = ['/images/shop_mits_canteen.jpg','/images/shop_mits_cafe.jpg','/images/shop_ekdants_cafe.jpg','/images/shop_lickies.jpg','/images/shop_new_cafe.jpg'];
+const CANTEEN_DIRECTORY = VENDOR_OUTLETS.map((shop, i) => ({ ...shop, image: CANTEEN_PHOTOS[i] }));
 
 interface Props {
   shops: ShopEntry[];
@@ -18,6 +22,7 @@ interface Props {
 
 export function DiscoveryHeader({ shops, loading, selectedShop, searchQuery, cartCount, onSearch, onShop, onCart, onBusinessPortal }: Props) {
   const { t } = useLanguage();
+  const displayedShops = shops.length ? shops : loading ? CANTEEN_DIRECTORY : [];
   const id = useId().replace(/:/g, '');
   const labels = (name: string) => {
     if (name === 'MITS Canteen') return ['MITS', 'Canteen'];
@@ -53,11 +58,10 @@ export function DiscoveryHeader({ shops, loading, selectedShop, searchQuery, car
     <div className="discovery-canteen-panel">
       <div className="discovery-shops-heading"><h2>{t('Canteens','క్యాంటీన్లు')}</h2><button type="button" onClick={() => onShop('All')}>{t('View all','అన్నీ చూడండి')}<ChevronRight size={13}/></button></div>
       <div className="discovery-shops" aria-label={t('Choose a canteen','క్యాంటీన్ ఎంచుకోండి')}>
-        {shops.map(shop => { const [name, second] = labels(shop.name); return <button key={shop.id} className="discovery-shop" type="button" aria-label={shop.name} aria-pressed={selectedShop === shop.name} onClick={() => onShop(selectedShop === shop.name ? 'All' : shop.name)}>
+        {displayedShops.map(shop => { const [name, second] = labels(shop.name); return <button key={shop.id} className="discovery-shop" type="button" disabled={loading && !shops.length} aria-label={shop.name} aria-pressed={selectedShop === shop.name} onClick={() => onShop(selectedShop === shop.name ? 'All' : shop.name)}>
           <span className="discovery-shop-photo"><CatalogImage src={shop.image} alt="" loading="eager"/>{selectedShop === shop.name && <span className="discovery-shop-check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m2 6 3 3 5-6"/></svg></span>}</span>
           <span className="discovery-shop-name"><span>{name}</span>{second && <small>{' '}{second}</small>}</span>
         </button>; })}
-        {loading && !shops.length && [0,1,2,3,4].map(n => <span className="discovery-shop-placeholder" key={n} aria-hidden="true"/>)}
       </div>
       <div className="discovery-shop-summary">
         {selectedShop === 'All' ? <p>{loading && !shops.length ? t('Loading canteens…','క్యాంటీన్లు లోడ్ అవుతున్నాయి…') : !shops.length ? t('No canteens available','క్యాంటీన్లు అందుబాటులో లేవు') : t('Browse menus from all canteens','అన్ని క్యాంటీన్ల మెనూలు చూడండి')}</p> : <><button className="discovery-selected-chip" type="button" onClick={() => onShop('All')} aria-label={`Clear canteen filter: ${selectedShop}`}>{selectedShop}<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="m5 3 7 7m0-7-7 7"/></svg></button><button className="discovery-clear-shop" type="button" onClick={() => onShop('All')}>{t('Clear','తొలగించండి')}</button></>}
