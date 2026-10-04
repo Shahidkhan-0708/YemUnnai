@@ -13,7 +13,7 @@ export async function ensureBuyer(): Promise<string> {
   if (!buyerSupabase) throw new PickupError('unavailable');
   if (!sessionPromise) sessionPromise = (async () => {
     const { data, error } = await buyerSupabase!.auth.getSession();
-    if (error) throw error;
+    if (error) throw new PickupError('session_unavailable');
     if (data.session) return data.session.user.id;
     const result = await buyerSupabase!.auth.signInAnonymously();
     if (result.error || !result.data.user) throw new PickupError('session_unavailable');

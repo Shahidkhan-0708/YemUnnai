@@ -7,7 +7,7 @@ export default function ErrorPage({ kind = 'not-found' }: { kind?: 'not-found' |
     <section className="error-screen screen-enter" aria-labelledby="error-title">
       <a className="error-brand" href="/" aria-label="YEMUNNAI home">
         <CatalogImage src="/images/NewLogo.svg" alt="" priority />
-        <span>YEMUNNAI<small>Food on campus</small></span>
+        <span>YEMUNNAI<small>A Food Discovery Platform</small></span>
       </a>
       <div className="error-content">
         <span className="error-code" aria-hidden="true">{missing ? '404' : 'Oops'}</span>

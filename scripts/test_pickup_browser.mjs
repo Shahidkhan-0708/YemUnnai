@@ -26,6 +26,14 @@ const mock = function () {
   const reply = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'content-range': '0-0/1' } });
   window.fetch = async (resource, options = {}) => {
     const address = typeof resource === 'string' ? resource : resource.url ?? resource.toString();
+    if (address === '/api/catalog' || address.includes('/api/catalog?')) {
+      const [foods,vendors] = await Promise.all([
+        window.fetch('https://fixture.invalid/rest/v1/food_items'),
+        window.fetch('https://fixture.invalid/rest/v1/vendors'),
+      ]);
+      if (!foods.ok || !vendors.ok) return reply({error:'catalog_unavailable'},503);
+      return reply({food_items:await foods.json(),vendors:await vendors.json()});
+    }
     if (address.includes('/auth/v1/user')) return reply(session(address.includes('never') ? owner : buyer).user);
     if (address.includes('/functions/v1/pickup')) {
       const input = JSON.parse(options.body ?? '{}');
@@ -42,7 +50,7 @@ const mock = function () {
       if (input.action === 'recover') return reply({ orders: state.orders.filter(o => o.attempt_id === input.attemptId) });
       if (input.action === 'transition' || input.action === 'cancel') {
         const order = state.orders.find(o => o.id === input.orderId); order.status = input.action === 'cancel' ? 'cancelled' : input.status;
-        if (input.status === 'collected') order.payment_method = input.paymentMethod;
+        if (input.status === 'collected') { state.collections = (state.collections ?? 0) + 1; order.payment_method = input.paymentMethod; }
         sessionStorage.setItem('mock-orders', JSON.stringify(state.orders)); return reply({ order });
       }
       if (input.action === 'support_list') return reply({ requests: state.supports });
@@ -149,9 +157,11 @@ const resumed = async function () {
     button('Confirm collection').click();
     await until(() => document.querySelector('[role=dialog]'), 'collection dialog did not open');
     await until(() => document.querySelector('[role=dialog]')?.contains(document.activeElement), 'collection focus');
-    button('Collected and paid').click();
+    const collect = button('Collected and paid');
+    for (let i=0;i<10;i++) collect.click();
     await until(() => window.__pickupMock.orders[0]?.status === 'collected', 'collection not saved');
     check(window.__pickupMock.orders[0].payment_method === 'cash', 'collection records cash payment');
+    check(window.__pickupMock.collections === 1, 'rapid clicks collect the order once');
     steps.push('vendor Preparing, Ready, collection, and payment');
     await until(() => !document.querySelector('[role=dialog]'), 'collection dialog must close');
     button('Menu & stock').click();

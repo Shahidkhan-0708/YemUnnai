@@ -9,7 +9,7 @@ interface BrandIntroSplashProps {
 
 /**
  * Brand Intro Splash Screen — 9:16 pure mascot logo animation.
- * Plays the original YEMUNNAI logo animation in 9:16 ratio,
+ * Plays the YEMUNNAI logo and current discovery tagline in 9:16 ratio,
  * auto-advancing into the app on completion with zero visual clutter.
  */
 export const BrandIntroSplash: React.FC<BrandIntroSplashProps> = ({
@@ -48,13 +48,13 @@ export const BrandIntroSplash: React.FC<BrandIntroSplashProps> = ({
       <div className="relative w-full h-full overflow-hidden bg-[#F06A05] flex items-center justify-center">
         <video
           ref={videoRef}
-          src="/videos/yemunnai_intro_original.mp4"
+          src="/videos/yemunnai_intro_discovery.mp4"
           autoPlay
           muted
           playsInline
           onEnded={handleEnter}
           onError={handleEnter}
-          className="w-full h-full" poster="/videos/preview_intro.png"
+          className="w-full h-full" poster="/videos/preview_intro_discovery.webp"
         />
         
         {/* Subtle skip prompt */}

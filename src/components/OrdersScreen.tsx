@@ -17,7 +17,6 @@ export function useBuyerOrders(enabled: boolean) {
     if (!enabled) return;
     let stopped = false;
     let busy = false;
-    let channel: ReturnType<NonNullable<typeof buyerSupabase>['channel']> | undefined;
     const load = async () => {
       if (stopped || busy) return;
       busy = true;
@@ -29,16 +28,8 @@ export function useBuyerOrders(enabled: boolean) {
       } catch (cause) { if (!stopped) setError(cause instanceof PickupError ? cause.code : 'unavailable'); }
       finally { busy = false; if (!stopped) setLoading(false); }
     };
-    void buyerSupabase?.auth.getSession().then(({ data }) => {
-      const id = data.session?.user.id;
-      if (!id) return;
-      if (stopped || !buyerSupabase) return;
-      channel = buyerSupabase.channel(`buyer-orders-${id}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `buyer_id=eq.${id}` }, () => void load())
-        .subscribe(() => void load());
-    }).catch(() => {});
     void load();
-    const poll = setInterval(() => { if (!document.hidden) void load(); }, 8000);
+    const poll = setInterval(() => { if (!document.hidden) void load(); }, 8000 + Math.random() * 2000);
     window.addEventListener('online', load);
     window.addEventListener('pickup-orders-changed', load);
     document.addEventListener('visibilitychange', load);
@@ -53,7 +44,6 @@ export function useBuyerOrders(enabled: boolean) {
       window.removeEventListener('online', load);
       window.removeEventListener('pickup-orders-changed', load);
       document.removeEventListener('visibilitychange', load);
-      if (channel) void buyerSupabase?.removeChannel(channel);
     };
   }, [enabled, attempt]);
   return { orders, loading, error, retry: () => { setLoading(true); setAttempt(n => n + 1); } };

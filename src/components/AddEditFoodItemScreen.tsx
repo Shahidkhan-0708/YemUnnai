@@ -39,9 +39,19 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const submitLock = useRef(false);
+  const published = useRef(false);
   const sheetRef = useModalA11y<HTMLDivElement>(isOpen, () => { if (!submitLock.current) onClose(); });
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
+  useEffect(() => {
+    if (isOpen) return;
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+    if (published.current) {
+      published.current = false;
+      setSubmitted(false); setName(''); setPrice('50'); setCategory('cooked'); setActionType('order');
+      setVegetarian('unknown'); setInStock(true); setPhoto(null); setPhotoPreview(null); setUploadedUrl(null);
+    }
+  }, [isOpen]);
   useEffect(() => {
     if (!photoPreview) return;
     return () => URL.revokeObjectURL(photoPreview);
@@ -53,7 +63,7 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
     setError(null);setPhoto(file);setPhotoPreview(URL.createObjectURL(file));setUploadedUrl(null);
   };
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); if(submitLock.current)return; setError(null);
+    event.preventDefault(); if(submitLock.current || published.current)return; setError(null);
     if(!vendor){setError('Sign in as a vendor first.');return;}
     const priceNum=Number(price);
     if(!name.trim()||!price.trim()||!Number.isSafeInteger(priceNum)||priceNum<(actionType==='order'?1:0)||priceNum>1000000){setError(t('Enter an item name and a whole-rupee price. Walk-in items may cost 0.','పేరు మరియు రూపాయల ధర నమోదు చేయండి.'));return;}
@@ -63,8 +73,8 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
       if(photo && isBackendConfigured && !imageUrl){imageUrl=await uploadFoodPhoto(photo);if(!imageUrl)throw new Error('Photo upload failed. Please try again.');setUploadedUrl(imageUrl);}
       const created=await createFoodItem(vendor.vendorId,{name:name.trim(),price:priceNum,category,actionType,inStock,imageUrl,isVeg:vegetarian==='unknown'?undefined:vegetarian==='yes',remainingQuantity:null});
       if(!created)throw new Error('Could not publish this item. Please try again.');
-      setSubmitted(true);onPublished?.({name:created.name,price:created.price});
-      closeTimer.current=setTimeout(()=>{setSubmitted(false);setName('');setPrice('');setInStock(true);setPhoto(null);setPhotoPreview(null);setUploadedUrl(null);onClose();},900);
+      published.current=true;setSubmitted(true);onPublished?.({name:created.name,price:created.price});
+      closeTimer.current=setTimeout(onClose,900);
     } catch(cause){setError(cause instanceof Error?cause.message:'Could not publish. Please try again.');}
     finally {submitLock.current=false;setSubmitting(false);}
   };

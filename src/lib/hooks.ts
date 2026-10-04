@@ -22,7 +22,7 @@ import { supabase } from './supabase';
 
 /**
  * Live food items for the discovery grid. Fetches the full list
- * and filters client-side, while subscribing to realtime catalog updates.
+ * and filters client-side. Public reads share the production CDN cache.
  */
 export function useFoodItems(category?: FoodCategory): {
   items: FoodItem[];
@@ -38,32 +38,33 @@ export function useFoodItems(category?: FoodCategory): {
 
   useEffect(() => {
     let cancelled = false;
+    let request = 0;
 
     const reload = () => {
+      const current = ++request;
       fetchFoodItems()
         .then(list => {
-          if (!cancelled) { setAllItems(list); setError(null); }
+          if (!cancelled && current === request) { setAllItems(list); setError(null); }
         })
-        .catch(() => { if (!cancelled) setError('Unable to refresh the menu. Check your connection and try again.'); })
+        .catch(() => { if (!cancelled && current === request) setError('Unable to refresh the menu. Check your connection and try again.'); })
         .finally(() => {
-          if (!cancelled) setLoading(false);
+          if (!cancelled && current === request) setLoading(false);
         });
     };
 
     reload();
     const unsub = subscribeCatalogUpdates(reload);
-    const channel = supabase?.channel('discovery-menu')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'food_items' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'vendors' }, reload).subscribe();
-    const poll = setInterval(() => { if (!document.hidden) reload(); }, 15000);
+    const poll = setInterval(() => { if (!document.hidden) reload(); }, 15000 + Math.random() * 5000);
+    const visible = () => { if (!document.hidden) reload(); };
     window.addEventListener('online', reload);
+    document.addEventListener('visibilitychange', visible);
 
     return () => {
       cancelled = true;
       unsub();
       clearInterval(poll);
       window.removeEventListener('online', reload);
-      if (channel) void supabase?.removeChannel(channel);
+      document.removeEventListener('visibilitychange', visible);
     };
   }, [attempt]);
 
@@ -81,7 +82,7 @@ export function useFoodItems(category?: FoodCategory): {
   return { items, loading, totalByCategory, error, retry: () => { setLoading(true); setAttempt(value => value + 1); } };
 }
 
-/** Shop avatars for the "Local Shops" row. Subscribes to realtime catalog updates. */
+/** Shop avatars for the "Local Shops" row. Uses the public catalog cache and visible-page refreshes. */
 export function useShops() {
   const [shops, setShops] = useState<ShopEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -90,26 +91,29 @@ export function useShops() {
 
   useEffect(() => {
     let cancelled = false;
+    let request = 0;
 
     const reload = () => {
+      const current = ++request;
       fetchShops().then(list => {
-        if (!cancelled) { setShops(list); setError(null); }
-      }).catch(() => { if (!cancelled) setError('Unable to refresh shops.'); })
-        .finally(() => { if (!cancelled) setLoading(false); });
+        if (!cancelled && current === request) { setShops(list); setError(null); }
+      }).catch(() => { if (!cancelled && current === request) setError('Unable to refresh shops.'); })
+        .finally(() => { if (!cancelled && current === request) setLoading(false); });
     };
 
     reload();
     const unsub = subscribeCatalogUpdates(reload);
-    const channel = supabase?.channel('discovery-shops').on('postgres_changes', { event: '*', schema: 'public', table: 'vendors' }, reload).subscribe();
-    const poll = setInterval(() => { if (!document.hidden) reload(); }, 15000);
+    const poll = setInterval(() => { if (!document.hidden) reload(); }, 15000 + Math.random() * 5000);
+    const visible = () => { if (!document.hidden) reload(); };
     window.addEventListener('online', reload);
+    document.addEventListener('visibilitychange', visible);
 
     return () => {
       cancelled = true;
       unsub();
       clearInterval(poll);
       window.removeEventListener('online', reload);
-      if (channel) void supabase?.removeChannel(channel);
+      document.removeEventListener('visibilitychange', visible);
     };
   }, [attempt]);
 
@@ -123,86 +127,65 @@ export function useShops() {
 export function useReactions(items: FoodItem[]) {
   const [myReactions, setMyReactions] = useState<Record<string, 'like' | 'dislike'>>({});
   const [counts, setCounts] = useState<Record<string, { likes: number; dislikes: number }>>({});
+  const [pending, setPending] = useState(new Set<string>());
+  const [error, setError] = useState('');
+  const busy = useRef(new Set<string>());
+  const edited = useRef(new Set<string>());
+  const reactions = useRef(myReactions);
+  const currentCounts = useRef(counts);
 
   useEffect(() => {
     let cancelled = false;
-    fetchMyReactions().then(map => {
-      if (!cancelled) setMyReactions(map);
-    });
-    return () => {
-      cancelled = true;
-    };
+    void fetchMyReactions().then(map => {
+      if (cancelled) return;
+      const next = { ...map };
+      for (const id of edited.current) {
+        if (reactions.current[id]) next[id] = reactions.current[id];
+        else delete next[id];
+      }
+      reactions.current = next; setMyReactions(next);
+    }).catch(() => { /* A recent reaction must not be erased by a failed initial read. */ });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
-    setCounts(prev => {
-      const next = { ...prev };
-      for (const item of items) {
-        if (!(item.id in prev)) {
-          next[item.id] = { likes: item.likes, dislikes: item.dislikes };
-        }
-      }
-      return next;
-    });
+    const next = { ...currentCounts.current };
+    for (const item of items) if (!busy.current.has(item.id)) next[item.id] = { likes: item.likes, dislikes: item.dislikes };
+    currentCounts.current = next; setCounts(next);
   }, [items]);
 
-  const toggle = useCallback(
-    (itemId: string, value: 'like' | 'dislike') => {
-      const opposite = value === 'like' ? 'dislike' : 'like';
-      const current = myReactions[itemId];
-
-      // Optimistic count updates
-      setCounts(prev => {
-        const c = prev[itemId] ?? { likes: 0, dislikes: 0 };
-        let { likes, dislikes } = c;
-        if (current === value) {
-          // undo
-          if (value === 'like') likes = Math.max(0, likes - 1);
-          else dislikes = Math.max(0, dislikes - 1);
-        } else if (current === opposite) {
-          // switch
-          if (value === 'like') {
-            likes += 1;
-            dislikes = Math.max(0, dislikes - 1);
-          } else {
-            dislikes += 1;
-            likes = Math.max(0, likes - 1);
-          }
-        } else {
-          // first reaction
-          if (value === 'like') likes += 1;
-          else dislikes += 1;
-        }
-        return { ...prev, [itemId]: { likes, dislikes } };
-      });
-
-      // Optimistic reaction state
-      setMyReactions(prev => {
-        const next = { ...prev };
-        if (current === value) delete next[itemId];
-        else next[itemId] = value;
-        return next;
-      });
-
-      // Persist without refetching the entire catalog (Scale P0 fix)
-      void setReaction(itemId, value).then(() => {
-        void fetchItemReactionCounts(itemId).then(counts => {
-          if (counts) {
-            setCounts(prev => ({
-              ...prev,
-              [itemId]: counts
-            }));
-          }
-        });
-      });
-    },
-    [myReactions]
-  );
-
+  const toggle = useCallback(async (itemId: string, value: 'like' | 'dislike') => {
+    const item = items.find(row => row.id === itemId);
+    if (!item || busy.current.has(itemId)) return;
+    busy.current.add(itemId); edited.current.add(itemId); setPending(new Set(busy.current)); setError('');
+    const before = reactions.current[itemId];
+    const previousCounts = currentCounts.current[itemId] ?? { likes: item.likes, dislikes: item.dislikes };
+    const nextValue = before === value ? undefined : value;
+    const nextCounts = {
+      likes: Math.max(0, previousCounts.likes + (nextValue === 'like' ? 1 : 0) - (before === 'like' ? 1 : 0)),
+      dislikes: Math.max(0, previousCounts.dislikes + (nextValue === 'dislike' ? 1 : 0) - (before === 'dislike' ? 1 : 0)),
+    };
+    const apply = (reaction: 'like' | 'dislike' | undefined, count: { likes: number; dislikes: number }) => {
+      const next = { ...reactions.current };
+      if (reaction) next[itemId] = reaction; else delete next[itemId];
+      reactions.current = next; setMyReactions(next);
+      currentCounts.current = { ...currentCounts.current, [itemId]: count }; setCounts(currentCounts.current);
+    };
+    apply(nextValue, nextCounts);
+    try {
+      await setReaction(itemId, value);
+      const confirmed = await fetchItemReactionCounts(itemId);
+      if (confirmed) apply(nextValue, confirmed);
+    } catch {
+      apply(before, previousCounts);
+      setError('Could not save your reaction. Please try again.');
+    } finally {
+      busy.current.delete(itemId); setPending(new Set(busy.current));
+    }
+  }, [items]);
   const toggleLike = useCallback((id: string) => toggle(id, 'like'), [toggle]);
   const toggleDislike = useCallback((id: string) => toggle(id, 'dislike'), [toggle]);
-
-  return { myReactions, counts, toggleLike, toggleDislike };
+  return { myReactions, counts, toggleLike, toggleDislike, pending, error };
 }
 
 // ---------------------------------------------------------------------------

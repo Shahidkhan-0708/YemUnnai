@@ -39,16 +39,17 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
+  const processingLock = useRef(false);
 
   const handleOpen = () => {
-    if (disabled || isProcessing) return;
+    if (disabled || processingLock.current) return;
     setErrorMsg(null);
     playTapSound();
     setIsOpen(true);
   };
 
   const handleClose = () => {
-    if (isProcessing) return; // Prevent closing mid-mutation
+    if (processingLock.current) return; // Prevent closing mid-mutation
     playTapSound();
     setIsOpen(false);
     setErrorMsg(null);
@@ -57,7 +58,8 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
   const modalRef = useModalA11y<HTMLDivElement>(isOpen, handleClose);
 
   const handleConfirm = async () => {
-    if (isProcessing) return;
+    if (processingLock.current) return;
+    processingLock.current = true;
     setIsProcessing(true);
     setErrorMsg(null);
     playTapSound();
@@ -73,6 +75,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
       setErrorMsg(msg);
       toast.error(msg);
     } finally {
+      processingLock.current = false;
       setIsProcessing(false);
     }
   };

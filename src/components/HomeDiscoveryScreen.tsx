@@ -8,6 +8,7 @@ import { useLanguage } from '../lib/language';
 import { SaveToggle } from './SaveToggle';
 import { SavedSyncNotice } from './SavedSyncNotice';
 import { CatalogImage } from './CatalogImage';
+import { DietaryBadge } from './DietaryBadge';
 import type { FoodCategory, FoodItem } from '../lib/types';
 
 export type { FoodItem } from '../lib/types';
@@ -47,7 +48,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   const [vegOnly, setVegOnly] = useState(false);
   const { shops, error: shopsError, retry: retryShops } = useShops();
   const { items, loading, error, retry, totalByCategory } = useFoodItems(savedOnly ? undefined : selectedCategory);
-  const { myReactions, counts, toggleLike } = useReactions(items);
+  const { myReactions, counts, toggleLike, pending: pendingReactions, error: reactionError } = useReactions(items);
 
   // Filter by query + shop, hiding offline shop items when browsing all shops
   const displayedItems = items
@@ -105,24 +106,24 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       <div className="food-photo"><button className="food-photo-open" type="button" aria-label={`View details for ${item.name}`} onClick={() => onSelectItem?.(item)}><CatalogImage src={item.image} alt={item.name} size="card" priority={item.id === displayedItems[0]?.id || item.id === displayedItems[1]?.id} /></button>
         <SaveToggle size="sm" idleText="" savedText="" isSaved={saved.ids.has(item.id)} onToggle={value => saved.toggle(item.id, value)} className="food-save" />
       </div>
-      <div className="food-name-row">{item.isVeg !== undefined && <span className={`diet-mark ${item.isVeg ? '' : 'diet-mark-nonveg'}`} aria-label={item.isVeg ? 'Vegetarian' : 'Non-vegetarian'}><i /></span>}<h3 title={item.name}>{item.name}</h3></div>
-      <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'}>{item.price > 0 ? `₹${item.price}` : t('Unavailable','అందుబాటులో లేదు')}</span><span className="food-rating" data-rated={hasRating} aria-label={hasRating ? `${t('Rating','రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')} title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')}><Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />{hasRating ? Number(item.rating).toFixed(1) : '—'}</span></div>
+      <div className="food-name-row"><h3 title={item.name}>{item.name}</h3></div>
+      <div className="food-diet-row"><DietaryBadge isVeg={item.isVeg} /></div>
+      <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'} aria-label={item.price > 0 ? undefined : t('Price not specified','ధర పేర్కొనలేదు')} title={item.price > 0 ? undefined : t('Price not specified','ధర పేర్కొనలేదు')}>{item.price > 0 ? `₹${item.price}` : '—'}</span><span className="food-rating" data-rated={hasRating} aria-label={hasRating ? `${t('Rating','రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')} title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')}><Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />{hasRating ? Number(item.rating).toFixed(1) : '—'}</span></div>
       <p className="food-availability" aria-hidden={unavailable || undefined}>{!unavailable ? t('Available','అందుబాటులో ఉంది') : null}</p>
-      <div className="food-social"><button type="button" aria-label={`Like ${item.name}`} aria-pressed={isLiked} className={isLiked ? 'is-liked' : ''} onClick={() => void toggleLike(item.id)}><ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />{item.likes}</button><button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}><MessageSquare size={13} strokeWidth={1.4} />{item.reviews}</button></div>
+      <div className="food-social"><button type="button" aria-label={`Like ${item.name}`} aria-pressed={isLiked} disabled={pendingReactions.has(item.id)} className={isLiked ? 'is-liked' : ''} onClick={() => void toggleLike(item.id)}><ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />{item.likes}</button><button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}><MessageSquare size={13} strokeWidth={1.4} />{item.reviews}</button></div>
       <Button className="food-action" variant={item.actionType === 'walkin' ? 'walkin' : 'order'} disabled={unavailable} onClick={() => item.actionType === 'walkin' ? onWalkIn?.(item) : onOrderNow?.(item)}>{item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : item.actionType === 'walkin' ? t('Walk In','నేరుగా వెళ్లండి') : `${t('Order','ఆర్డర్')} · ₹${item.price}`}</Button>
     </article>;
   };
-  const savedReference = displayedItems.length === 1 && displayedItems[0].name === 'Samosa' && displayedItems[0].vendor === 'MITS Canteen' && (displayedItems[0].price <= 0 || !displayedItems[0].inStock || displayedItems[0].isShopOnline === false) && !!shopGroups;
-  // Avoid downloading the large artwork when live data requires the native view.
-  const referenceMatches = !loading && !error && !shopsError && !saved.error && displayedItems.every(item => item.inStock && item.isShopOnline !== false && item.price > 0) && (savedOnly ? savedReference : displayedItems.length === 40);
-  return <SvgScreenFrame screen={referenceMatches ? savedOnly ? 'saved' : 'home' : null}><section className="discovery-screen screen-enter">
+  // Product labels and prices always come from live data, including a 40-item menu.
+  return <SvgScreenFrame screen={null}><section className="discovery-screen screen-enter">
     <header className="discovery-header">
-      <button className="discovery-brand" type="button" onClick={onBusinessPortal} aria-label="Open business portal"><CatalogImage src="/images/NewLogo.svg" alt="" priority /><span><strong>YEMUNNAI</strong><small>{t('Food on campus','క్యాంపస్‌లో ఆహారం')}</small></span></button>
+      <button className="discovery-brand" type="button" onClick={onBusinessPortal} aria-label="Open business portal"><CatalogImage src="/images/NewLogo.svg" alt="" priority /><span><strong>YEMUNNAI</strong><small>A Food Discovery Platform</small></span></button>
       <div className="discovery-search-row"><label className="discovery-search"><Search size={16} strokeWidth={1.5}/><input aria-label="Search food or shops" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Search food or shops','వంటకాలు లేదా దుకాణాలు వెతకండి')} />{searchQuery && <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')}><X size={15}/></button>}</label><button className="discovery-cart" type="button" onClick={onCartClick} aria-label={`My orders (${cartCount})`}><ShoppingCart size={23} strokeWidth={1.5}/>{cartCount > 0 && <span>{cartCount}</span>}</button></div>
       <div className="discovery-shops-heading"><h2>{t('Canteens','క్యాంటీన్లు')}</h2><button type="button" onClick={() => {setSelectedShop('All');onSelectShop?.('All');}}>{t('View all','అన్నీ చూడండి')}<ChevronRight size={13}/></button></div>
       <div className="discovery-shops">{shops.map(shop => <button key={shop.id} className="discovery-shop" type="button" aria-pressed={selectedShop === shop.name} onClick={() => {setSelectedShop(selectedShop === shop.name ? 'All' : shop.name);onSelectShop?.(shop.name);}}><span className="discovery-shop-photo"><CatalogImage src={shop.image} alt="" loading="eager"/>{shop.isOnline && <i/>}</span><span>{shop.name === "Ekdant's Cafe" ? "Ekdant's" : shop.name}</span></button>)}</div>
     </header>
     <div className="discovery-content">
+      {reactionError && <p className="pickup-error" role="alert">{reactionError}</p>}
       {(error || shopsError) && <div role="alert" className="pickup-error">{t('Unable to load the menu.','మెనూ లోడ్ కాలేదు')}<Button variant="outline" onClick={() => {retry();retryShops();}}>Retry</Button></div>}
       {(savedOnly || saved.error === 'storage_unavailable') && <SavedSyncNotice error={saved.error} syncing={saved.syncing} retry={saved.retry} />}
       {savedOnly && <h1 className="saved-heading">{t('Saved items','భద్రపరచిన వంటకాలు')}</h1>}

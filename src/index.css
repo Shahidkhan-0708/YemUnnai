@@ -122,6 +122,13 @@
 .food-save svg { width:13px; height:13px; }
 .food-name-row { display:flex; align-items:flex-start; gap:6px; height:36px; flex-shrink:0; margin:12px 2px 0; }
 .food-name-row .diet-mark { margin-top:4px; }
+.food-diet-row { display:flex; align-items:center; min-height:24px; margin:0 2px 4px; }
+.dietary-badge { display:inline-flex; align-items:center; gap:5px; max-width:100%; font-size:11px; line-height:16px; font-weight:600; color:#006B49; }
+.dietary-badge[data-diet=nonveg] { color:#9A3C13; }
+.dietary-badge[data-diet=unknown] { color:#6F6258; font-weight:400; }
+.dietary-symbol { display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; border:1px solid currentColor; border-radius:2px; flex-shrink:0; }
+.dietary-symbol i { width:5px; height:5px; border-radius:50%; background:currentColor; }
+.dietary-badge[data-diet=nonveg] .dietary-symbol i { width:0; height:0; border-left:3px solid transparent; border-right:3px solid transparent; border-bottom:5px solid currentColor; border-radius:0; background:none; }
 .food-name-row h3 { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; min-width:0; margin:0; font-size:12.5px; line-height:17px; font-weight:600; overflow-wrap:anywhere; }
 .food-price-row { display:flex; align-items:center; justify-content:space-between; gap:4px; min-height:24px; margin:0 2px; }
 .food-price { font-size:19px; line-height:24px; font-weight:600; font-variant-numeric:tabular-nums; }

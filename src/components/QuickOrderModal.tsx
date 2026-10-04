@@ -1,3 +1,4 @@
+import { DietaryBadge } from './DietaryBadge';
 import { SvgScreenFrame } from './SvgScreenFrame';
 import { useRef, useState } from 'react';
 import { X } from 'lucide-react';
@@ -60,27 +61,7 @@ export function QuickOrderModal({ isOpen, item, initialQty = 1, onClose, onSucce
           <p className="text-xs font-medium text-[#7A6658] mt-0.5">{item.vendor}</p>
         </div>
 
-        {/* Vendor-confirmed dietary status badge */}
-        <div className={`flex items-center gap-2 py-1.5 px-3 rounded-xl border text-xs font-bold ${
-          item.isVeg === true
-            ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-            : item.isVeg === false
-            ? 'bg-amber-50 border-amber-300 text-amber-900'
-            : 'bg-stone-50 border-stone-200 text-stone-600'
-        }`}>
-          {item.isVeg !== undefined && (
-            <span className={`w-3.5 h-3.5 border ${item.isVeg === true ? 'border-emerald-700' : 'border-amber-800'} flex items-center justify-center p-0.5 rounded-xs shrink-0 bg-white`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${item.isVeg === true ? 'bg-emerald-700' : 'bg-amber-800'}`} />
-            </span>
-          )}
-          <span>
-            {item.isVeg === true
-              ? t('Vegetarian', 'దుకాణం నిర్ధారించిన శాఖాహారం')
-              : item.isVeg === false
-              ? t('Non-vegetarian', 'మాంసాహారం')
-              : t('Dietary info not provided', 'ఆహార సమాచారం లేదు')}
-          </span>
-        </div>
+    <DietaryBadge isVeg={item.isVeg} />
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1"><span>{t('Quantity', 'పరిమాణం')}</span><Stepper min={1} max={20} value={qty} onChange={setQty} disabled={busy || uncertain} /></div>
         <p>{t('Pickup location', 'తీసుకునే స్థలం')}: {item.locationLandmark || item.vendor}</p>

@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { mockPickupTransport } from './test_pickup_browser.mjs';
 
-const bootstrap = function(){
+const bootstrap = function(){ window.__randomErrors=[];window.addEventListener('error',e=>window.__randomErrors.push(e.message));window.addEventListener('unhandledrejection',e=>window.__randomErrors.push(String(e.reason)));
   localStorage.removeItem('yemunnai_saved_items');localStorage.removeItem('yemunnai_saved_items-edits');
   window.WebSocket=class{close(){}send(){}addEventListener(){}removeEventListener(){}};
   const original=window.fetch;
@@ -32,7 +32,7 @@ const bootstrap = function(){
     return response;
   };
 };
-const root = path.resolve('dist'), output = path.resolve('.tmp/discovery-filters');
+const root = path.resolve('dist'), output = path.resolve('.tmp/launch-random');
 await fs.mkdir(output, { recursive: true });
 const profile = await fs.mkdtemp(path.resolve('.tmp/screenshot-profile-'));
 const server = createServer(async (request, response) => {
@@ -83,66 +83,46 @@ try {
   if(process.env.FILTER_TEST_URL)await command('Page.addScriptToEvaluateOnNewDocument',{source:'('+mockPickupTransport.toString()+')();('+bootstrap.toString()+')();'});
   await viewport(390,844);await command('Page.navigate',{url});
   await until("document.querySelectorAll('.food-card:not(.food-skeleton)').length===6");
-  // The seller's three possible declarations must remain distinguishable.
-  assert(await evaluate(`(() => {
-    const card = name => [...document.querySelectorAll('.food-card')].find(c => c.querySelector('h3')?.textContent === name);
-    return card('Tea').querySelector('.dietary-badge').textContent === 'Veg'
-      && card('Chicken rice').querySelector('.dietary-badge').textContent === 'Non-veg'
-      && card('Unknown diet').querySelector('.dietary-badge').textContent === 'Not specified'
-      && card('No price').querySelector('.food-price-row > span').textContent === '\\u2014'
-      && card('No price').textContent.split('Unavailable').length === 2;
-  })()`), 'Diet labels reflect seller data and unavailable copy appears once');
-  for (const width of [320,390]) {
-    await viewport(width,844);
-    assert(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), `No page overflow at ${width}px`);
-    assert(await evaluate(`(() => {
-      const cards=[...document.querySelectorAll('.food-card:not(.food-skeleton)')];
-      for(let i=0;i<cards.length;i+=2){
-        if(Math.abs(cards[i].querySelector('.food-price-row').getBoundingClientRect().top-cards[i+1].querySelector('.food-price-row').getBoundingClientRect().top)>1)return false;
-        if(Math.abs(cards[i].querySelector('.food-action').getBoundingClientRect().top-cards[i+1].querySelector('.food-action').getBoundingClientRect().top)>1)return false;
-      } return true;
-    })()`), `Card prices and actions align at ${width}px`);
-    await screenshot(`dietary-labels-${width}`);
-  }
+
   const exercise=async function(){
+    let seed=71822, actions=0;
+    const random=n=>{seed=(seed*1664525+1013904223)>>>0;return seed%n;};
     const pause=ms=>new Promise(r=>setTimeout(r,ms));
-    const names=()=>[...document.querySelectorAll('.food-card:not(.food-skeleton) h3')].map(e=>e.textContent).sort();
-    const button=label=>[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===label);
-    const change=(selector,value)=>{const e=document.querySelector(selector);Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,value);e.dispatchEvent(new Event('input',{bubbles:true}));};
-    const check=async(expected,label)=>{for(let i=0;i<100;i++){if(JSON.stringify(names())===JSON.stringify(expected.slice().sort()))return;await pause(20);}throw Error(label+' expected '+JSON.stringify(expected)+' got '+JSON.stringify(names()));};
-    let count=0;
-    for(const category of ['cooked','packed']){
-      [...document.querySelectorAll('.discovery-categories button')].find(b=>b.textContent.startsWith(category==='cooked'?'Cooked':'Packed')).click();
-      for(const price of ['', '0','10','15','20','35','80','999','20.5'])for(const available of [false,true])for(const veg of [false,true]){
-        change('input[aria-label="Maximum price"]',price);
-        for(const [sel,wanted] of [['.availability-filter input',available],['.veg-filter input',veg]]){const e=document.querySelector(sel);if(e.checked!==wanted)e.click();}
-        const expected=window.__filterRows.filter(r=>r.category===category&&r.vendors.name==='MITS Canteen'&&(!price||(r.price>0&&r.price<=Number(price)))&&(!available||(r.in_stock&&r.price>0))&&(!veg||r.is_vegetarian===true)).map(r=>r.name);
-        await check(expected,[category,price,available,veg].join('/'));count++;
+    const pick=selector=>{const all=[...document.querySelectorAll(selector)].filter(e=>!e.disabled&&e.getClientRects().length&&!e.closest('[inert]'));return all.length?all[random(all.length)]:null;};
+    const change=(selector,value)=>{const e=pick(selector);if(!e)return;Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,value);e.dispatchEvent(new Event('input',{bubbles:true}));};
+    for(let i=0;i<1000;i++){
+      if(window.__randomErrors.length)throw Error(window.__randomErrors.join('; '));
+      if(document.querySelectorAll('[role=dialog]').length>1)throw Error('Multiple dialogs at step '+i);
+      if(document.querySelector('[role=dialog]')){
+        document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+        pick('[role=dialog] button[aria-label=Close]')?.click();
+      } else if(document.querySelector('.detail-screen')){
+        pick('.detail-screen button')?.click();
+      } else switch(random(13)) {
+        case 0:pick('.discovery-categories button')?.click();break;
+        case 1:pick('.discovery-shop')?.click();break;
+        case 2:pick('.availability-filter input')?.click();break;
+        case 3:pick('.veg-filter input')?.click();break;
+        case 4:change('input[aria-label="Maximum price"]',['','0','10','20','35','100'][random(6)]);break;
+        case 5:change('input[aria-label="Search food or shops"]',['','Tea','rice','unknown','zzz'][random(5)]);break;
+        case 6:pick('#buyer-tab-discover,#buyer-tab-saved,#buyer-tab-orders')?.click();break;
+        case 7:pick('.food-save')?.click();break;
+        case 8:pick('.food-social button[aria-label^="Like "]')?.click();break;
+        case 9:pick('.food-social button[aria-label^="Review "]')?.click();break;
+        case 10:pick('.food-photo-open')?.click();break;
+        case 11:pick('.discovery-cart')?.click();break;
+        case 12:pick('.food-action')?.click();break;
       }
+      actions++;await pause(8);
+      if(document.documentElement.scrollWidth>innerWidth+1)throw Error('Horizontal overflow at step '+i);
     }
-    change('input[aria-label="Maximum price"]','');
-    for(const s of ['.availability-filter input','.veg-filter input'])if(document.querySelector(s).checked)document.querySelector(s).click();
-    [...document.querySelectorAll('.discovery-categories button')].find(b=>b.textContent.startsWith('Cooked')).click();
-    change('input[aria-label="Search food or shops"]','  dOsA  ');await check(['Dosa'],'Trimmed case-insensitive search');
-    document.querySelector('button[aria-label="Clear search"]').click();
-    [...document.querySelectorAll('.discovery-shop')].find(b=>b.textContent.trim()==='MITS Cafe').click();
-    await check(['Offline veg','Offline chicken'],'Selected closed shop is browsable');
-    document.querySelector('.availability-filter input').click();await check([],'Available filter excludes closed shop despite stale item vendor metadata');
-    button('Clear filters').click();await check(['Tea','Dosa','Chicken rice','Unknown diet','Sold out veg','No price'],'Clear resets all controls and selected canteen');
-    change('input[aria-label="Maximum price"]','20');document.querySelector('.availability-filter input').click();document.querySelector('.veg-filter input').click();await check(['Tea'],'All three filters');
-    button('Clear filters')?.click();
-    // Clear explicitly when the filtered result is nonempty.
-    change('input[aria-label="Maximum price"]','');for(const s of ['.availability-filter input','.veg-filter input'])if(document.querySelector(s).checked)document.querySelector(s).click();
-    for(const name of ['Tea'])[...document.querySelectorAll('.food-card')].find(c=>c.querySelector('h3').textContent===name).querySelector('.food-save').click();
-    [...document.querySelectorAll('.discovery-categories button')].find(b=>b.textContent.startsWith('Packed')).click();await check(['Chips','Biscuit'],'Packed restore');
-    [...document.querySelectorAll('.food-card')].find(c=>c.querySelector('h3').textContent==='Chips').querySelector('.food-save').click();
-    document.querySelector('#buyer-tab-saved').click();await check(['Chips'],'Saved preserves the current category');
-    [...document.querySelectorAll('.discovery-categories button')].find(b=>b.textContent.startsWith('Cooked')).click();await check(['Tea'],'Saved cooked category');
-    [...document.querySelectorAll('.discovery-categories button')].find(b=>b.textContent.startsWith('Packed')).click();await check(['Chips'],'Saved packed category');
-    return {combinations:count,checks:['inclusive price boundaries','zero and decimal budgets','stock off','closed shop','known/unknown dietary status','category','trimmed search','clear filters','Saved categories']};
+    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await pause(200);
+    return {actions,unhandledErrors:window.__randomErrors,seed:71822};
   };
-  const result=await evaluate('('+exercise.toString()+')()');console.log('PASS',JSON.stringify(result));
-  await fs.writeFile(path.join(output,'results.json'),JSON.stringify(result,null,2));await screenshot('filters');
+  const result=await evaluate('('+exercise.toString()+')()');
+  assert.equal(result.unhandledErrors.length,0);
+  await screenshot('random-final');console.log('PASS: '+JSON.stringify(result));
+  await fs.writeFile(path.join(output,'results.json'),JSON.stringify(result,null,2));
 } catch (error) {
   await fs.writeFile(path.join(output, 'failure.json'), JSON.stringify({ message:error.message }, null, 2));
   throw error;

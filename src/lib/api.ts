@@ -1,5 +1,6 @@
 import { supabase, isBackendConfigured } from './supabase';
 import { retryRead } from './retryRead';
+import { publicCatalog, invalidatePublicCatalog } from './publicCatalog';
 import { DEFAULT_FOOD_ITEMS, LOCAL_SHOPS } from './mockData';
 import { VENDOR_OUTLETS } from './vendorAuth';
 import type {
@@ -50,6 +51,7 @@ let inMemoryShops: ShopEntry[] = LOCAL_SHOPS.map(s => ({ ...s, isOnline: true })
 const catalogSubscribers = new Set<() => void>();
 
 function notifySubscribers() {
+  invalidatePublicCatalog();
   catalogSubscribers.forEach(cb => {
     try {
       cb();
@@ -137,6 +139,8 @@ export async function fetchFoodItems(category?: FoodCategory): Promise<FoodItem[
     throw new Error('The menu is unavailable. Try again later.');
   }
 
+  const shared = await publicCatalog();
+  if (shared) return (shared.food_items as FoodItemRow[]).map(rowToItem).filter(item => !category || item.category === category);
   let query = supabase
     .from('food_items')
     .select('*, vendors(name, is_online, latitude, longitude, location_landmark, is_on_campus), reviews(rating)')
@@ -168,7 +172,8 @@ export async function fetchShops(): Promise<ShopEntry[]> {
 
   const EXCLUDED_SHOPS = new Set(['royal hotel', 'royal corner', 'chai corner', 'vatika', 'vatika tuck', 'lays corner']);
 
-  const { data, error } = await supabase
+  const shared = await publicCatalog();
+  const { data, error } = shared ? { data: shared.vendors, error: null } : await supabase
     .from('vendors')
     .select('id, name, image_url, is_active, is_online, latitude, longitude, location_landmark, is_on_campus')
     .eq('is_active', true)
@@ -210,34 +215,35 @@ export async function fetchShops(): Promise<ShopEntry[]> {
  * Returns nothing; callers re-fetch or patch counts optimistically.
  */
 export async function setReaction(foodItemId: string, value: ReactionValue): Promise<void> {
-  if (!supabase) return; // demo mode: local state only
+  if (!supabase) throw new Error('Reactions are unavailable.');
 
   const userKey = getUserKey();
 
-  const { data: existing } = await supabase
+  const { data: existing, error: readError } = await supabase
     .from('reactions')
     .select('id, value')
     .eq('food_item_id', foodItemId)
     .eq('user_key', userKey)
     .maybeSingle();
+  if (readError) throw readError;
 
   if (!existing) {
     const { error } = await supabase
       .from('reactions')
       .insert({ food_item_id: foodItemId, user_key: userKey, value });
-    if (error) console.error('[api] setReaction insert:', error.message);
+    if (error) throw error;
     return;
   }
 
   if (existing.value === value) {
     const { error } = await supabase.from('reactions').delete().eq('id', existing.id);
-    if (error) console.error('[api] setReaction delete:', error.message);
+    if (error) throw error;
   } else {
     const { error } = await supabase
       .from('reactions')
       .update({ value })
       .eq('id', existing.id);
-    if (error) console.error('[api] setReaction update:', error.message);
+    if (error) throw error;
   }
 }
 
@@ -300,7 +306,7 @@ export async function submitReview(input: {
   isLiked: boolean;
   comment: string;
 }): Promise<boolean> {
-  if (!supabase) return true; // demo mode
+  if (!supabase) return false;
 
   const { error } = await supabase.from('reviews').insert({
     food_item_id: input.foodItemId,
@@ -313,6 +319,7 @@ export async function submitReview(input: {
     console.error('[api] submitReview:', error.message);
     return false;
   }
+  notifySubscribers();
   return true;
 }
 

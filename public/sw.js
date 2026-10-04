@@ -1,5 +1,5 @@
 /* YEMUNNAI service worker — offline shell + stale-while-revalidate static assets. */
-const CACHE = 'yemunnai-v14';
+const CACHE = 'yemunnai-v15';
 const PRECACHE = ['/'];
 
 self.addEventListener('install', (event) => {
@@ -32,7 +32,7 @@ self.addEventListener('fetch', (event) => {
   // Cross-origin (fonts, analytics, Supabase) goes straight to the network.
   if (url.origin !== self.location.origin) return;
   // Never cache Vercel internal endpoints.
-  if (url.pathname.startsWith('/_vercel/')) return;
+  if (url.pathname.startsWith('/_vercel/') || url.pathname.startsWith('/api/')) return;
 
   // Pages: network-first with cached shell as fallback.
   if (request.mode === 'navigate') {

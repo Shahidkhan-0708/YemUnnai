@@ -1,5 +1,5 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, ThumbsUp, Star } from 'lucide-react';
 import { submitReview } from '../lib/api';
 import { useModalA11y } from '../lib/useModalA11y';
@@ -28,44 +28,49 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const sheetRef = useModalA11y<HTMLDivElement>(isOpen && !!item, onClose);
+  const submitLock = useRef(false);
+  const published = useRef(false);
+  const mounted = useRef(true);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const close = () => { if (!submitLock.current) onClose(); };
+  const sheetRef = useModalA11y<HTMLDivElement>(isOpen && !!item, close);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; if (closeTimer.current) clearTimeout(closeTimer.current); };
+  }, []);
 
   if (!isOpen || !item) return null;
 
   const activeCount = hovered ?? rating;
 
   const handleSubmit = async () => {
-    if (submitting) return;
+    if (submitLock.current || published.current) return;
+    submitLock.current = true;
     setSubmitting(true);
     setSubmitError(null);
 
-    const ok = await submitReview({
-      foodItemId: item.id,
-      rating,
-      isLiked,
-      comment
-    });
-
-    setSubmitting(false);
-
-    if (!ok) {
-      setSubmitError('Could not submit review. Please try again.');
-      toast.error('Could not submit review. Please try again.');
-      return;
-    }
-    setSubmitted(true);
-    toast.success('Review published! Thank you for the feedback.');
-    setTimeout(() => {
-      setSubmitted(false);
-      setRating(5);
-      setComment('');
+    try {
+      const ok = await submitReview({ foodItemId: item.id, rating, isLiked, comment });
+      if (!mounted.current) return;
+      if (!ok) throw new Error('Could not submit review. Please try again.');
+      published.current = true;
+      setSubmitted(true);
+      toast.success('Review published! Thank you for the feedback.');
       onSubmitSuccess?.();
-      onClose();
-    }, 1100);
+      closeTimer.current = setTimeout(onClose, 1100);
+    } catch {
+      if (mounted.current) {
+        setSubmitError('Could not submit review. Please try again.');
+        toast.error('Could not submit review. Please try again.');
+      }
+    } finally {
+      submitLock.current = false;
+      if (mounted.current) setSubmitting(false);
+    }
   };
 
-  return <SvgScreenFrame screen={'feedback'}><div className="pickup-overlay" onClick={()=>{if(!submitting)onClose();}}><div ref={sheetRef} role="dialog" aria-modal="true" aria-labelledby="feedback-title" className="pickup-sheet feedback-sheet" onClick={e=>e.stopPropagation()}>
-    <div className="sheet-handle"/><button type="button" className="sheet-close" aria-label="Close" onClick={onClose} disabled={submitting}><X size={15}/></button>
+  return <SvgScreenFrame screen={'feedback'}><div className="pickup-overlay" onClick={close}><div ref={sheetRef} role="dialog" aria-modal="true" aria-labelledby="feedback-title" className="pickup-sheet feedback-sheet" onClick={e=>e.stopPropagation()}>
+    <div className="sheet-handle"/><button type="button" className="sheet-close" aria-label="Close" onClick={close} disabled={submitting}><X size={15}/></button>
     {submitted ? <div role="status" className="py-12 text-center"><ThumbsUp className="mx-auto text-[#F06A05]"/><h2 className="sheet-title mt-4">Review published</h2><p className="sheet-subtitle">Thanks for sharing your feedback.</p></div> : <>
       <h2 id="feedback-title" className="sheet-title">Leave a review</h2><p className="sheet-subtitle">{item.vendor}</p>
       <div className="feedback-rating"><p>Rating</p><div>{[1,2,3,4,5].map(value=><button key={value} type="button" aria-label={`Rate ${value} star${value>1?'s':''}`} aria-pressed={rating===value} onMouseEnter={()=>setHovered(value)} onMouseLeave={()=>setHovered(null)} onClick={()=>setRating(value)}><Star size={24} strokeWidth={1.5} fill={value<=activeCount?'#EAA02B':'none'} color="#EAA02B"/></button>)}</div></div>
