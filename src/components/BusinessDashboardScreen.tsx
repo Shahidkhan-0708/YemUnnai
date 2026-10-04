@@ -1,8 +1,7 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useEffect, useRef, useState } from 'react';
-import { MapPin, LogIn, LogOut, RefreshCw } from 'lucide-react';
+import { MapPin, LogIn, LogOut, RefreshCw, CloudOff } from 'lucide-react';
 import { FamilyReceiveComponent } from './FamilyReceiveComponent';
-import Popover6 from './Popover6';
 import { useVendorSession, useVendorOrders, useVendorStats } from '../lib/hooks';
 import { setOrderStatus, setVendorOnline, pickupRequest } from '../lib/api';
 import { isBackendConfigured } from '../lib/supabase';
@@ -48,7 +47,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   }, []);
 
   const { orders, loading: ordersLoading, error: ordersError } = useVendorOrders(vendor?.vendorId ?? null, feedRetry);
-  const stats = useVendorStats(vendor?.vendorId ?? null);
+  const stats = useVendorStats(vendor?.vendorId ?? null, feedRetry);
 
   const [isOnline, setIsOnline] = useState(true);
   useEffect(() => { setIsOnline(vendor?.isOnline ?? false); setError(null); }, [vendor?.vendorId, vendor?.isOnline]);
@@ -133,17 +132,18 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
     );
   }
 
-  return <SvgScreenFrame screen={'dashboard'}><section className="business-screen pickup-business screen-enter">
-    <header className="business-header"><div className="business-identity"><CatalogImage src={shopImage} alt="" loading="eager"/><div><h1>{vendor.vendorName}</h1><p>{t('Dashboard','నిర్వహణ పేజీ')}</p></div><div className="business-tools"><Popover6/><select aria-label="Language" value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select><button type="button" onClick={signOut} aria-label="Sign out"><LogOut size={18}/></button></div></div>
+  return <SvgScreenFrame screen={null}><section className="business-screen pickup-business screen-enter">
+    <header className="business-header"><div className="business-identity"><CatalogImage src={shopImage} alt="" loading="eager"/><div><h1>{vendor.vendorName}</h1><p>{t('Dashboard','నిర్వహణ పేజీ')}</p></div><div className="business-tools"><select aria-label="Language" value={lang} onChange={e=>setLanguage(e.target.value as 'en'|'te')}><option value="en">EN</option><option value="te">తెలుగు</option></select><button type="button" onClick={signOut} aria-label="Sign out"><LogOut size={18}/></button></div></div>
       <div className="business-online"><span>{isOnline?t('Accepting orders','ఆర్డర్లు అంగీకరిస్తున్నారు'):t('Shop closed','దుకాణం మూసివేయబడింది')}</span><div className="segmented">{[true,false].map(value=><button key={String(value)} type="button" aria-pressed={isOnline===value} disabled={busyAction!==null} onClick={()=>{if(isOnline!==value)void toggleOnline();}}>{value?t('Online','అందుబాటులో ఉంది'):t('Offline','మూసివేయబడింది')}</button>)}</div></div>
     </header>
     <div className="business-content">
-      <dl className="business-stats">{[['Orders today',stats.error?'—':stats.ordersToday],['Likes',stats.error?'—':stats.totalLikes],['Rating',stats.avgRating==null?'—':Number(stats.avgRating).toFixed(1)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
-      {(error||stats.error) && <p className="pickup-error" role="alert">{error||stats.error}</p>}
-      <div className="business-orders-heading"><h2>{t('Incoming orders','వచ్చిన ఆర్డర్లు')}</h2><span>{orders.length} orders</span></div>
+      <dl className="business-stats">{[['Orders today',stats.error||stats.loading?'—':stats.ordersToday],['Likes',stats.error||stats.loading?'—':stats.totalLikes],['Rating',stats.loading||stats.avgRating==null?'—':Number(stats.avgRating).toFixed(1)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+      {error && <p className="pickup-error" role="alert">{error}</p>}
+      {stats.error && <div className="feed-notice" role="status"><span>{stats.error}</span></div>}
+      <div className="business-orders-heading"><h2>{t('Incoming orders','వచ్చిన ఆర్డర్లు')}</h2><button className="business-refresh" aria-label="Refresh dashboard" disabled={ordersLoading} onClick={()=>setFeedRetry(n=>n+1)}><RefreshCw size={14}/>{t('Refresh','తాజాకరించండి')}</button></div>
       <div className="business-orders">
-        {ordersError && <div role="alert" className="pickup-error">Unable to refresh orders. Displayed orders may be outdated.<Button variant="outline" onClick={()=>setFeedRetry(n=>n+1)}>Retry</Button></div>}
-        {ordersLoading && <p role="status">Loading orders…</p>}
+        {ordersError && <div role="status" className="feed-notice"><CloudOff size={18} aria-hidden="true"/><span>{orders.length ? t('Order updates paused. Showing the last received orders.','ఆర్డర్ నవీకరణలు నిలిచాయి. చివరిగా వచ్చిన ఆర్డర్లు చూపుతున్నాం.') : t('Order updates are temporarily unavailable.','ఆర్డర్ నవీకరణలు ప్రస్తుతం అందుబాటులో లేవు.')}</span><Button variant="outline" onClick={()=>setFeedRetry(n=>n+1)}>Retry</Button></div>}
+        {ordersLoading && <p role="status" className="business-empty">Connecting to orders…</p>}
         {!ordersLoading&&!orders.length&&!ordersError&&<p className="business-empty">New orders will appear here.</p>}
         {orders.map(ord=><article key={ord.id} className="business-order">
           <div className="business-order-item"><CatalogImage src={ord.image} alt=""/><div><h3>{ord.quantity??1} × {ord.item}</h3><p>#{ord.row.pickup_number??'—'} · {t(...statusLabels[ord.status])}</p></div><strong>₹{ord.price}</strong></div>

@@ -43,7 +43,7 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
   const previousRating = useRef<number|null>(null);
   const template = useRef({text:'',cards:40});
   const isModal = !!screen && modalScreens.has(screen);
-  const skip = !screen || (nested && !isModal);
+  const skip = !screen || isModal || nested;
 
   useEffect(() => {
     if (skip || !visible || !screen) return;
@@ -294,7 +294,7 @@ export function SvgScreenFrame({ screen, children, visible=true }: {screen:SvgSc
     </div>
   </div>;
   return <div ref={host} className="svg-screen-frame" data-svg-root-id={native?undefined:id}>
-    <div ref={controller} data-svg-controller={native?undefined:''} className={native?'svg-screen-native':'svg-screen-controller'} aria-hidden={native?undefined:true}><ControllerContext.Provider value={!native}>{children}</ControllerContext.Provider></div>
+    {isModal && screen !== 'collection' ? createPortal(<div ref={controller} className="svg-screen-native"><ControllerContext.Provider value={false}>{children}</ControllerContext.Provider></div>,document.body) : <div ref={controller} data-svg-controller={native?undefined:''} className={native?'svg-screen-native':'svg-screen-controller'} aria-hidden={native?undefined:true}><ControllerContext.Provider value={!native}>{children}</ControllerContext.Provider></div>}
     {!native&&(isModal?createPortal(visual,document.body):visual)}
   </div>;
 }

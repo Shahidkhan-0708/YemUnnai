@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { retryRead } from './retryRead';
 import {
   fetchFoodItems,
   fetchShops,
@@ -303,9 +304,11 @@ export function useVendorOrders(vendorId: string | null, retry = 0): {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const firstLoad = useRef(true);
+  const previousVendor = useRef<string | null>(null);
 
   useEffect(() => {
-    setOrders([]);
+    if (previousVendor.current !== vendorId) setOrders([]);
+    previousVendor.current = vendorId;
     setError(null);
     if (!vendorId) {
       setOrders([]);
@@ -330,8 +333,9 @@ export function useVendorOrders(vendorId: string | null, retry = 0): {
 }
 
 /** Live stats cards for the signed-in vendor. */
-export function useVendorStats(vendorId: string | null): VendorStats & { error: string | null } {
+export function useVendorStats(vendorId: string | null, retry = 0): VendorStats & { error: string | null; loading: boolean } {
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<VendorStats>(
     { ordersToday: 0, totalLikes: 0, avgRating: null }
   );
@@ -339,12 +343,14 @@ export function useVendorStats(vendorId: string | null): VendorStats & { error: 
   useEffect(() => {
     setStats({ ordersToday: 0, totalLikes: 0, avgRating: null });
     setError(null);
-    if (!vendorId) return;
+    if (!vendorId) { setLoading(false); return; }
+    setLoading(true);
     let cancelled = false;
     const load = () => {
-      void fetchVendorStats(vendorId).then(s => {
+      void retryRead(() => fetchVendorStats(vendorId), () => !cancelled).then(s => {
         if (!cancelled) { setStats(s); setError(null); }
-      }).catch(() => { if (!cancelled) setError('Unable to load cafe statistics.'); });
+      }).catch(() => { if (!cancelled) setError('Statistics are temporarily unavailable.'); })
+        .finally(() => { if (!cancelled) setLoading(false); });
     };
     load();
     const unsubscribe = subscribeCatalogUpdates(load);
@@ -352,7 +358,7 @@ export function useVendorStats(vendorId: string | null): VendorStats & { error: 
       cancelled = true;
       unsubscribe();
     };
-  }, [vendorId]);
+  }, [vendorId, retry]);
 
-  return { ...stats, error };
+  return { ...stats, error, loading };
 }

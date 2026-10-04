@@ -1,4 +1,5 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
+import { createPortal } from 'react-dom';
 'use client';
 
 import React, { useState, useRef } from 'react';
@@ -104,7 +105,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
       </button>
 
       {/* Confirmation Modal / Sheet Overlay */}
-      {isOpen && (
+      {isOpen && createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -189,7 +190,7 @@ export const FamilyReceiveComponent: React.FC<FamilyReceiveComponentProps> = ({
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </>
   </SvgScreenFrame>;
 };

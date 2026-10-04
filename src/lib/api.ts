@@ -1,4 +1,5 @@
 import { supabase, isBackendConfigured } from './supabase';
+import { retryRead } from './retryRead';
 import { DEFAULT_FOOD_ITEMS, LOCAL_SHOPS } from './mockData';
 import { VENDOR_OUTLETS } from './vendorAuth';
 import type {
@@ -330,7 +331,7 @@ export function subscribeVendorOrders(vendorId: string, onData: (orders: Dashboa
     busy = true;
     try {
       const { pickupRequest } = await import('./pickup');
-      const result = await pickupRequest({ action: 'vendor_list', vendorId }, true);
+      const result = await retryRead(() => pickupRequest({ action: 'vendor_list', vendorId }, true), () => !cancelled);
       if (!cancelled) {
         onData((result.orders ?? []).filter(r => ['pending','preparing','ready'].includes(r.status)).map(r => orderRowToDashboard(r, r.shop_name ?? 'Your shop')));
         onError(null);

@@ -174,8 +174,9 @@ globalThis.__supportEnv = {
   useEffect: effect => supportEffects.push(effect), useLanguage: () => ({ t: en => en }),
   buyerSupabase: { auth: { onAuthStateChange: callback => { supportAuth = callback; return { data: { subscription: { unsubscribe() {} } } }; } } },
   pickupRequest: () => ++supportCalls === 1 ? oldSupport : Promise.resolve({ requests: [], admin: false }),
+  retryRead: work => work(),
 };
-const supportCode = ts.transpileModule(`const {React, Button, SvgScreenFrame, useState, useRef, useCallback, useEffect, useLanguage, buyerSupabase, pickupRequest} = globalThis.__supportEnv;\n${supportSource}`, { compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.React } }).outputText;
+const supportCode = ts.transpileModule(`const {React, Button, SvgScreenFrame, useState, useRef, useCallback, useEffect, useLanguage, buyerSupabase, pickupRequest, retryRead} = globalThis.__supportEnv;\n${supportSource}`, { compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.React } }).outputText;
 const supportModule = await import(`data:text/javascript;base64,${Buffer.from(supportCode).toString('base64')}`);
 supportModule.SupportPanel({});
 const supportCleanup = supportEffects[0]();

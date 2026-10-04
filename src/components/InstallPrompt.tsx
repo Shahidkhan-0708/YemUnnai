@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Download, Share2, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Download, Share2, X, Smartphone } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { CatalogImage } from './CatalogImage';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage } from '../lib/language';
 
@@ -30,6 +32,9 @@ const isStandalone = () =>
 export const InstallPrompt: React.FC = () => {
   const { t } = useLanguage();
   const [requested, setRequested] = useState(false);
+  const [installing, setInstalling] = useState(false);
+  const [installError, setInstallError] = useState('');
+  const installLock = useRef(false);
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOS, setShowIOS] = useState(false);
   const [dismissed, setDismissed] = useState<boolean>(() => {
@@ -61,7 +66,7 @@ export const InstallPrompt: React.FC = () => {
   });
 
   if (!available) return null;
-  if (!open) return <button type="button" className="pickup-link min-h-11 px-4" onClick={() => setRequested(true)}>{t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')}</button>;
+  if (!open) return <div className="app-install-entry"><button type="button" className="app-install-button" onClick={() => setRequested(true)}><Smartphone size={17} aria-hidden="true"/>{t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')}</button></div>;
 
   const close = () => {
     setDismissed(true);
@@ -69,14 +74,19 @@ export const InstallPrompt: React.FC = () => {
   };
 
   const install = async () => {
-    if (!deferred) return;
-    await deferred.prompt();
-    const choice = await deferred.userChoice;
-    setDeferred(null);
-    if (choice.outcome === 'accepted') close();
+    if (!deferred || installLock.current) return;
+    installLock.current = true; setInstalling(true); setInstallError('');
+    try {
+      await deferred.prompt();
+      const choice = await deferred.userChoice;
+      setDeferred(null); window.__yemDeferredInstall = undefined;
+      if (choice.outcome === 'accepted') close();
+      else setRequested(false);
+    } catch { setInstallError(t('Installation could not start. Please try again.', 'ఇన్‌స్టాల్ చేయలేకపోయాం. మళ్లీ ప్రయత్నించండి.')); }
+    finally { installLock.current = false; setInstalling(false); }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
       {/* Dimmed backdrop — tap to dismiss */}
       <div
@@ -90,7 +100,7 @@ export const InstallPrompt: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-label={t('Install YEMUNNAI', 'YEMUNNAI ఇన్‌స్టాల్ చేయండి')}
-        className="relative w-full max-w-sm rounded-3xl bg-[#1F140A] border border-emerald-500/30 shadow-2xl p-6 text-center text-white"
+        className="relative w-full max-w-sm rounded-3xl bg-[#FFFCF8] border border-[#E7DED5] shadow-2xl p-6 text-center text-[#1F140A]"
       >
         {/* Close */}
         <button
@@ -104,19 +114,21 @@ export const InstallPrompt: React.FC = () => {
 
         {/* App icon — logo fills the tile completely */}
         <div className="mx-auto w-16 h-16 rounded-[20px] overflow-hidden shadow-lg">
-          <img src="/images/NewLogo.svg" alt="YEMUNNAI" className="w-full h-full object-cover" />
+          <CatalogImage src="/images/NewLogo.svg" priority alt="YEMUNNAI" className="w-full h-full object-cover" />
         </div>
 
         <h2 className="mt-3.5 text-xl font-bold">{t('Install YEMUNNAI', 'YEMUNNAI ఇన్‌స్టాల్ చేయండి')}</h2>
+        {installError && <p role="alert" className="pickup-error mt-3">{installError}</p>}
 
         {deferred ? (
           <>
-            <p className="text-xs text-emerald-100/80 leading-relaxed mt-3">
+            <p className="text-xs text-[#7A6658] leading-relaxed mt-3">
               {t('Keep the campus menu on your home screen. Live menus and orders need a connection.', 'క్యాంపస్ మెనూను మీ హోమ్ స్క్రీన్‌లో ఉంచుకోండి. తాజా మెనూలు మరియు ఆర్డర్ల కోసం ఇంటర్నెట్ అవసరం.')}
             </p>
             <button
               type="button"
               onClick={install}
+              disabled={installing}
               className="mt-4 w-full min-h-11 rounded-2xl bg-[#F26A00] text-white font-bold flex items-center justify-center gap-2"
             >
               <Download className="w-4 h-4" aria-hidden="true" />
@@ -125,14 +137,14 @@ export const InstallPrompt: React.FC = () => {
             <button
               type="button"
               onClick={close}
-              className="mt-2 min-h-11 text-xs text-white underline"
+              className="mt-2 min-h-11 text-xs text-[#7A6658] underline"
             >
               {t('Not now', 'ఇప్పుడు వద్దు')}
             </button>
           </>
         ) : (
           <>
-            <p className="text-xs text-emerald-100/80 leading-relaxed mt-3 flex items-start justify-center gap-2">
+            <p className="text-xs text-[#7A6658] leading-relaxed mt-3 flex items-start justify-center gap-2">
               <Share2 className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
               {t('Tap the Share icon in Safari, then choose “Add to Home Screen”.', 'Safariలో షేర్ గుర్తును నొక్కి, “Add to Home Screen” ఎంచుకోండి.')}
             </p>
@@ -147,5 +159,5 @@ export const InstallPrompt: React.FC = () => {
         )}
       </div>
     </div>
-  );
+  , document.body);
 };

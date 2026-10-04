@@ -6,6 +6,7 @@ import { buyerSupabase, supabase } from '../lib/supabase';
 import { fetchBuyerOrders, recoverCheckout, pendingCheckout, cancelBuyerOrder, recheckItem, requestBuyerEmail, pickupRequest, PickupError } from '../lib/pickup';
 import { useLanguage, statusLabels, pickupErrorText } from '../lib/language';
 import type { FoodItem, OrderRow, SupportRequest } from '../lib/types';
+import { retryRead } from '../lib/retryRead';
 
 export function useBuyerOrders(enabled: boolean) {
   const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -65,12 +66,13 @@ export function SupportPanel({ vendor = false }: { vendor?: boolean }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
   const generation = useRef(0);
   const actionLock = useRef(false);
   const load = useCallback(async () => {
     const current = ++generation.current;
     try {
-      const result = await pickupRequest({ action: 'support_list' }, vendor);
+      const result = await retryRead(() => pickupRequest({ action: 'support_list' }, vendor), () => current === generation.current);
       if (current !== generation.current) return;
       setRequests(result.requests ?? []); setAdmin(!!result.admin); setError('');
     } catch { if (current === generation.current) setError(t('Unable to load help requests. Retry.', 'సహాయ అభ్యర్థనలు లోడ్ కాలేదు. మళ్లీ ప్రయత్నించండి.')); }
@@ -93,15 +95,17 @@ export function SupportPanel({ vendor = false }: { vendor?: boolean }) {
   const act = async (input: Record<string, unknown>) => {
     if (actionLock.current) return;
     actionLock.current = true;
+    setActionError('');
     setBusy(true);
     try { await pickupRequest(input, vendor); await load(); }
-    catch { setError(t('Unable to save. Retry.', 'భద్రపరచలేకపోయాం. మళ్లీ ప్రయత్నించండి.')); }
+    catch { setActionError(t('Unable to save. Retry.', 'భద్రపరచలేకపోయాం. మళ్లీ ప్రయత్నించండి.')); }
     finally { actionLock.current = false; setBusy(false); }
   };
-  return <SvgScreenFrame screen={'support'}><section className="support-panel space-y-3 mt-6">
+  return <SvgScreenFrame screen={null}><section className="support-panel space-y-3 mt-6">
     <h2 className="text-base font-semibold">{admin ? t('Help and admin queue', 'సహాయం మరియు నిర్వాహకుల జాబితా') : t('Help requests', 'సహాయ అభ్యర్థనలు')}</h2>
     {loading && <p role="status">{t('Loading help…', 'సహాయం లోడ్ అవుతోంది…')}</p>}
-    {error && <p role="alert" className="pickup-error">{error} <Button variant="outline" onClick={() => void load()}>{t('Retry', 'మళ్లీ ప్రయత్నించండి')}</Button></p>}
+    {error && <div role="status" className="feed-notice"><span>{t('Help requests are temporarily unavailable.', 'సహాయ అభ్యర్థనలు ప్రస్తుతం అందుబాటులో లేవు.')}</span><Button variant="outline" disabled={loading} onClick={() => { setError(''); setLoading(true); void load(); }}>{t('Retry', 'మళ్లీ ప్రయత్నించండి')}</Button></div>}
+    {actionError && <p role="alert" className="pickup-error">{actionError}</p>}
     {!loading && !error && !requests.length && (
       <div className="support-empty">
         <p className="font-medium">{t('No active help requests.', 'సక్రియ సహాయ అభ్యర్థనలు లేవు.')}</p>
