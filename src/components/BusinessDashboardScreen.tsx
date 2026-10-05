@@ -13,7 +13,6 @@ import { Button } from './ui/button';
 import { useLanguage, statusLabels, pickupErrorText } from '../lib/language';
 import { PickupError } from '../lib/pickup';
 import { CatalogImage } from './CatalogImage';
-import { VendorLocationSettings } from './VendorLocationSettings';
 
 interface BusinessDashboardScreenProps {
   onDiscover?: () => void;
@@ -51,6 +50,8 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
 
   const { orders, loading: ordersLoading, error: ordersError } = useVendorOrders(vendor?.vendorId ?? null, feedRetry);
   const stats = useVendorStats(vendor?.vendorId ?? null, feedRetry);
+  const activeOrders = orders.filter(order => ['pending','preparing','ready'].includes(order.status));
+  const pastOrders = orders.filter(order => !['pending','preparing','ready'].includes(order.status));
 
   const [isOnline, setIsOnline] = useState(true);
   useEffect(() => { setIsOnline(vendor?.isOnline ?? false); setError(null); }, [vendor?.vendorId, vendor?.isOnline]);
@@ -141,7 +142,6 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
       <div className="business-online"><span>{isOnline?t('Accepting orders','ఆర్డర్లు అంగీకరిస్తున్నారు'):t('Shop closed','దుకాణం మూసివేయబడింది')}</span><div className="segmented">{[true,false].map(value=><button key={String(value)} type="button" aria-pressed={isOnline===value} disabled={busyAction!==null} onClick={()=>{if(isOnline!==value)void toggleOnline();}}>{value?t('Online','అందుబాటులో ఉంది'):t('Offline','మూసివేయబడింది')}</button>)}</div></div>
     </header>
     <div className="business-content">
-      <VendorLocationSettings key={vendor.vendorId} vendorId={vendor.vendorId}/>
       <dl className="business-stats">{[['Orders today',stats.error||stats.loading?'—':stats.ordersToday],['Likes',stats.error||stats.loading?'—':stats.totalLikes],['Rating',stats.loading||stats.avgRating==null?'—':Number(stats.avgRating).toFixed(1)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
       {error && <p className="pickup-error" role="alert">{error}</p>}
       {stats.error && <div className="feed-notice" role="status"><span>{stats.error}</span></div>}
@@ -149,8 +149,8 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
       <div className="business-orders">
         {ordersError && <div role="status" className="feed-notice"><CloudOff size={18} aria-hidden="true"/><span>{orders.length ? t('Order updates paused. Showing the last received orders.','ఆర్డర్ నవీకరణలు నిలిచాయి. చివరిగా వచ్చిన ఆర్డర్లు చూపుతున్నాం.') : t('Order updates are temporarily unavailable.','ఆర్డర్ నవీకరణలు ప్రస్తుతం అందుబాటులో లేవు.')}</span><Button variant="outline" onClick={()=>setFeedRetry(n=>n+1)}>Retry</Button></div>}
         {ordersLoading && <p role="status" className="business-empty">Connecting to orders…</p>}
-        {!ordersLoading&&!orders.length&&!ordersError&&<p className="business-empty">New orders will appear here.</p>}
-        {orders.map(ord=><article key={ord.id} className="business-order">
+        {!ordersLoading&&!activeOrders.length&&!ordersError&&<p className="business-empty">New orders will appear here.</p>}
+        {activeOrders.map(ord=><article key={ord.id} className="business-order">
           <div className="business-order-item"><CatalogImage src={ord.image} alt=""/><div><h3>{ord.quantity??1} × {ord.item}</h3><p>#{ord.row.pickup_number??'—'} · {t(...statusLabels[ord.status])}</p></div><strong>₹{ord.price}</strong></div>
           <p className="business-pickup"><MapPin size={14}/>{ord.row.pickup_location||ord.location}</p>
           {ord.phone && <a className="business-phone" href={`tel:${ord.phone}`}>{ord.phone}</a>}
@@ -162,6 +162,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
           </div>}
         </article>)}
       </div>
+      {pastOrders.length > 0 && <details className="past-orders-disclosure"><summary><span>Past orders</span><small>{pastOrders.length}</small></summary><div className="past-orders-list">{pastOrders.map(order => <div key={order.id} className="past-order-summary"><div><strong>{order.quantity ?? 1} × {order.item}</strong><p>#{order.row.pickup_number ?? '—'} · {t(...statusLabels[order.status])}{order.row.collected_at && ` · ${new Date(order.row.collected_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`}</p></div><strong>₹{order.price}</strong></div>)}</div></details>}
       <div className="business-menu-actions"><Button onClick={onAddNewItem}>Add item</Button>{onManageStock&&<Button variant="outline" onClick={onManageStock}>Menu & stock</Button>}</div>
       <SupportPanel vendor/>
     </div>

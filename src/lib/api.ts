@@ -352,7 +352,7 @@ export function subscribeVendorOrders(vendorId: string, onData: (orders: Dashboa
       const { pickupRequest } = await import('./pickup');
       const result = await retryRead(() => pickupRequest({ action: 'vendor_list', vendorId }, true), () => !cancelled);
       if (!cancelled) {
-        onData((result.orders ?? []).filter(r => ['pending','preparing','ready'].includes(r.status)).map(r => orderRowToDashboard(r, r.shop_name ?? 'Your shop')));
+        onData((result.orders ?? []).map(r => orderRowToDashboard(r, r.shop_name ?? 'Your shop')));
         onError(null);
       }
     } catch { if (!cancelled) onError('Unable to refresh orders. Retrying automatically; displayed orders may be outdated.'); }

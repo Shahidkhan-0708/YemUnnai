@@ -1,3 +1,4 @@
+import { VendorLocationSettings } from './VendorLocationSettings';
 import { SvgScreenFrame } from './SvgScreenFrame';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Plus, RefreshCw, Trash2 } from 'lucide-react';
@@ -96,7 +97,7 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
   return <SvgScreenFrame screen={null}><section className="stock-screen screen-enter">
     <button type="button" onClick={onBack} className="stock-back"><ArrowLeft size={13}/>{t('Back to dashboard','నిర్వహణ పేజీకి తిరిగి వెళ్లండి')}</button>
     {!vendor || checking ? <p role="status">{checking ? 'Checking your session…' : 'Sign in to manage your menu.'}</p> : <>
-      <header className="stock-heading"><div><h1 tabIndex={-1}>{t('Menu & stock','మెనూ మరియు నిల్వ')}</h1><p>{vendor.vendorName}</p></div><span>{vendor.isOnline ? t('Online','అందుబాటులో ఉంది') : t('Offline','మూసివేయబడింది')}</span></header>
+      <header className="stock-heading"><div><h1 tabIndex={-1}>{t('Menu & stock','మెనూ మరియు నిల్వ')}</h1><p>{vendor.vendorName}</p></div><div className="stock-location-tools"><span>{vendor.isOnline ? t('Online','అందుబాటులో ఉంది') : t('Offline','మూసివేయబడింది')}</span><VendorLocationSettings key={vendor.vendorId} vendorId={vendor.vendorId}/></div></header>
       <p className="stock-instruction">{t('Turn stock off when a product is finished.','ఉత్పత్తి పూర్తయినప్పుడు నిల్వను ఆఫ్ చేయండి.')}</p>
       <div className="stock-filters">{(['all','snacks','chai'] as const).map(value => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)}>{value === 'all' ? `All (${items.length})` : value === 'snacks' ? t('Snacks','చిరుతిళ్లు') : t('Chai','టీ')}</button>)}<button type="button" aria-pressed={onlyUnlabelled} onClick={()=>{setOnlyUnlabelled(value=>!value);setCategory('all');}}>{t('Not labelled','పేర్కొనలేదు')} ({unlabelled})</button><button className="stock-refresh" type="button" disabled={busy} onClick={() => setReload(n => n+1)}><RefreshCw size={12}/>{t('Refresh','తాజాకరించండి')}</button></div>
       {error && <p className="pickup-error" role="alert">{error}</p>}

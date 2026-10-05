@@ -84,6 +84,22 @@ The SQL suite tests the actual database lifecycle using rollback-only fixtures.
 It does not claim a completed purchase through a buyer and seller browser session
 on production. Earlier browser checkout tests used controlled fixtures.
 
+## Dashboard presentation follow-up
+
+Location setup no longer appears or opens automatically on the seller dashboard.
+It is optional behind a small map-pin icon in Menu & stock, with a 44px tap target,
+an accessible label, and a portrait sheet explaining its purpose. It does not
+affect accepting orders. Browser checks cover explicit opening, focus restoration,
+Escape, coordinate validation, a single scoped save and failure preservation.
+
+Completed orders leave the incoming queue and appear in a collapsed Past orders
+box containing compact item, quantity, pickup number, status, total and collection
+time summaries. Customer history uses collapsed receipts that expand on tap.
+Vendor reads now retain the backend's recent history rather than discarding it.
+The existing backend scope limits history to 30 days and includes older active
+orders. Browser lifecycle checks verify both collapsed seller history and customer
+receipt expansion; transport is controlled and no real purchase is placed.
+
 ## Remaining external setup
 
 The user selected Brevo for email. No Brevo SMTP login, SMTP key or verified sender

@@ -192,7 +192,7 @@ export function OrdersScreen({ orders, loading, error, retry, onReorder, onDisco
       {onDiscover && <Button onClick={onDiscover}>{t('Explore food', 'వంటకాలను చూడండి')}</Button>}
     </div>}
     {active.length > 0 && <><h2 className="text-[13px] font-semibold text-[#1F140A] mt-2">{t('Active orders', 'ప్రస్తుత ఆర్డర్లు')}</h2>{active.map(render)}</>}
-    {history.length > 0 && <><h2 className="text-sm font-medium text-[#1F140A] mt-4">{t('Recent orders', 'ఇటీవలి ఆర్డర్లు')}</h2>{history.map(render)}</>}
+    {history.length > 0 && <><h2 className="text-sm font-medium text-[#1F140A] mt-4">{t('Recent orders', 'ఇటీవలి ఆర్డర్లు')}</h2>{history.map(order => <details key={order.id} className="past-order-disclosure"><summary className="past-order-summary"><div><strong>{order.quantity ?? '—'} × {order.item_name}</strong><p>#{order.pickup_number ?? '—'} · {t(...statusLabels[order.status])}</p></div><strong>₹{order.total}</strong><ChevronDown size={16} aria-hidden="true"/></summary>{render(order)}</details>)}</>}
     <details className="orders-account text-xs group">
       <summary className="cursor-pointer list-none flex items-center justify-end gap-1.5">
         <span className="flex items-center gap-1.5">
