@@ -32,7 +32,6 @@ interface HomeDiscoveryScreenProps {
 export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   savedOnly = false,
   cartCount = 0,
-  onOrderNow,
   onWalkIn,
   onReview,
   onCartClick,
@@ -117,7 +116,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       <div className="food-price-row"><span className={item.price > 0 ? 'food-price' : 'food-unavailable'} aria-label={item.price > 0 ? undefined : t('Price not specified','ధర పేర్కొనలేదు')} title={item.price > 0 ? undefined : t('Price not specified','ధర పేర్కొనలేదు')}>{item.price > 0 ? `₹${item.price}` : '—'}</span><span className="food-rating" data-rated={hasRating} aria-label={hasRating ? `${t('Rating','రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')} title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')}><Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />{hasRating ? Number(item.rating).toFixed(1) : '—'}</span></div>
       <p className="food-availability" aria-hidden={unavailable || undefined}>{!unavailable ? t('Available','అందుబాటులో ఉంది') : null}</p>
       <div className="food-social"><button type="button" aria-label={`Like ${item.name}`} aria-pressed={isLiked} disabled={pendingReactions.has(item.id)} className={isLiked ? 'is-liked' : ''} onClick={() => void toggleLike(item.id)}><ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />{item.likes}</button><button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}><MessageSquare size={13} strokeWidth={1.4} />{item.reviews}</button></div>
-      <Button className="food-action" variant={item.actionType === 'walkin' ? 'walkin' : 'order'} disabled={unavailable} onClick={() => item.actionType === 'walkin' ? onWalkIn?.(item) : onOrderNow?.(item)}>{loading ? t('Checking…','తనిఖీ చేస్తున్నాం…') : item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : item.actionType === 'walkin' ? t('Walk In','నేరుగా వెళ్లండి') : `${t('Order','ఆర్డర్')} · ₹${item.price}`}</Button>
+      <Button className="food-action" variant="walkin" disabled={unavailable} onClick={() => onWalkIn?.(item)}>{loading ? t('Checking…','తనిఖీ చేస్తున్నాం…') : item.isShopOnline === false ? t('Shop offline','దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable','అందుబాటులో లేదు') : t('Walk In','నేరుగా వెళ్లండి')}</Button>
     </article>;
   };
   // Product labels and prices always come from live data, including a 40-item menu.
