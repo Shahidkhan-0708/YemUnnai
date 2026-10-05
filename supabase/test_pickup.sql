@@ -42,15 +42,17 @@ begin
  response := public.checkout_pickup(a,payload || '{"quantity":1,"expectedPrice":999}');
  assert (response->'order'->>'id')::uuid = first_order, 'duplicate recovery returns original';
  select remaining_quantity into stock from public.food_items where id = f;
- assert stock = 1, 'duplicate must not reserve twice';
+ assert stock = 3, 'duplicate keeps seller-managed stock unchanged';
+ update public.food_items set in_stock = false where id = f;
  response := public.checkout_pickup(b,payload || jsonb_build_object('attemptId',gen_random_uuid()));
- assert response->>'error' = 'item_unavailable', 'insufficient stock';
+ assert response->>'error' = 'item_unavailable', 'seller stock off prevents checkout';
+ update public.food_items set in_stock = true where id = f;
  response := public.checkout_pickup(b,payload || jsonb_build_object('attemptId',gen_random_uuid(),'quantity',1));
  second_order := (response->'order'->>'id')::uuid;
- assert second_order is not null, 'last portion reserved';
+ assert second_order is not null, 'seller stock on allows checkout';
  assert response->'order'->>'pickup_number' = '2', 'daily server sequence';
  select remaining_quantity into stock from public.food_items where id = f;
- assert stock = 0, 'stock never negative';
+ assert stock = 3, 'checkout does not decrement obsolete quantities';
  response := public.pickup_action(b,'detail',jsonb_build_object('orderId',first_order));
  assert jsonb_array_length(response->'orders') = 0, 'cross buyer detail blocked';
  response := public.pickup_action(other_vendor,'transition',jsonb_build_object('orderId',first_order,'status','declined'));
@@ -96,7 +98,7 @@ begin
  assert response->'order'->>'status' = 'cancelled', 'pending cancellation';
  perform public.pickup_action(b,'cancel',jsonb_build_object('orderId',second_order));
  select remaining_quantity into stock from public.food_items where id = f;
- assert stock = 1, 'restore stock exactly once';
+ assert stock = 3, 'cancellation leaves manual stock unchanged';
  response := public.checkout_pickup(a,payload || jsonb_build_object('attemptId',gen_random_uuid(),'quantity',1));
  second_order := (response->'order'->>'id')::uuid;
  update public.orders set expires_at = clock_timestamp() - interval '1 second' where id = second_order;
@@ -104,7 +106,7 @@ begin
  assert response->'order'->>'status' = 'cancelled', 'timeout beats late acceptance';
  assert response->'order'->>'outcome_reason' = 'acceptance_timeout', 'clear expiry reason';
  select remaining_quantity into stock from public.food_items where id = f;
- assert stock = 1, 'expiry restores stock';
+ assert stock = 3, 'expiry leaves manual stock unchanged';
  assert (select count(*) from public.orders where buyer_id = a and attempt_id = attempt) = 1, 'one order per attempt';
  update public.food_items set action_type = 'walkin' where id = f;
  assert public.checkout_pickup(a,payload || jsonb_build_object('attemptId',gen_random_uuid(),'quantity',1))->>'error' = 'item_unavailable', 'walk-in cannot checkout';
@@ -119,7 +121,7 @@ begin
  perform public.pickup_action(vendor,'transition',jsonb_build_object('orderId',second_order,'status','declined'));
  perform public.pickup_action(vendor,'transition',jsonb_build_object('orderId',second_order,'status','declined'));
  select remaining_quantity into stock from public.food_items where id = f;
- assert stock = 1, 'decline restores exactly once';
+ assert stock = 3, 'decline leaves manual stock unchanged';
  insert into public.orders(vendor_id, food_item_id, item_name, unit_price, total, customer_mobile, status, is_legacy)
  values ('20000000-0000-4000-8000-000000000001', f, 'Legacy total snapshot', 45, 45, 'unverified legacy phone', 'completed', true)
  returning id into second_order;
@@ -155,4 +157,40 @@ select set_config('request.jwt.claims','{"sub":"10000000-0000-4000-8000-00000000
 do $$ begin
  assert not exists(select 1 from public.orders where vendor_id = '20000000-0000-4000-8000-000000000001'), 'RLS cross shop blocked';
 end $$;
+-- Exercise the seller portal writes under real authenticated ownership policies.
+select set_config('request.jwt.claims','{"sub":"10000000-0000-4000-8000-000000000003","role":"authenticated","is_anonymous":false}',true);
+do $$ begin
+ update public.food_items set is_vegetarian = true, in_stock = false, remaining_quantity = null
+  where id = '30000000-0000-4000-8000-000000000001';
+ assert found, 'seller can save dietary information and stock';
+ update public.vendors set latitude = 13.6298, longitude = 78.4786,
+  location_landmark = 'QA counter', is_on_campus = true where id = '20000000-0000-4000-8000-000000000001';
+ assert found, 'seller can save own map pin';
+ assert (select is_vegetarian and not in_stock and remaining_quantity is null from public.food_items where id = '30000000-0000-4000-8000-000000000001'), 'seller writes reflect on catalog';
+ insert into public.food_items(id,vendor_id,name,price,category,action_type,in_stock)
+  values ('30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000001','Delete fixture',15,'cooked','order',true);
+end $$;
+select set_config('request.jwt.claims','{"sub":"10000000-0000-4000-8000-000000000004","role":"authenticated","is_anonymous":false}',true);
+do $$ begin
+ update public.food_items set is_vegetarian = false where id = '30000000-0000-4000-8000-000000000001';
+ assert not found, 'other seller cannot change dietary information';
+ update public.vendors set latitude = 0 where id = '20000000-0000-4000-8000-000000000001';
+ assert not found, 'other seller cannot move map pin';
+ delete from public.food_items where id = '30000000-0000-4000-8000-000000000002';
+ assert not found, 'other seller cannot delete item';
+end $$;
+select set_config('request.jwt.claims','{"sub":"10000000-0000-4000-8000-000000000003","role":"authenticated","is_anonymous":false}',true);
+do $$ begin
+ delete from public.food_items where id = '30000000-0000-4000-8000-000000000002';
+ assert found, 'own seller can delete item';
+end $$;
+select set_config('request.jwt.claims','{"sub":"10000000-0000-4000-8000-000000000002","role":"authenticated","is_anonymous":true}',true);
+do $$ begin
+ begin
+  insert into public.vendors(id,name,owner_id) values ('20000000-0000-4000-8000-000000000003','Guest cannot create shop','10000000-0000-4000-8000-000000000002');
+  assert false, 'anonymous buyer cannot create business';
+ exception when insufficient_privilege then null;
+ end;
+end $$;
 rollback;
+select 'pickup_integration_passed_all_fixtures_rolled_back' as result;

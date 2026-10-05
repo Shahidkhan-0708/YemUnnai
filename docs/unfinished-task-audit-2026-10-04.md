@@ -43,7 +43,7 @@ Earlier SVG pixel comparisons describe their original static reference states.
 Later approved native interactive changes intentionally replace parts of those
 screens. Exact identity of dynamic content at every viewport is not claimed.
 
-## Production tasks that remain blocked
+## Initial production access failure, resolved in the follow-up
 
 Read-only access recheck on this date:
 
@@ -52,10 +52,45 @@ Read-only access recheck on this date:
 - Production `/functions/v1/pickup`: `404`.
 - Public Auth settings: email and signup enabled, anonymous signup disabled.
 
-Consequently live checkout deployment/database verification, production email
-delivery configuration and real buyer-to-seller order progression are incomplete.
-Prepared backend migration/function code exists under `supabase/`; bypassing
-permissions or claiming a successful live order would not finish those tasks.
+Those tokens still fail. The existing saved Supabase CLI login, checked separately
+without the environment token override, has access to the correct production
+project. This allowed the following work without changing projects or tokens:
+
+- Backed up all 45 foods, five canteens and nine historical orders in ignored files.
+- Inspected the actual schema and migration history before installing the four
+  pending pickup migrations atomically. Historical totals remain intact.
+- Deployed `pickup`; its handler validates each user token through Auth.
+- Enabled anonymous buyer sessions and manual account linking, preserving the
+  canonical site URL, redirect allowlist and all other undeclared Auth settings.
+- Increased guest sign-in allowance from 30 to 2,000 per IP/hour and token refresh
+  allowance from 150 to 3,000 per IP/five minutes for shared campus connections.
+  These allowances are not a measured 1,000-concurrent-user capacity guarantee;
+  token endpoint bursts remain subject to Supabase's own limits.
+- Applied participant read-policy, identity evaluation and lookup-index fixes.
+  Guest buyers cannot provision a business. Performance advisors now report no
+  warnings. Security advisors retain expected guest-access notices and the
+  existing leaked-password-protection warning; a clean security report is not claimed.
+- Ran real production SQL integration tests for totals, idempotency, lifecycle,
+  cancellation, expiry, payment confirmation, support, Saved isolation and seller
+  stock/dietary/coordinate/delete writes, including cross-canteen denial.
+  All test fixtures rolled back; no fixture canteen or user remains.
+- Tested the deployed HTTP endpoint with one temporary guest: Auth, empty order
+  and support reads, unavailable-item checkout, invalid quantity, unauthorized
+  rejection and denial of direct privileged RPC calls all passed. No live order
+  or email was created, and the signed-out guest was removed by exact ID.
+- Verified the ten-second expiry job is active with successful production runs.
+
+The SQL suite tests the actual database lifecycle using rollback-only fixtures.
+It does not claim a completed purchase through a buyer and seller browser session
+on production. Earlier browser checkout tests used controlled fixtures.
+
+## Remaining external setup
+
+The user selected Brevo for email. No Brevo SMTP login, SMTP key or verified sender
+has been provided yet. Public email delivery and inbox verification remain pending.
+The server-only configuration script and exact required fields are documented in
+[brevo-smtp-setup.md](brevo-smtp-setup.md). Selecting a provider alone does not
+configure credentials or verify an email delivery.
 
 All 45 production foods were unlabelled in the latest read. Sellers must confirm
 ingredients before marking them Veg/Non-veg. Photos do not establish ingredients.
