@@ -657,7 +657,7 @@ export function App() {
 
 
       {/* PWA install sheet — appears when the browser offers install */}
-      {activePortal !== '404' && <InstallPrompt />}
+      {activePortal !== '404' && <InstallPrompt autoOffer={activePortal === 'consumer'} />}
     </div>
   </SvgScreenFrame>;
 }

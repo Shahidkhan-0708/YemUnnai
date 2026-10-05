@@ -27,9 +27,9 @@ const isStandalone = () =>
  * Install YEMUNNAI as an app — centered modal:
  *  - Chrome/Android: captures `beforeinstallprompt` and shows the native install flow.
  *  - iOS Safari: shows the "Add to Home Screen" instructions instead.
- *  - Offers installation after successful login, once per session, without interrupting another dialog.
+ *  - Offers installation after the intro or successful login, once per session.
  */
-export const InstallPrompt: React.FC = () => {
+export const InstallPrompt: React.FC<{ autoOffer?: boolean }> = ({ autoOffer = false }) => {
   const { t } = useLanguage();
   const [loginRequest, setLoginRequest] = useState(0);
   const [requested, setRequested] = useState(false);
@@ -61,7 +61,7 @@ export const InstallPrompt: React.FC = () => {
     window.addEventListener('appinstalled', onInstalled);
     displayMode.addEventListener('change', onDisplayMode);
 
-    const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent) || (/Macintosh/i.test(window.navigator.userAgent) && navigator.maxTouchPoints > 1);
     if (isIOS && !isStandalone()) setShowIOS(true);
 
     return () => {
@@ -74,7 +74,7 @@ export const InstallPrompt: React.FC = () => {
 
   const available = !installed && (!!deferred || showIOS);
   useEffect(() => {
-    if (!loginRequest || dismissed || !available) return;
+    if ((!autoOffer && !loginRequest) || dismissed || !available) return;
     // A delayed browser offer is still eligible. Wait until login or another sheet closes.
     let timer: ReturnType<typeof setTimeout>;
     const schedule = () => {
@@ -88,7 +88,7 @@ export const InstallPrompt: React.FC = () => {
     observer.observe(document.body, { childList: true, subtree: true });
     schedule();
     return () => { clearTimeout(timer); observer.disconnect(); };
-  }, [loginRequest, dismissed, available]);
+  }, [autoOffer, loginRequest, dismissed, available]);
   const open = requested && available;
   const close = () => {
     if (installLock.current) return;

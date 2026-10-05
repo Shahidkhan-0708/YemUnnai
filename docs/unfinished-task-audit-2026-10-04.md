@@ -100,6 +100,15 @@ The existing backend scope limits history to 30 days and includes older active
 orders. Browser lifecycle checks verify both collapsed seller history and customer
 receipt expansion; transport is controlled and no real purchase is placed.
 
+Installation is offered after the customer intro finishes, without requiring
+login, once per browsing session when the browser supports installation. The
+animated prompt waits for other dialogs, respects dismissal and standalone mode,
+and invokes the native installer only after a tap. iPhone/iPad users receive home
+screen instructions. Browser checks cover the intro transition, no automatic
+native installation, focus, session dismissal, both motion preferences, delayed
+browser eligibility and standalone suppression. Browser eligibility is simulated
+in these tests; they do not install the app on a physical device.
+
 ## Remaining external setup
 
 The user selected Brevo for email. No Brevo SMTP login, SMTP key or verified sender

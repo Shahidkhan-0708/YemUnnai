@@ -1,6 +1,7 @@
 import { runPickupBrowser, mockPickupTransport } from './test_pickup_browser.mjs';
 
 const bootstrap = function () {
+  sessionStorage.removeItem('yem-install-dismissed');
   const session = JSON.parse(localStorage.getItem('yemunnai-vendor-auth'));
   localStorage.removeItem('yemunnai-vendor-auth');
   window.__yemDeferredInstall = undefined;

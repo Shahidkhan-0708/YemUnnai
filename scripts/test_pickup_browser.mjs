@@ -19,6 +19,7 @@ const mock = function () {
   localStorage.setItem('yemunnai-buyer-auth', JSON.stringify(session(buyer)));
   localStorage.setItem('yemunnai-vendor-auth', JSON.stringify(session(owner)));
   localStorage.setItem('yemunnai-intro-seen', 'true');
+  sessionStorage.setItem('yem-install-dismissed', '1');
   const shop = { id: vendorId, name: 'MITS Canteen', owner_id: owner, is_active: true, is_online: true, location_landmark: 'Food Court', latitude: 13.55, longitude: 78.5 };
   const food = { id: itemId, vendor_id: vendorId, name: 'Samosa', price: 15, category: 'cooked', action_type: 'order', in_stock: true, remaining_quantity: 10, is_vegetarian: true, likes_count: 0, reviews_count: 0, dislikes_count: 0, vendors: shop, reviews: [], created_at: new Date().toISOString() };
   const state = window.__pickupMock = { orders: [], submissions: 0, supports: [], menuError: false };
