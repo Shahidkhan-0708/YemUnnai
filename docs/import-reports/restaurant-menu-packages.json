@@ -1,5 +1,5 @@
 {
-  "stage": "validated-and-prepared",
+  "stage": "production-imported-and-verified",
   "reports": [
     {
       "hotel": "HOTEL1",
@@ -21,5 +21,19 @@
       "missingPrices": 53,
       "variantItems": 0
     }
+  ],
+  "verifiedOn": "2026-10-05",
+  "productionTotalItems": 172,
+  "unchangedOtherRestaurantItems": 30,
+  "previousMitsItemsReplaced": 18,
+  "verification": [
+    "142 manifest rows match the live catalog exactly",
+    "142 original and 284 responsive images byte-verified on the live CDN",
+    "No restaurant mixing",
+    "All missing prices and named variants preserved",
+    "Other restaurants and existing receipts preserved by transaction assertions",
+    "Browser verification passed",
+    "Live Chrome checks passed at widths 320, 390, 469 and 1280 with analytics and all writes blocked",
+    "Post-import performance advisor found no issues; rolled-back pickup/ownership integration tests passed"
   ]
 }
