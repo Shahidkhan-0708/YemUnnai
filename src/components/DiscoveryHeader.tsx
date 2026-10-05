@@ -5,8 +5,8 @@ import { useLanguage } from '../lib/language';
 import type { ShopEntry } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 
-const CANTEEN_PHOTOS = ['/images/shop_mits_canteen.jpg','/images/shop_mits_cafe.jpg','/images/shop_ekdants_cafe.jpg','/images/shop_lickies.jpg','/images/shop_new_cafe.jpg'];
-const CANTEEN_DIRECTORY = VENDOR_OUTLETS.map((shop, i) => ({ ...shop, image: CANTEEN_PHOTOS[i] }));
+const CANTEEN_PHOTOS: Record<string, string> = { 'MITS Canteen': '/images/shop_mits_canteen.jpg', 'MITS Cafe': '/images/shop_mits_cafe.jpg', 'New Cafe': '/images/shop_new_cafe.jpg' };
+const CANTEEN_DIRECTORY = [...VENDOR_OUTLETS.map(shop => ({ ...shop, image: CANTEEN_PHOTOS[shop.name] })), { id: 'a0000000-0000-4000-8000-000000000010', name: 'Pizza And Pasta (P2)', image: '/images/shop_p2-brand.svg' }];
 
 interface Props {
   shops: ShopEntry[];
@@ -27,7 +27,6 @@ export function DiscoveryHeader({ shops, loading, selectedShop, searchQuery, car
   const labels = (name: string) => {
     if (name === 'MITS Canteen') return ['MITS', 'Canteen'];
     if (name === 'MITS Cafe') return ['MITS', 'Cafe'];
-    if (name === "Ekdant's Cafe") return ['Ekdant’s', 'Cafe'];
     if (name === 'Pizza And Pasta (P2)') return ['Pizza And', 'Pasta (P2)'];
     return [name, ''];
   };

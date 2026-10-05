@@ -40,7 +40,15 @@ for(const config of configurations){
    const optimized=await sharp(buffer).rotate().resize({width,withoutEnlargement:true}).webp({quality:85}).toBuffer();
    await fs.writeFile(path.join(output,file),optimized);variants.push({src:'/images/menus/'+config.hotel.toLowerCase()+'/'+file,width});
   }
-  images[url]={width:metadata.width,height:metadata.height,variants};
+  const {data,info}=await sharp(buffer).removeAlpha().raw().toBuffer({resolveWithObject:true});
+  let left=info.width,top=info.height,right=-1,bottom=-1;
+  // ponytail: detect the packages' uniform dark padding; use explicit crop metadata for other backgrounds.
+  for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++){
+   const offset=(y*info.width+x)*info.channels;
+   if(Math.max(data[offset],data[offset+1],data[offset+2])>32){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);}
+  }
+  const width=right-left+1,height=bottom-top+1;
+  images[url]={width:metadata.width,height:metadata.height,variants,...width>0&&height>0&&width<info.width*.7&&height<info.height*.7?{contentBox:{left,top,width,height}}:{}};
   const number=Number(item.item_id.slice(3));
   rows.push({id:`c${config.hotel==='HOTEL1'?'1':'2'}000000-0000-4000-8000-${String(number).padStart(12,'0')}`,vendor_id:config.vendor,name:item.name,price:item.price,category:'cooked',action_type:'walkin',image_url:url,in_stock:item.available,is_vegetarian:item.is_vegetarian,source_item_id:item.item_id,source_hotel_code:config.hotel,menu_category:item.category,food_type:item.food_type,description:item.description,details:item.details,price_display:item.price_display,price_variants:item.price_variants,source_image_file:item.image_file,menu_position:position});
  }
@@ -60,7 +68,7 @@ ${schema}
 create temporary table import_rows on commit drop as select * from jsonb_populate_recordset(null::public.food_items, ${data}::jsonb);
 create temporary table preserved_receipts on commit drop as select id,item_name,unit_price,quantity,total,status from public.orders;
 create temporary table preserved_other_foods on commit drop as select * from public.food_items where vendor_id not in ('${configurations[0].vendor}','${configurations[1].vendor}');
-insert into public.vendors(id,name,image_url,is_active,is_online) values ('${configurations[0].vendor}','Pizza And Pasta (P2)','/images/shop_p2.svg',true,true) on conflict(id) do nothing;
+insert into public.vendors(id,name,image_url,is_active,is_online) values ('${configurations[0].vendor}','Pizza And Pasta (P2)','/images/shop_p2-brand.svg',true,true) on conflict(id) do nothing;
 do $$ begin
  assert (select name='Pizza And Pasta (P2)' from public.vendors where id='${configurations[0].vendor}'), 'P2 vendor identity mismatch';
  assert (select name='MITS Canteen' from public.vendors where id='${configurations[1].vendor}'), 'MITS vendor identity mismatch';

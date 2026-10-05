@@ -7,6 +7,7 @@ import { isBackendConfigured } from '../lib/supabase';
 import { useLanguage } from '../lib/language';
 import { useVendorSession } from '../lib/hooks';
 import { Stepper } from './Stepper';
+import { CatalogImage } from './CatalogImage';
 import type { FoodCategory, ActionType, FoodItem, PriceVariant } from '../lib/types';
 
 interface AddEditFoodItemScreenProps {
@@ -104,7 +105,7 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
       {variants.length ? <fieldset className="edit-price-variants"><legend className="field-label">Price variants</legend>{variants.map((variant,index)=><label key={index} className="field-label">{variant.name}<input className="pickup-input" aria-label={`${variant.name} price`} type="number" min="0" max="1000000" step="1" required value={Number.isNaN(variant.price) ? '' : variant.price} onChange={e=>setVariants(current=>current.map((v,i)=>i===index ? {...v,price:e.target.value==='' ? NaN : Number(e.target.value)} : v))}/></label>)}</fieldset> : <label className="field-label" htmlFor="aef-price">Price<div className="add-price-row"><Stepper min={0} max={200} value={Number(price)||0} onChange={value=>setPrice(String(value))} prefix="₹" size="sm"/><input id="aef-price" className="pickup-input" type="number" min={actionType==='order'?1:0} max="1000000" step="1" required={actionType==='order'} value={price} onChange={e=>setPrice(e.target.value)} placeholder="Price not specified"/></div></label>}
       <label className="field-label">Veg / Non-veg<select className="pickup-input" value={vegetarian} onChange={e=>setVegetarian(e.target.value as 'unknown'|'yes'|'no')}><option value="unknown">Not specified</option><option value="yes">Veg</option><option value="no">Non-veg</option></select></label>
       <div><span className="field-label">Stock</span><button type="button" role="switch" aria-label="Stock" aria-checked={inStock} onClick={()=>setInStock(v=>!v)} className="add-stock-control"><span>{inStock?'On':'Off'}</span><span className="stock-switch" aria-checked={inStock}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span></span></button></div>
-      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={handlePhotoSelect}/><div className="add-photo"><button type="button" onClick={()=>fileInputRef.current?.click()}>{(photoPreview || item?.image) && <img src={photoPreview ?? item?.image} alt="Food photo"/>}<Upload size={16}/>{photo || item?.image ? 'Change photo' : 'Upload photo'}</button><p>JPG or PNG</p></div>
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={handlePhotoSelect}/><div className="add-photo"><button type="button" onClick={()=>fileInputRef.current?.click()}>{(photoPreview || item?.image) && <CatalogImage src={photoPreview ?? item!.image} alt="Food photo"/>}<Upload size={16}/>{photo || item?.image ? 'Change photo' : 'Upload photo'}</button><p>JPG or PNG</p></div>
       {error && <p className="pickup-error" role="alert"><AlertCircle size={14}/>{error}</p>}
       <button className="add-publish" type="submit" disabled={submitting}>{submitting ? (item ? 'Saving…' : 'Publishing…') : item ? 'Save changes' : 'Publish item'}</button>
     </form>}

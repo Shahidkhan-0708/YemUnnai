@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="P2 Pizza and Pasta, Made with Love">
+  <rect width="240" height="240" rx="120" fill="#191b18"/>
+  <circle cx="120" cy="120" r="111" fill="none" stroke="#be7440" stroke-width="2"/>
+  <text x="120" y="116" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="94" fill="#fff9ec">P2</text>
+  <text x="120" y="157" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="29" fill="#ed793c">Pizza &amp; Pasta</text>
+  <text x="112" y="187" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="19" fill="#ddb77b">Made with Love</text>
+  <path d="M190 176c-6-8-15 1-5 9l5 4 5-4c10-8 1-17-5-9" fill="#e57540"/>
+</svg>

@@ -200,7 +200,7 @@ export async function fetchShops(): Promise<ShopEntry[]> {
     .order('is_active', { ascending: false });
 
   /** Campus showcase order requested by the client (top of the shops row). */
-  const SHOP_PRIORITY = ['MITS Canteen', 'MITS Cafe', "Ekdant's Cafe", 'Lickies', 'New Cafe'];
+  const SHOP_PRIORITY = ['MITS Canteen', 'MITS Cafe', 'New Cafe', 'Pizza And Pasta (P2)'];
   const priority = (name: string) => {
     const idx = SHOP_PRIORITY.indexOf(name);
     return idx === -1 ? SHOP_PRIORITY.length : idx;
@@ -435,6 +435,7 @@ export async function getMyVendor(): Promise<{ id: string; name: string; isOnlin
     .from('vendors')
     .select('id, name, is_online')
     .eq('owner_id', sessionData.session.user.id)
+    .eq('is_active', true)
     .maybeSingle();
 
   if (error || !data) {

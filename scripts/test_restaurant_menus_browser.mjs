@@ -7,7 +7,7 @@ for(const [hotel,vendor] of [['HOTEL1','a0000000-0000-4000-8000-000000000010'],[
 }
 const bootstrap=function(rows){
  window.WebSocket=class{close(){}send(){}addEventListener(){}removeEventListener(){}};
- const shops=[{id:'a0000000-0000-4000-8000-000000000001',name:'MITS Canteen',owner_id:'10000000-0000-4000-8000-000000000002',is_online:true,is_active:true,image_url:'/images/shop_mits_canteen.jpg'},{id:'a0000000-0000-4000-8000-000000000010',name:'Pizza And Pasta (P2)',owner_id:null,is_online:true,is_active:true,image_url:'/images/shop_p2.svg'}];
+ const shops=[{id:'a0000000-0000-4000-8000-000000000001',name:'MITS Canteen',owner_id:'10000000-0000-4000-8000-000000000002',is_online:true,is_active:true,image_url:'/images/shop_mits_canteen.jpg'},{id:'a0000000-0000-4000-8000-000000000010',name:'Pizza And Pasta (P2)',owner_id:null,is_online:true,is_active:true,image_url:'/images/shop_p2-brand.svg'}];
  window.__menuRows=rows.map(row=>({...row,likes_count:0,dislikes_count:0,reviews_count:0,remaining_quantity:null,reviews:[],vendors:shops.find(s=>s.id===row.vendor_id)}));
  const original=window.fetch;window.__menuWrites=[];
  window.fetch=async(resource,options={})=>{
@@ -34,6 +34,12 @@ const exercise=async function(){
   check(cards().every(card=>card.querySelector('.food-photo img').getAttribute('src').includes('/images/menus/')),'All dishes use product images');
   for(const image of document.querySelectorAll('.food-photo img'))image.loading='eager';
   await until(()=>[...document.querySelectorAll('.food-photo img')].every(image=>image.complete&&image.naturalWidth>0),'Every one of 142 images decodes');
+  check(document.querySelectorAll('.food-photo .catalog-image-crop').length===142,'Every padded product uses shared crop');
+  for(const image of document.querySelectorAll('.food-photo img')){
+   const viewport=image.parentElement.getBoundingClientRect(), rendered=image.getBoundingClientRect();
+   check(viewport.width>100&&rendered.width>viewport.width*4,'Product content enlarged to fill the card');
+   check(getComputedStyle(image.parentElement).overflow==='hidden','Padding cannot spill outside card');
+  }
   document.querySelector('[aria-label="Pizza And Pasta (P2)"]').click();await until(()=>cards().length===89,'P2 has 89 isolated items');
   check(cards().every(card=>card.querySelector('.food-photo img').getAttribute('src').includes('/hotel1/')),'No MITS products in P2');
   check(document.querySelector('[aria-label="Restaurant menu category"]').options.length===14,'All 13 original P2 categories');
