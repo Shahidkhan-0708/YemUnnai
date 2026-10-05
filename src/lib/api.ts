@@ -532,6 +532,21 @@ export async function setVendorAllStock(vendorId: string, inStock: boolean): Pro
 
 }
 
+export async function updateFoodItem(foodItemId: string, vendorId: string, input: NewFoodItemInput): Promise<FoodItem> {
+  if (!supabase) throw new Error('Business portal is unavailable.');
+  if (!input.name.trim() || !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000) throw new Error('Enter an item name and a whole-rupee price.');
+  const vendor = await getMyVendor();
+  if (!vendor || vendor.id !== vendorId) throw new Error('Sign in to this canteen to edit its dishes.');
+  const { data, error } = await supabase.from('food_items').update({
+    name: input.name.trim(), price: input.price, category: input.category,
+    action_type: input.actionType, in_stock: input.inStock, is_vegetarian: input.isVeg ?? null,
+    ...(input.imageUrl != null ? { image_url: input.imageUrl } : {}),
+  }).eq('id', foodItemId).eq('vendor_id', vendor.id).select('*, vendors(name), reviews(rating)').single();
+  if (error || data?.id !== foodItemId) throw new Error('Could not save this dish. Please retry or refresh your menu.');
+  notifySubscribers();
+  return rowToItem(data as unknown as FoodItemRow);
+}
+
 export async function createFoodItem(vendorId: string, input: NewFoodItemInput): Promise<FoodItem | null> {
   if (!supabase) throw new Error('Business portal is unavailable.');
   if (!input.name.trim() || !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000) throw new Error('Enter a whole-rupee price from 1 to 1000000 for orders (0 is allowed for walk-in items).');

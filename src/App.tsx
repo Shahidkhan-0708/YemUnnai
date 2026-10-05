@@ -93,6 +93,7 @@ export function App() {
   const [selectedWalkInFood, setSelectedWalkInFood] = useState<FoodItem | null>(null);
   const [selectedReviewFood, setSelectedReviewFood] = useState<FoodItem | null>(null);
   const [selectedDetailFood, setSelectedDetailFood] = useState<FoodItem | null>(null);
+  const [editingFood, setEditingFood] = useState<FoodItem | null>(null);
   const [isAddEditOpen, setIsAddEditOpen] = useState(() => {
     if (typeof window !== 'undefined') {
       return new URLSearchParams(window.location.search).get('add') === '1';
@@ -106,6 +107,7 @@ export function App() {
   useEffect(() => {
     setShowMenuStock(false);
     setIsAddEditOpen(false);
+    setEditingFood(null);
   }, [vendor?.vendorId]);
 
   // Track virtual page views for SPA navigation in Google Analytics
@@ -257,7 +259,8 @@ export function App() {
                   <div className="relative">
                     <MenuStockManagementScreen
                       onBack={() => setShowMenuStock(false)}
-                      onAddNewItem={() => setIsAddEditOpen(true)}
+                      onAddNewItem={() => { setEditingFood(null); setIsAddEditOpen(true); }}
+                      onEditItem={(item) => { setEditingFood(item); setIsAddEditOpen(true); }}
                       onToggleStock={(id, inStock) => {
                         showToast(`Item #${id} stock ${inStock ? 'on' : 'off'}`);
                       }}
@@ -266,17 +269,18 @@ export function App() {
                 ) : (
                   <BusinessDashboardScreen
                     onDiscover={() => setActivePortal('consumer')}
-                    onAddNewItem={() => setIsAddEditOpen(true)}
+                    onAddNewItem={() => { setEditingFood(null); setIsAddEditOpen(true); }}
                     onManageStock={() => setShowMenuStock(true)}
                   />
                 )}
 
                 {/* Add/Edit Food Item Modal */}
                 <AddEditFoodItemScreen
+                  item={editingFood}
                   isOpen={!!vendor && isAddEditOpen}
                   onClose={() => setIsAddEditOpen(false)}
                   onPublished={(item) => {
-                    showToast(`Successfully published ${item.name} (₹${item.price}) to YEMEMUNNAI!`);
+                    showToast(`${editingFood ? 'Saved changes to' : 'Published'} ${item.name} (₹${item.price}).`);
                   }}
                 />
               </div>

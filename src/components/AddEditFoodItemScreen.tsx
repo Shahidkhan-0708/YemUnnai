@@ -1,25 +1,27 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useEffect, useRef, useState } from 'react';
 import { X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
-import { createFoodItem, uploadFoodPhoto } from '../lib/api';
+import { createFoodItem, updateFoodItem, uploadFoodPhoto } from '../lib/api';
 import { useModalA11y } from '../lib/useModalA11y';
 import { isBackendConfigured } from '../lib/supabase';
 import { useLanguage } from '../lib/language';
 import { useVendorSession } from '../lib/hooks';
 import { Stepper } from './Stepper';
-import type { FoodCategory, ActionType } from '../lib/types';
+import type { FoodCategory, ActionType, FoodItem } from '../lib/types';
 
 interface AddEditFoodItemScreenProps {
   isOpen: boolean;
   onClose: () => void;
   onPublished?: (item: { name: string; price: number }) => void;
+  item?: FoodItem | null;
 }
 
 
 export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
   isOpen,
   onClose,
-  onPublished
+  onPublished,
+  item = null
 }) => {
   const { t } = useLanguage();
   const { vendor } = useVendorSession();
@@ -44,6 +46,15 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
   useEffect(() => {
+    if (!isOpen) return;
+    published.current = false;
+    setSubmitted(false); setError(null); setPhoto(null); setPhotoPreview(null); setUploadedUrl(null);
+    setName(item?.name ?? ''); setPrice(String(item?.price ?? 50));
+    setCategory(item?.category ?? 'cooked'); setActionType(item?.actionType ?? 'order');
+    setVegetarian(item?.isVeg === undefined ? 'unknown' : item.isVeg ? 'yes' : 'no');
+    setInStock(item?.inStock ?? true);
+  }, [isOpen, item?.id]);
+  useEffect(() => {
     if (isOpen) return;
     if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
     if (published.current) {
@@ -65,13 +76,15 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); if(submitLock.current || published.current)return; setError(null);
     if(!vendor){setError('Sign in as a vendor first.');return;}
+    if(item && item.vendorId !== vendor.vendorId){setError('You can only edit your own canteen’s dishes.');return;}
     const priceNum=Number(price);
     if(!name.trim()||!price.trim()||!Number.isSafeInteger(priceNum)||priceNum<(actionType==='order'?1:0)||priceNum>1000000){setError(t('Enter an item name and a whole-rupee price. Walk-in items may cost 0.','పేరు మరియు రూపాయల ధర నమోదు చేయండి.'));return;}
     submitLock.current=true;setSubmitting(true);
     try {
       let imageUrl=uploadedUrl;
       if(photo && isBackendConfigured && !imageUrl){imageUrl=await uploadFoodPhoto(photo);if(!imageUrl)throw new Error('Photo upload failed. Please try again.');setUploadedUrl(imageUrl);}
-      const created=await createFoodItem(vendor.vendorId,{name:name.trim(),price:priceNum,category,actionType,inStock,imageUrl,isVeg:vegetarian==='unknown'?undefined:vegetarian==='yes',remainingQuantity:null});
+      const input={name:name.trim(),price:priceNum,category,actionType,inStock,imageUrl,isVeg:vegetarian==='unknown'?undefined:vegetarian==='yes',remainingQuantity:null};
+      const created=item ? await updateFoodItem(item.id,vendor.vendorId,input) : await createFoodItem(vendor.vendorId,input);
       if(!created)throw new Error('Could not publish this item. Please try again.');
       published.current=true;setSubmitted(true);onPublished?.({name:created.name,price:created.price});
       closeTimer.current=setTimeout(onClose,900);
@@ -79,19 +92,19 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
     finally {submitLock.current=false;setSubmitting(false);}
   };
   if(!isOpen)return null;
-  return <SvgScreenFrame screen={'add'}><div className="pickup-overlay" onClick={() => {if(!submitLock.current)onClose();}}><div ref={sheetRef} role="dialog" aria-modal="true" aria-labelledby="add-item-title" className="pickup-sheet add-item-sheet" onClick={e=>e.stopPropagation()}>
+  return <SvgScreenFrame screen={item ? null : 'add'}><div className="pickup-overlay" onClick={() => {if(!submitLock.current)onClose();}}><div ref={sheetRef} role="dialog" aria-modal="true" aria-labelledby="add-item-title" className="pickup-sheet add-item-sheet" onClick={e=>e.stopPropagation()}>
     <div className="sheet-handle"/><button type="button" className="sheet-close" aria-label="Close" onClick={onClose} disabled={submitting}><X size={15}/></button>
-    {submitted ? <div className="py-10 text-center" role="status"><CheckCircle className="mx-auto text-[#007A55]"/><h2 className="sheet-title mt-4">Item published</h2></div> : <form onSubmit={handleSubmit} className="add-item-form">
-      <header><h2 id="add-item-title" className="sheet-title">Add food item</h2><p className="sheet-subtitle">Add an item to your menu.</p></header>
+    {submitted ? <div className="py-10 text-center" role="status"><CheckCircle className="mx-auto text-[#007A55]"/><h2 className="sheet-title mt-4">{item ? 'Changes saved' : 'Item published'}</h2></div> : <form onSubmit={handleSubmit} className="add-item-form">
+      <header><h2 id="add-item-title" className="sheet-title">{item ? 'Edit food item' : 'Add food item'}</h2><p className="sheet-subtitle">{item ? 'Update this dish in your menu.' : 'Add an item to your menu.'}</p></header>
       <label className="field-label" htmlFor="aef-title">Item name<input id="aef-title" className="pickup-input" required value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Samosa"/></label>
       <fieldset><legend className="field-label">Category</legend><div className="segmented">{(['cooked','packed'] as const).map(cat=><button key={cat} type="button" aria-pressed={category===cat} onClick={()=>setCategory(cat)}>{cat==='cooked'?'Cooked food':'Packed food'}</button>)}</div></fieldset>
       <fieldset><legend className="field-label">Service mode</legend><div className="segmented">{(['walkin','order'] as const).map(mode=><button key={mode} type="button" aria-pressed={actionType===mode} onClick={()=>setActionType(mode)}>{mode==='walkin'?'Walk In':'Order In'}</button>)}</div></fieldset>
       <label className="field-label" htmlFor="aef-price">Price<div className="add-price-row"><Stepper min={0} max={200} value={Number(price)||0} onChange={value=>setPrice(String(value))} prefix="₹" size="sm"/><input id="aef-price" className="pickup-input" type="number" min={actionType==='order'?1:0} max="1000000" step="1" required value={price} onChange={e=>setPrice(e.target.value)} placeholder="Custom price"/></div></label>
       <label className="field-label">Veg / Non-veg<select className="pickup-input" value={vegetarian} onChange={e=>setVegetarian(e.target.value as 'unknown'|'yes'|'no')}><option value="unknown">Not specified</option><option value="yes">Veg</option><option value="no">Non-veg</option></select></label>
       <div><span className="field-label">Stock</span><button type="button" role="switch" aria-label="Stock" aria-checked={inStock} onClick={()=>setInStock(v=>!v)} className="add-stock-control"><span>{inStock?'On':'Off'}</span><span className="stock-switch" aria-checked={inStock}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span></span></button></div>
-      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={handlePhotoSelect}/><div className="add-photo"><button type="button" onClick={()=>fileInputRef.current?.click()}>{photoPreview && <img src={photoPreview} alt="Selected food photo"/>}<Upload size={16}/>{photo?'Change photo':'Upload photo'}</button><p>JPG or PNG</p></div>
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={handlePhotoSelect}/><div className="add-photo"><button type="button" onClick={()=>fileInputRef.current?.click()}>{(photoPreview || item?.image) && <img src={photoPreview ?? item?.image} alt="Food photo"/>}<Upload size={16}/>{photo || item?.image ? 'Change photo' : 'Upload photo'}</button><p>JPG or PNG</p></div>
       {error && <p className="pickup-error" role="alert"><AlertCircle size={14}/>{error}</p>}
-      <button className="add-publish" type="submit" disabled={submitting}>{submitting?'Publishing…':'Publish item'}</button>
+      <button className="add-publish" type="submit" disabled={submitting}>{submitting ? (item ? 'Saving…' : 'Publishing…') : item ? 'Save changes' : 'Publish item'}</button>
     </form>}
   </div></div></SvgScreenFrame>;
 };

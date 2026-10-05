@@ -271,6 +271,10 @@ html,body,#root { width:100%; min-height:100%; }
 .stock-item-form .pickup-input { min-height:36px; height:36px; padding:6px 12px; border:0; margin-top:8px; font-size:12px; }
 .stock-item-form button { height:36px; }
 .stock-item-actions { display:flex; justify-content:flex-end; border-top:1px solid #EEE8E2; margin-top:16px; padding-top:6px; }
+.stock-item-edit { display:inline-flex; align-items:center; gap:6px; margin-right:auto; min-height:44px; padding:8px 12px; font-size:12px; font-weight:600; color:#B94B00; border-radius:10px; }
+.stock-item-edit:hover { background:#FFF2E7; }
+.stock-item-edit:focus-visible { outline:2px solid #F06A05; outline-offset:2px; }
+.stock-item-edit:disabled { opacity:.45; cursor:wait; }
 .stock-item-delete { display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:8px 6px 4px 12px; font-size:11px; color:#A53A2A; border-radius:10px; }
 .stock-item-delete:hover { background:#FFF3EF; }
 .stock-item-delete:focus-visible { outline:2px solid #A53A2A; outline-offset:2px; }

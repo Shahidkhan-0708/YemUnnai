@@ -163,6 +163,12 @@ do $$ begin
  update public.food_items set is_vegetarian = true, in_stock = false, remaining_quantity = null
   where id = '30000000-0000-4000-8000-000000000001';
  assert found, 'seller can save dietary information and stock';
+ update public.food_items set name = 'Edited fixture', price = 25, category = 'packed',
+  action_type = 'walkin', image_url = 'https://example.com/food.jpg'
+  where id = '30000000-0000-4000-8000-000000000001' and vendor_id = '20000000-0000-4000-8000-000000000001';
+ assert found, 'seller can edit own dish details';
+ assert (select name = 'Edited fixture' and price = 25 and category = 'packed' and action_type = 'walkin' and image_url = 'https://example.com/food.jpg' from public.food_items where id = '30000000-0000-4000-8000-000000000001'), 'edited fields persist';
+ assert not exists(select 1 from public.orders where food_item_id = '30000000-0000-4000-8000-000000000001' and item_name = 'Edited fixture'), 'menu edits preserve existing order receipts';
  update public.vendors set latitude = 13.6298, longitude = 78.4786,
   location_landmark = 'QA counter', is_on_campus = true where id = '20000000-0000-4000-8000-000000000001';
  assert found, 'seller can save own map pin';
@@ -174,6 +180,8 @@ select set_config('request.jwt.claims','{"sub":"10000000-0000-4000-8000-00000000
 do $$ begin
  update public.food_items set is_vegetarian = false where id = '30000000-0000-4000-8000-000000000001';
  assert not found, 'other seller cannot change dietary information';
+ update public.food_items set name = 'Unauthorized edit', price = 1 where id = '30000000-0000-4000-8000-000000000001';
+ assert not found, 'other seller cannot edit dish details';
  update public.vendors set latitude = 0 where id = '20000000-0000-4000-8000-000000000001';
  assert not found, 'other seller cannot move map pin';
  delete from public.food_items where id = '30000000-0000-4000-8000-000000000002';

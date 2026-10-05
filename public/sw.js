@@ -1,5 +1,5 @@
 /* YEMUNNAI service worker — offline shell + stale-while-revalidate static assets. */
-const CACHE = 'yemunnai-v23';
+const CACHE = 'yemunnai-v24';
 const PRECACHE = ['/'];
 
 self.addEventListener('install', (event) => {

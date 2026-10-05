@@ -1,7 +1,7 @@
 import { VendorLocationSettings } from './VendorLocationSettings';
 import { SvgScreenFrame } from './SvgScreenFrame';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw, Trash2, Pencil } from 'lucide-react';
 import { deleteFoodItem, fetchVendorItems, setItemStock, subscribeCatalogUpdates, updateItemAvailability } from '../lib/api';
 import { useVendorSession } from '../lib/hooks';
 import type { FoodItem } from '../lib/types';
@@ -14,10 +14,11 @@ import { DietaryBadge } from './DietaryBadge';
 interface MenuStockManagementScreenProps {
   onBack?: () => void;
   onAddNewItem?: () => void;
+  onEditItem?: (item: FoodItem) => void;
   onToggleStock?: (id: string, inStock: boolean) => void;
 }
 
-export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock }: MenuStockManagementScreenProps) {
+export function MenuStockManagementScreen({ onBack, onAddNewItem, onEditItem, onToggleStock }: MenuStockManagementScreenProps) {
   const { t } = useLanguage();
   const { vendor, checking } = useVendorSession();
   const vendorId = vendor?.vendorId;
@@ -106,7 +107,7 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onToggleStock 
       <div className="stock-list">{visible.map(item => <article key={item.id} className="stock-item">
         <div className="stock-item-top"><CatalogImage src={item.image} alt=""/><div><h2>{item.name}</h2><p>₹{item.price} · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
         <div className="stock-diet"><DietaryBadge isVeg={item.isVeg} /><div className="stock-diet-options" role="group" aria-label={`Food type for: ${item.name}`}>{[{value:true,label:t('Veg','శాకాహారం')},{value:false,label:t('Non-veg','మాంసాహారం')},{value:null,label:t('Not set','పేర్కొనలేదు')}].map(choice=><button key={String(choice.value)} type="button" data-diet={String(choice.value)} aria-pressed={(item.isVeg??null)===choice.value} disabled={busy} onClick={()=>void saveDiet(item,choice.value)}>{choice.label}</button>)}</div></div>
-        <div className="stock-item-actions"><button type="button" className="stock-item-delete" disabled={busy} aria-label={t(`Delete ${item.name}`, `${item.name} తొలగించండి`)} onClick={() => { setDeleteTarget(item); setDeleteError(''); setNotice(''); }}><Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />{t('Delete dish', 'వంటకాన్ని తొలగించండి')}</button></div>
+        <div className="stock-item-actions">{onEditItem && <button type="button" className="stock-item-edit" disabled={busy} aria-label={`Edit ${item.name}`} onClick={() => onEditItem(item)}><Pencil size={14} strokeWidth={1.7} aria-hidden="true"/>{t('Edit dish','వంటకాన్ని సవరించండి')}</button>}<button type="button" className="stock-item-delete" disabled={busy} aria-label={t(`Delete ${item.name}`, `${item.name} తొలగించండి`)} onClick={() => { setDeleteTarget(item); setDeleteError(''); setNotice(''); }}><Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />{t('Delete dish', 'వంటకాన్ని తొలగించండి')}</button></div>
       </article>)}</div>
       {!loading && !visible.length && <p className="stock-instruction">{items.length ? 'No items in this category.' : 'No dishes yet. Add your first item.'}</p>}
       <Button className="stock-add" onClick={onAddNewItem}><Plus size={15}/> {t('Add food item','ఆహారాన్ని జోడించండి')}</Button>
