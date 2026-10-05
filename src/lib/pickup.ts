@@ -99,6 +99,7 @@ export async function placeOrder(input: { foodItem: FoodItem; quantity: number }
     // Another tab can resolve or create an attempt while this tab waits for the lock.
     const pending = pendingCheckout();
     if (pending) return resolveAttempt(pending);
+    if (input.foodItem.price == null || input.foodItem.priceVariants?.length) throw new PickupError('item_unavailable');
     const a: Attempt = { buyerId: await ensureBuyer(), attemptId: crypto.randomUUID(), itemId: input.foodItem.id, quantity: input.quantity, expectedPrice: input.foodItem.price };
     safeStorage.setItem(attemptKey, JSON.stringify(a));
     if (safeStorage.getItem(attemptKey) !== JSON.stringify(a)) throw new PickupError('storage_unavailable');
@@ -154,6 +155,6 @@ export async function requestBuyerEmail(email: string, existing: boolean) {
 export async function recheckItem(itemId: string): Promise<FoodItem> {
   const { fetchFoodItems } = await import('./api');
   const item = (await fetchFoodItems()).find(i => i.id === itemId);
-  if (!item || !item.inStock || item.isShopOnline === false || item.price <= 0 || item.actionType !== 'order') throw new PickupError('item_unavailable');
+  if (!item || !item.inStock || item.isShopOnline === false || (item.price ?? 0) <= 0 || item.priceVariants?.length || item.actionType !== 'order') throw new PickupError('item_unavailable');
   return item;
 }

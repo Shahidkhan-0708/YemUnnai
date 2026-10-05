@@ -73,6 +73,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
     "Ekdant's Cafe": '/images/shop_ekdants_cafe.jpg',
     Lickies: '/images/shop_lickies.jpg',
     'New Cafe': '/images/shop_new_cafe.jpg'
+    ,'Pizza And Pasta (P2)': '/images/shop_p2.svg'
   };
   const shopImage = SHOP_IMAGES[vendor?.vendorName ?? ''] ?? '/images/shop_mits_canteen.jpg';
 

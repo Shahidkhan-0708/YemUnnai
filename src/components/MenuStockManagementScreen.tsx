@@ -9,6 +9,7 @@ import { useLanguage } from '../lib/language';
 import { Button } from './ui/button';
 import { DeleteFoodItemDialog } from './DeleteFoodItemDialog';
 import { CatalogImage } from './CatalogImage';
+import { MenuPrice } from './MenuPrice';
 import { DietaryBadge } from './DietaryBadge';
 
 interface MenuStockManagementScreenProps {
@@ -105,7 +106,7 @@ export function MenuStockManagementScreen({ onBack, onAddNewItem, onEditItem, on
       {notice && <p className="stock-delete-success" role="status">{notice}</p>}
       {loading && <p role="status">Loading your menu…</p>}
       <div className="stock-list">{visible.map(item => <article key={item.id} className="stock-item">
-        <div className="stock-item-top"><CatalogImage src={item.image} alt=""/><div><h2>{item.name}</h2><p>₹{item.price} · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
+        <div className="stock-item-top"><CatalogImage src={item.image} alt=""/><div><h2>{item.name}</h2><p><MenuPrice item={item}/> · {item.actionType === 'walkin' ? 'Walk In' : 'Order In'}</p></div><button type="button" role="switch" aria-checked={item.inStock} aria-label={`Stock for: ${item.name}`} className="stock-switch" disabled={busy} onClick={() => void saveStock(!item.inStock,item.id)}><span className="stock-switch-track"><span className="stock-switch-thumb"/></span><span>{item.inStock ? 'Stock on' : 'Stock off'}</span></button></div>
         <div className="stock-diet"><DietaryBadge isVeg={item.isVeg} /><div className="stock-diet-options" role="group" aria-label={`Food type for: ${item.name}`}>{[{value:true,label:t('Veg','శాకాహారం')},{value:false,label:t('Non-veg','మాంసాహారం')},{value:null,label:t('Not set','పేర్కొనలేదు')}].map(choice=><button key={String(choice.value)} type="button" data-diet={String(choice.value)} aria-pressed={(item.isVeg??null)===choice.value} disabled={busy} onClick={()=>void saveDiet(item,choice.value)}>{choice.label}</button>)}</div></div>
         <div className="stock-item-actions">{onEditItem && <button type="button" className="stock-item-edit" disabled={busy} aria-label={`Edit ${item.name}`} onClick={() => onEditItem(item)}><Pencil size={14} strokeWidth={1.7} aria-hidden="true"/>{t('Edit dish','వంటకాన్ని సవరించండి')}</button>}<button type="button" className="stock-item-delete" disabled={busy} aria-label={t(`Delete ${item.name}`, `${item.name} తొలగించండి`)} onClick={() => { setDeleteTarget(item); setDeleteError(''); setNotice(''); }}><Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />{t('Delete dish', 'వంటకాన్ని తొలగించండి')}</button></div>
       </article>)}</div>

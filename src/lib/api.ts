@@ -107,6 +107,14 @@ function rowToItem(row: FoodItemRow): FoodItem {
     name: row.name,
     vendor: vendorInfo?.name ?? 'Unknown shop',
     price: row.price,
+    sourceItemId: row.source_item_id ?? undefined,
+    sourceHotelCode: row.source_hotel_code ?? undefined,
+    menuCategory: row.menu_category ?? undefined,
+    foodType: row.food_type ?? undefined,
+    description: row.description ?? undefined,
+    details: row.details ?? undefined,
+    priceDisplay: row.price_display ?? undefined,
+    priceVariants: row.price_variants ?? [],
     category: row.category,
     image: row.image_url ?? '/images/item_samosa_chicken.jpg',
     likes: row.likes_count,
@@ -534,12 +542,17 @@ export async function setVendorAllStock(vendorId: string, inStock: boolean): Pro
 
 export async function updateFoodItem(foodItemId: string, vendorId: string, input: NewFoodItemInput): Promise<FoodItem> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  if (!input.name.trim() || !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000) throw new Error('Enter an item name and a whole-rupee price.');
+  if (!input.name.trim() || (input.price === null ? input.actionType === 'order' : !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000)) throw new Error('Enter an item name and a whole-rupee price.');
+  if (input.priceVariants?.some(v => !v.name.trim() || !Number.isSafeInteger(v.price) || v.price < 0 || v.price > 1000000)) throw new Error('Enter a valid price for each variant.');
+  if (input.priceVariants?.length && input.actionType === 'order') throw new Error('Use Walk In for items with price variants.');
   const vendor = await getMyVendor();
   if (!vendor || vendor.id !== vendorId) throw new Error('Sign in to this canteen to edit its dishes.');
   const { data, error } = await supabase.from('food_items').update({
     name: input.name.trim(), price: input.price, category: input.category,
     action_type: input.actionType, in_stock: input.inStock, is_vegetarian: input.isVeg ?? null,
+    food_type: input.isVeg === undefined ? 'Unknown' : input.isVeg ? 'Veg' : 'Non-Veg',
+    ...(input.priceVariants !== undefined ? { price_variants: input.priceVariants,
+      ...(input.priceVariants.length || input.price != null ? {price_display: input.priceVariants.length ? input.priceVariants.map(v => `₹${v.price}`).join(' / ') : `₹${input.price}`} : {}) } : {}),
     ...(input.imageUrl != null ? { image_url: input.imageUrl } : {}),
   }).eq('id', foodItemId).eq('vendor_id', vendor.id).select('*, vendors(name), reviews(rating)').single();
   if (error || data?.id !== foodItemId) throw new Error('Could not save this dish. Please retry or refresh your menu.');
@@ -549,7 +562,7 @@ export async function updateFoodItem(foodItemId: string, vendorId: string, input
 
 export async function createFoodItem(vendorId: string, input: NewFoodItemInput): Promise<FoodItem | null> {
   if (!supabase) throw new Error('Business portal is unavailable.');
-  if (!input.name.trim() || !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000) throw new Error('Enter a whole-rupee price from 1 to 1000000 for orders (0 is allowed for walk-in items).');
+  if (!input.name.trim() || (input.price === null ? input.actionType === 'order' : !Number.isSafeInteger(input.price) || input.price < (input.actionType === 'order' ? 1 : 0) || input.price > 1000000)) throw new Error('Enter a whole-rupee price from 1 to 1000000 for orders (0 is allowed for walk-in items).');
   if (input.remainingQuantity != null && (!Number.isSafeInteger(input.remainingQuantity) || input.remainingQuantity < 0 || input.remainingQuantity > 1000000)) throw new Error('Enter a whole remaining quantity from 0 to 1000000.');
   const finalName = input.name;
 

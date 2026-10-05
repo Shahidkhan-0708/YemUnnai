@@ -28,6 +28,7 @@ export function DiscoveryHeader({ shops, loading, selectedShop, searchQuery, car
     if (name === 'MITS Canteen') return ['MITS', 'Canteen'];
     if (name === 'MITS Cafe') return ['MITS', 'Cafe'];
     if (name === "Ekdant's Cafe") return ['Ekdant’s', 'Cafe'];
+    if (name === 'Pizza And Pasta (P2)') return ['Pizza And', 'Pasta (P2)'];
     return [name, ''];
   };
   return <header className="discovery-header">

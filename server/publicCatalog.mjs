@@ -14,7 +14,7 @@ export function createCatalogHandler({ url, key, fetcher = fetch, now = Date.now
     const [rows, vendors] = await Promise.all(responses.map(response => response.json()));
     if (!Array.isArray(rows) || !Array.isArray(vendors)) throw new Error('Invalid catalog');
     // Strip unexpected table columns and review contents from the cached response.
-    const foodFields = ['id','vendor_id','name','price','category','action_type','in_stock','image_url','likes_count','dislikes_count','reviews_count','remaining_quantity','is_vegetarian'];
+    const foodFields = ['id','vendor_id','name','price','category','action_type','in_stock','image_url','likes_count','dislikes_count','reviews_count','remaining_quantity','is_vegetarian','source_item_id','source_hotel_code','menu_category','food_type','description','details','price_display','price_variants','menu_position'];
     const vendorFields = ['id','name','image_url','is_active','is_online','latitude','longitude','location_landmark','is_on_campus'];
     const pick = (row, fields) => Object.fromEntries(fields.filter(field => row[field] !== undefined).map(field => [field, row[field]]));
     const body = {

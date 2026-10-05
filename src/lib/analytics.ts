@@ -40,7 +40,7 @@ export function trackPageView(pageTitle: string, pagePath?: string): void {
 export function trackViewItem(item: {
   id: string;
   name: string;
-  price: number;
+  price: number | null;
   category?: string;
   vendor?: string;
 }): void {
@@ -64,9 +64,10 @@ export function trackViewItem(item: {
  * Track opening the quick checkout sheet
  */
 export function trackBeginCheckout(
-  item: { id: string; name: string; price: number; category?: string; vendor?: string },
+  item: { id: string; name: string; price: number | null; category?: string; vendor?: string },
   quantity: number
 ): void {
+  if (item.price == null) return;
   const total = item.price * quantity;
   trackEvent('begin_checkout', {
     currency: 'INR',
@@ -92,7 +93,7 @@ export function trackPurchase(order: {
   pickupNumber?: string | number;
   name: string;
   itemId?: string;
-  price: number;
+  price: number | null;
   quantity: number;
   total: number;
   vendor?: string;

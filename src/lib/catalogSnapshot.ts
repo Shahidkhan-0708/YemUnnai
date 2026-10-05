@@ -17,7 +17,7 @@ function read(): Snapshot {
           if (!row || typeof row !== 'object') return false;
           const value = row as FoodItem & ShopEntry;
           if (typeof value.id !== 'string' || typeof value.name !== 'string' || typeof value.image !== 'string') return false;
-          return kind === 'shops' ? typeof value.isActive === 'boolean' : typeof value.vendor === 'string' && Number.isFinite(value.price) && ['cooked','packed'].includes(value.category) && ['order','walkin'].includes(value.actionType) && typeof value.inStock === 'boolean';
+          return kind === 'shops' ? typeof value.isActive === 'boolean' : typeof value.vendor === 'string' && (value.price === null || Number.isFinite(value.price)) && ['cooked','packed'].includes(value.category) && ['order','walkin'].includes(value.actionType) && typeof value.inStock === 'boolean';
         })) snapshot[kind] = entry;
       }
       return snapshot;

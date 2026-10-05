@@ -1,0 +1,25 @@
+{
+  "stage": "validated-and-prepared",
+  "reports": [
+    {
+      "hotel": "HOTEL1",
+      "restaurant": "Pizza And Pasta (P2)",
+      "menuItems": 89,
+      "imagesFound": 89,
+      "imagesMissing": 0,
+      "importErrors": 0,
+      "missingPrices": 10,
+      "variantItems": 16
+    },
+    {
+      "hotel": "HOTEL2",
+      "restaurant": "MITS Canteen",
+      "menuItems": 53,
+      "imagesFound": 53,
+      "imagesMissing": 0,
+      "importErrors": 0,
+      "missingPrices": 53,
+      "variantItems": 0
+    }
+  ]
+}

@@ -6,6 +6,7 @@ export type FoodCategory = 'cooked' | 'packed';
 export type ActionType = 'walkin' | 'order';
 export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'collected' | 'declined' | 'cancelled' | 'completed';
 export type ReactionValue = 'like' | 'dislike';
+export interface PriceVariant { name: string; price: number; currency: string }
 
 export interface VendorRow {
   id: string;
@@ -25,7 +26,7 @@ export interface FoodItemRow {
   id: string;
   vendor_id: string;
   name: string;
-  price: number;
+  price: number | null;
   category: FoodCategory;
   action_type: ActionType;
   image_url: string | null;
@@ -45,6 +46,15 @@ export interface FoodItemRow {
     is_online?: boolean | null;
   } | null;
   reviews?: { rating: number }[] | null;
+  source_item_id?: string | null;
+  source_hotel_code?: string | null;
+  menu_category?: string | null;
+  food_type?: string | null;
+  description?: string | null;
+  details?: string | null;
+  price_display?: string | null;
+  price_variants?: PriceVariant[];
+  menu_position?: number | null;
 }
 
 export interface OrderRow {
@@ -88,7 +98,15 @@ export interface FoodItem {
   vendorId: string;
   name: string;
   vendor: string;
-  price: number;
+  price: number | null;
+  sourceItemId?: string;
+  sourceHotelCode?: string;
+  menuCategory?: string;
+  foodType?: string;
+  description?: string;
+  details?: string;
+  priceDisplay?: string;
+  priceVariants?: PriceVariant[];
   originalPrice?: number;
   category: FoodCategory;
   image: string;
@@ -143,7 +161,8 @@ export interface VendorStats {
 
 export interface NewFoodItemInput {
   name: string;
-  price: number;
+  price: number | null;
+  priceVariants?: PriceVariant[];
   category: FoodCategory;
   actionType: ActionType;
   inStock: boolean;

@@ -93,6 +93,7 @@ export function App() {
   const [selectedWalkInFood, setSelectedWalkInFood] = useState<FoodItem | null>(null);
   const [selectedReviewFood, setSelectedReviewFood] = useState<FoodItem | null>(null);
   const [selectedDetailFood, setSelectedDetailFood] = useState<FoodItem | null>(null);
+  const [buyerShopFilter, setBuyerShopFilter] = useState('All');
   const [editingFood, setEditingFood] = useState<FoodItem | null>(null);
   const [isAddEditOpen, setIsAddEditOpen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -181,6 +182,7 @@ export function App() {
                   />
                 ) : (
                   <HomeDiscoveryScreen
+                    initialShop={buyerTab === 'saved' ? 'All' : buyerShopFilter}
                     savedOnly={buyerTab === 'saved'}
                     cartCount={buyerOrders.orders.filter(o => ['pending','preparing','ready'].includes(o.status)).length}
                     onBusinessPortal={() => {
@@ -203,6 +205,7 @@ export function App() {
                     }}
                     onCartClick={() => setBuyerTab('orders')}
                     onSelectShop={(name) => {
+                      setBuyerShopFilter(name);
                       playTapSound();
                       showToast(`Filtered by ${name}`);
                     }}
@@ -280,7 +283,7 @@ export function App() {
                   isOpen={!!vendor && isAddEditOpen}
                   onClose={() => setIsAddEditOpen(false)}
                   onPublished={(item) => {
-                    showToast(`${editingFood ? 'Saved changes to' : 'Published'} ${item.name} (₹${item.price}).`);
+                    showToast(`${editingFood ? 'Saved changes to' : 'Published'} ${item.name}${item.price == null ? '' : ` (₹${item.price})`}.`);
                   }}
                 />
               </div>
