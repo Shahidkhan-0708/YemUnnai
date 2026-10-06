@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ImgHTMLAttributes } from 'react';
 import catalogImages from '../lib/catalog-images.json';
 
-type Entry = { width: number; height: number; contentBox?: { left: number; top: number; width: number; height: number }; variants: { src: string; width: number }[] };
+type Entry = { width: number; height: number; extracted?: boolean; contentBox?: { left: number; top: number; width: number; height: number }; variants: { src: string; width: number }[] };
 const images: Record<string, Entry> = catalogImages;
 type Props = ImgHTMLAttributes<HTMLImageElement> & { src: string; size?: 'card' | 'detail' | 'thumbnail'; priority?: boolean };
 
@@ -27,7 +27,7 @@ export function CatalogImage({ src, size = 'thumbnail', priority = false, loadin
     </span>;
   }
   const variants = image?.variants.filter(variant => size === 'detail' || variant.width <= 640);
-  return <img {...props} src={variants?.[0]?.src ?? src}
+  return <img {...props} data-extracted={image?.extracted || undefined} src={variants?.[0]?.src ?? src}
     srcSet={variants?.map(variant => `${variant.src} ${variant.width}w`).join(', ')}
     sizes={size === 'card' ? '(max-width: 600px) calc((100vw - 48px) / 2), 208px' : size === 'detail' ? '(max-width: 480px) calc(100vw - 40px), 440px' : '56px'}
     width={props.width ?? image?.width} height={props.height ?? image?.height}

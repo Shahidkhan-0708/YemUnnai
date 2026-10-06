@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import {mockPickupTransport,runPickupBrowser} from './test_pickup_browser.mjs';
 const rows=[];
 for(const [hotel,vendor] of [['HOTEL1','a0000000-0000-4000-8000-000000000010'],['HOTEL2','a0000000-0000-4000-8000-000000000001']]){
- const manifest=JSON.parse(await fs.readFile(`data/restaurant-menus/${hotel.toLowerCase()}/menu_manifest.json`,'utf8'));
- rows.push(...manifest.items.map((item,index)=>({id:`c${hotel==='HOTEL1'?'1':'2'}000000-0000-4000-8000-${String(Number(item.item_id.slice(3))).padStart(12,'0')}`,vendor_id:vendor,name:item.name,price:item.price,category:'cooked',action_type:'walkin',image_url:`/images/menus/${hotel.toLowerCase()}/${item.image_file}`,in_stock:item.available,is_vegetarian:item.is_vegetarian,source_item_id:item.item_id,source_hotel_code:hotel,menu_category:item.category,food_type:item.food_type,description:item.description,details:item.details,price_display:item.price_display,price_variants:item.price_variants,menu_position:index})));
+ const manifest=JSON.parse(await fs.readFile(`menu_assets/${hotel.toLowerCase()}/manifest.json`,'utf8'));
+ rows.push(...manifest.items.map((item,index)=>({id:`c${hotel==='HOTEL1'?'1':'2'}000000-0000-4000-8000-${String(Number(item.item_id.slice(3))).padStart(12,'0')}`,vendor_id:vendor,name:item.name,price:item.price,category:'cooked',action_type:'walkin',image_url:item.image_url,in_stock:item.available,is_vegetarian:item.is_vegetarian,source_item_id:item.item_id,source_hotel_code:hotel,menu_category:item.category,food_type:item.food_type,description:item.description,details:item.details,price_display:item.price_display,price_variants:item.price_variants,menu_position:index})));
 }
 const bootstrap=function(rows){
  window.WebSocket=class{close(){}send(){}addEventListener(){}removeEventListener(){}};
@@ -31,15 +31,11 @@ const exercise=async function(){
  const change=(node,value)=>{Object.getOwnPropertyDescriptor(Object.getPrototypeOf(node),'value').set.call(node,value);node.dispatchEvent(new Event(node.tagName==='SELECT'?'change':'input',{bubbles:true}));};
  try{
   await until(()=>cards().length===142&&!cards()[0].querySelector('.food-action').disabled,'Both restaurant datasets load');
-  check(cards().every(card=>card.querySelector('.food-photo img').getAttribute('src').includes('/images/menus/')),'All dishes use product images');
+  check(cards().every(card=>card.querySelector('.food-photo img').getAttribute('src').includes('/menu-assets/')),'All dishes use product images');
   for(const image of document.querySelectorAll('.food-photo img'))image.loading='eager';
   await until(()=>[...document.querySelectorAll('.food-photo img')].every(image=>image.complete&&image.naturalWidth>0),'Every one of 142 images decodes');
-  check(document.querySelectorAll('.food-photo .catalog-image-crop').length===142,'Every padded product uses shared crop');
-  for(const image of document.querySelectorAll('.food-photo img')){
-   const viewport=image.parentElement.getBoundingClientRect(), rendered=image.getBoundingClientRect();
-   check(viewport.width>100&&rendered.width>viewport.width*4,'Product content enlarged to fill the card');
-   check(getComputedStyle(image.parentElement).overflow==='hidden','Padding cannot spill outside card');
-  }
+  check(document.querySelectorAll('.food-photo img[data-extracted]').length===142,'Every product uses its extracted image');
+  check([...document.querySelectorAll('.food-photo img')].every(image=>getComputedStyle(image).objectFit==='contain'),'Full photographs fit without clipping');
   document.querySelector('[aria-label="Pizza And Pasta (P2)"]').click();await until(()=>cards().length===89,'P2 has 89 isolated items');
   check(cards().every(card=>card.querySelector('.food-photo img').getAttribute('src').includes('/hotel1/')),'No MITS products in P2');
   check(document.querySelector('[aria-label="Restaurant menu category"]').options.length===14,'All 13 original P2 categories');

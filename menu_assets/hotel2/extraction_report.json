@@ -1,0 +1,36 @@
+{
+  "hotel": "hotel2",
+  "expected_items": 53,
+  "image_records": 53,
+  "images_extracted": 53,
+  "images_missing": 0,
+  "images_failed": 0,
+  "images_duplicate": 0,
+  "duplicates": [],
+  "perceptually_similar_candidates": [],
+  "min_resolution": "1024x1024",
+  "target_resolution": "1536px minimum on the shorter side; natural aspect ratio preserved",
+  "method": "Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels",
+  "inspected_sources": [
+    "image copy 19.png",
+    "image copy 20.png",
+    "image copy 21.png",
+    "image copy 22.png",
+    "image copy 23.png",
+    "image copy 24.png"
+  ],
+  "selected_source": "image copy 20.png",
+  "source_sha256": "ed027429292e312e17c8e741b3269eb773470d008288f3d9ef6f504096a6bf9b",
+  "excluded_source_tiles": [],
+  "quality_limit": "Source photos are approximately 100px across. Larger dimensions cannot recover absent photographic detail.",
+  "validation": {
+    "files": "pass",
+    "readable": "pass",
+    "minimum_dimensions": "pass",
+    "hotel_and_item_mapping": "pass",
+    "unchanged_menu_details": "pass",
+    "source_pixel_fidelity": "pass",
+    "crop_review": "All crops visually reviewed; caption bands, borders and neighbouring tiles excluded",
+    "duplicate_review": "No duplicate candidates"
+  }
+}

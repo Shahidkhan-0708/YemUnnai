@@ -634,3 +634,4 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 
 .catalog-image-crop { display:block; position:relative; overflow:hidden; width:100%; aspect-ratio:4/3; }
 .food-photo .catalog-image-crop { height:100%; aspect-ratio:auto; }
+img[data-extracted] { object-fit:contain; }

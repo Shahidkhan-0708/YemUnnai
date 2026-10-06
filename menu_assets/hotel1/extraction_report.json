@@ -1,0 +1,48 @@
+{
+  "hotel": "hotel1",
+  "expected_items": 89,
+  "image_records": 89,
+  "images_extracted": 89,
+  "images_missing": 0,
+  "images_failed": 0,
+  "images_duplicate": 0,
+  "duplicates": [],
+  "perceptually_similar_candidates": [
+    {
+      "items": [
+        "H1-079",
+        "H1-080"
+      ],
+      "distance": 5
+    }
+  ],
+  "min_resolution": "1024x1024",
+  "target_resolution": "1536px minimum on the shorter side; natural aspect ratio preserved",
+  "method": "Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels",
+  "inspected_sources": [
+    "image copy 19.png",
+    "image copy 20.png",
+    "image copy 21.png",
+    "image copy 22.png",
+    "image copy 23.png",
+    "image copy 24.png"
+  ],
+  "selected_source": "image copy 19.png",
+  "source_sha256": "8479d44c572666c483f10c08a63ab0efd409e333d811c27379b8106ce791c671",
+  "excluded_source_tiles": [
+    "Romeno Chicken Pasta",
+    "Aglio Prawns Pasta",
+    "Hotel 2 tiles in last row"
+  ],
+  "quality_limit": "Source photos are approximately 100px across. Larger dimensions cannot recover absent photographic detail.",
+  "validation": {
+    "files": "pass",
+    "readable": "pass",
+    "minimum_dimensions": "pass",
+    "hotel_and_item_mapping": "pass",
+    "unchanged_menu_details": "pass",
+    "source_pixel_fidelity": "pass",
+    "crop_review": "All crops visually reviewed; caption bands, borders and neighbouring tiles excluded",
+    "duplicate_review": "H1-079 and H1-080 have similar cup composition but different drinks/colors; retained as distinct source photos"
+  }
+}
