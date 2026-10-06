@@ -14,7 +14,8 @@ import { MotionConfig } from '@watermelon-motion';
 import { useVendorSession } from './lib/hooks';
 import { safeStorage } from './lib/storage';
 import { trackPageView, trackViewItem } from './lib/analytics';
-import { Download, ExternalLink, Eye } from 'lucide-react';
+import { Download, ExternalLink, Eye, X } from 'lucide-react';
+import { useModalA11y } from './lib/useModalA11y';
 import { Toaster, toast } from './components/ui/sonner';
 import { reportAppError } from './lib/telemetry';
 
@@ -46,6 +47,16 @@ function ScreenFallback() {
       <span className="text-xs font-bold text-[#7A6658] tracking-wide">Loading…</span>
     </div>
   );
+}
+
+function ModalFallback({ title, onClose }: { title: string; onClose: () => void }) {
+  const ref = useModalA11y<HTMLDivElement>(true, onClose);
+  return <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 p-3">
+    <div ref={ref} role="dialog" aria-modal="true" aria-label={title} className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+      <div className="flex items-center justify-between gap-4"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={onClose} aria-label="Close loading dialog" className="flex size-11 items-center justify-center rounded-xl border border-[#D6DEE4]"><X size={18}/></button></div>
+      <p role="status" className="mt-5 flex items-center gap-3 text-sm text-[#7A6658]"><span className="size-5 animate-spin rounded-full border-2 border-[#F06A05] border-t-transparent"/>Loading…</p>
+    </div>
+  </div>;
 }
 
 /** Stand-in item used by the Screen Gallery to open modals/screens without the grid.
@@ -238,25 +249,25 @@ export function App() {
                 />}
 
                 {/* Walk-in Map Modal */}
-                {selectedWalkInFood && <WalkInMapModal
+                {selectedWalkInFood && <Suspense fallback={<ModalFallback title={`Walk-in map for ${selectedWalkInFood.vendor}`} onClose={() => setSelectedWalkInFood(null)} />}><WalkInMapModal
                   isOpen={!!selectedWalkInFood}
                   item={selectedWalkInFood}
                   onClose={() => setSelectedWalkInFood(null)}
-                />}
+                /></Suspense>}
 
                 {/* Feedback Modal */}
-                {selectedReviewFood && <FeedbackModal
+                {selectedReviewFood && <Suspense fallback={<ModalFallback title="Food feedback" onClose={() => setSelectedReviewFood(null)} />}><FeedbackModal
                   isOpen={!!selectedReviewFood}
                   item={selectedReviewFood}
                   onClose={() => setSelectedReviewFood(null)}
                   onSubmitSuccess={() => {
                     showToast(`Review published for ${selectedReviewFood?.name}!`);
                   }}
-                />}
+                /></Suspense>}
               </Tabs>
               </MotionConfig>
             </Suspense>
-            <Suspense fallback={null}>
+            <Suspense fallback={<ModalFallback title="Business sign in" onClose={() => setSellerLoginOpen(false)} />}>
               {sellerLoginOpen && <VendorLoginModal isOpen onClose={() => setSellerLoginOpen(false)} onSignedIn={() => setActivePortal('business')} />}
             </Suspense>
           </MobileDeviceShell>
@@ -287,14 +298,14 @@ export function App() {
                 )}
 
                 {/* Add/Edit Food Item Modal */}
-                <AddEditFoodItemScreen
+                {vendor && isAddEditOpen && <Suspense fallback={<ModalFallback title={editingFood ? 'Edit food item' : 'Add food item'} onClose={() => setIsAddEditOpen(false)} />}><AddEditFoodItemScreen
                   item={editingFood}
                   isOpen={!!vendor && isAddEditOpen}
                   onClose={() => setIsAddEditOpen(false)}
                   onPublished={(item) => {
                     showToast(`${editingFood ? 'Saved changes to' : 'Published'} ${item.name}${item.price == null ? '' : ` (₹${item.price})`}.`);
                   }}
-                />
+                /></Suspense>}
               </div>
             </Suspense>
           </MobileDeviceShell>

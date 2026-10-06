@@ -3,12 +3,13 @@ import {handleAdmin} from '../supabase/functions/admin-portal/handler.mjs';
 const actor='10000000-0000-4000-8000-000000000001',vendor='a0000000-0000-4000-8000-000000000001';
 const env={url:'https://fixture.invalid',serviceKey:'private-server-key'};
 const request=body=>new Request(env.url,{method:'POST',headers:{Authorization:'Bearer verified-user','Content-Type':'application/json'},body:JSON.stringify(body)});
-const run=async(body,{anonymous=false,member=true,error=false}={})=>{
+const run=async(body,{anonymous=false,member=true,error=false,ownerMissing=false}={})=>{
   const calls=[];
   const fetcher=async(url,options)=>{
     calls.push({url,options});
     if(url.endsWith('/auth/v1/user'))return Response.json({id:actor,is_anonymous:anonymous,user_metadata:{admin:true}});
     if(url.includes('/app_admins?'))return Response.json(member?[{user_id:actor}]:[]);
+    if(url.includes('/rest/v1/vendors?'))return Response.json([{owner_id:ownerMissing?null:actor}]);
     if(url.includes('/admin/users'))return Response.json({id:crypto.randomUUID()});
     assert.ok(url.includes('/rpc/'));assert.equal(options.headers.Authorization,`Bearer ${env.serviceKey}`);
     assert.equal(JSON.parse(options.body).p_actor,actor,'Actor always comes from verified Auth');
@@ -26,6 +27,9 @@ assert.equal((await run({action:'vendor_save',vendor:{...business,latitude:12},p
 assert.equal((await run({action:'vendor_save',vendor:{...business,image_url:'javascript:alert(1)'},pin:'1234'})).response.status,400);
 const created=await run({action:'vendor_save',vendor:business,pin:'1234',ownerId:actor});
 assert.equal(created.response.status,200);assert.notEqual(JSON.parse(created.calls.at(-1).options.body).p_input.ownerId,actor,'Owner cannot be supplied by browser');
+assert.equal((await run({action:'vendor_save',vendor:{...business,id:vendor}})).response.status,200,'Existing owner is preserved');
+assert.equal((await run({action:'vendor_save',vendor:{...business,id:vendor}},{ownerMissing:true})).response.status,400,'Restoring an unowned business requires a seller PIN');
+assert.equal((await run({action:'vendor_save',vendor:{...business,id:vendor},pin:'1234'},{ownerMissing:true})).response.status,200,'Legacy business receives a separate seller account');
 const rejected=await run({action:'vendor_save',vendor:business,pin:'1234'},{error:true});
 assert.equal(rejected.response.status,409);assert.equal(rejected.calls.at(-1).options.method,'DELETE','Unused owner is removed after definitive rejection');
 const food={vendor_id:vendor,name:'Dish',price:null,category:'cooked',image_url:null,is_vegetarian:null,in_stock:true,price_variants:[{name:'Medium',price:130,currency:'INR'}]};

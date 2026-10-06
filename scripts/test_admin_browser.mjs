@@ -18,7 +18,7 @@ const bootstrap=function(){
       if(input.action==='snapshot')return Response.json({...state,orders:[],support:[],traffic:[{date:'2026-10-06',visitors:8,views:24,item_views:4}],traffic_since:new Date().toISOString(),stats:{orders:0,orders_today:0,collected_value:0},changes:[]});
       if(state.fail)return Response.json({error:'unavailable'},{status:503});
       state.writes.push(input);
-      if(input.action==='vendor_save'){const v={...input.vendor,id:input.vendor.id??crypto.randomUUID()};const n=state.vendors.findIndex(a=>a.id===v.id);if(n<0)state.vendors.push(v);else state.vendors[n]=v;}
+      if(input.action==='vendor_save'){const v={...input.vendor,id:input.vendor.id??crypto.randomUUID(),owner_id:input.vendor.owner_id??crypto.randomUUID()};const n=state.vendors.findIndex(a=>a.id===v.id);if(n<0)state.vendors.push(v);else state.vendors[n]=v;}
       if(input.action==='vendor_delete')state.vendors.find(v=>v.id===input.vendorId).is_active=false;
       if(input.action==='food_save'){const f={...input.food,id:input.food.id??crypto.randomUUID()};const n=state.foods.findIndex(a=>a.id===f.id);if(n<0)state.foods.push(f);else state.foods[n]=f;}
       if(input.action==='food_delete')state.foods=state.foods.filter(f=>f.id!==input.foodId);

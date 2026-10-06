@@ -53,7 +53,15 @@ export async function handleAdmin(request, env, fetcher = fetch) {
       if (!membership.ok) return reply({error:'unavailable'},503);
       if (!(await membership.json()).some(a=>a.user_id===user.id)) return reply({error:'forbidden'},403);
     }
-    if (action==='vendor_save' && !input.vendor.id) {
+    let needsOwner=action==='vendor_save' && !input.vendor.id;
+    if(action==='vendor_save' && input.vendor.id){
+      const record=await fetcher(`${env.url}/rest/v1/vendors?id=eq.${input.vendor.id}&select=owner_id`,{headers:serviceHeaders,signal:AbortSignal.timeout(10000)});
+      if(!record.ok)return reply({error:'unavailable'},503);
+      const vendors=await record.json();if(!vendors.length)return reply({error:'not_found'},409);
+      needsOwner=!vendors[0].owner_id;
+    }
+    if (needsOwner) {
+      if(!/^\d{4}$/.test(input.pin??''))return reply({error:'invalid_request'},400);
       const account=await fetcher(`${env.url}/auth/v1/admin/users`,{method:'POST',headers:serviceHeaders,body:JSON.stringify({email:`vendor-${crypto.randomUUID()}@yememunnai.app`,password:`${crypto.randomUUID()}${crypto.randomUUID()}`,email_confirm:true}),signal:AbortSignal.timeout(10000)});
       if (!account.ok) return reply({error:'unavailable'},503);
       const owner=await account.json();

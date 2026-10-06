@@ -29,6 +29,9 @@ try{
   const vendor={name:`Admin integration ${crypto.randomUUID()}`,image_url:'/images/NewLogo.svg',is_active:false,is_online:false,latitude:null,longitude:null,location_landmark:'Test fixture'};
   const created=checked(await action('vendor_save',{vendor,pin:'0731'}));ids.vendor=created.vendor.id;ids.owner=created.vendor.owner_id;
   assert.ok(ids.vendor&&ids.owner,'Business has a separate seller owner');
+  checked(await service.from('vendors').update({owner_id:null}).eq('id',ids.vendor));
+  const restored=checked(await action('vendor_save',{vendor:{...vendor,id:ids.vendor},pin:'0731'}));ids.restoredOwner=restored.vendor.owner_id;
+  assert.ok(ids.restoredOwner&&ids.restoredOwner!==ids.owner,'An unowned legacy business receives a usable seller account');
   const food={vendor_id:ids.vendor,name:'Integration dish',price:null,category:'cooked',menu_category:'Test',is_vegetarian:true,in_stock:true,image_url:'/images/NewLogo.svg',description:'Fixture only',price_variants:[{name:'Medium',price:130,currency:'INR'},{name:'Large',price:180,currency:'INR'}]};
   ids.food=checked(await action('food_save',{food})).food.id;
   checked(await action('food_save',{food:{...food,id:ids.food,name:'Edited integration dish',is_vegetarian:false,in_stock:false}}));
@@ -46,5 +49,5 @@ try{
 }finally{
   if(ids.vendor){checked(await service.from('food_items').delete().eq('vendor_id',ids.vendor));checked(await service.from('portal_events').delete().eq('vendor_id',ids.vendor));checked(await service.from('vendors').delete().eq('id',ids.vendor));}
   if(ids.admin){checked(await service.from('admin_changes').delete().eq('actor_id',ids.admin));checked(await service.from('app_admins').delete().eq('user_id',ids.admin));}
-  for(const key of ['owner','guest','admin'])if(ids[key])checked(await service.auth.admin.deleteUser(ids[key]));
+  for(const key of ['owner','restoredOwner','guest','admin'])if(ids[key])checked(await service.auth.admin.deleteUser(ids[key]));
 }

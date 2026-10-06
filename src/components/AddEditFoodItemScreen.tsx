@@ -1,5 +1,5 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 import { createFoodItem, updateFoodItem, uploadFoodPhoto } from '../lib/api';
 import { useModalA11y } from '../lib/useModalA11y';
@@ -47,7 +47,7 @@ export const AddEditFoodItemScreen: React.FC<AddEditFoodItemScreenProps> = ({
   const sheetRef = useModalA11y<HTMLDivElement>(isOpen, () => { if (!submitLock.current) onClose(); });
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen) return;
     published.current = false;
     setSubmitted(false); setError(null); setPhoto(null); setPhotoPreview(null); setUploadedUrl(null);

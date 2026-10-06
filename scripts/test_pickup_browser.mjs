@@ -232,7 +232,7 @@ const resumed = async function () {
   } catch (error) { await fetch('/__result', { method: 'POST', body: JSON.stringify({ result: 'fail', message: error.message, steps }) }); }
 };
 
-export async function runPickupBrowser({ directory = 'dist', bootstrap, exercise, output = '.tmp/pickup-browser-results', timeout = 45000, reducedMotion = true }) {
+export async function runPickupBrowser({ directory = 'dist', bootstrap, exercise, output = '.tmp/pickup-browser-results', timeout = 45000, reducedMotion = true, delayMapAssets = false }) {
 const chrome = process.env.CHROME_PATH ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const dist = path.resolve(directory);
 await fs.access(path.join(dist, 'index.html'));
@@ -253,6 +253,7 @@ const server = createServer(async (request, response) => {
     const file = path.resolve(dist, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!file.startsWith(dist + path.sep)) { response.writeHead(403).end(); return; }
     let body = await fs.readFile(file);
+    if (delayMapAssets && /(?:WalkInMapModal|CanteenMap)-.*\.js$/.test(file)) await new Promise(resolve => setTimeout(resolve, 2000));
     const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg' };
     response.setHeader('Content-Type', mime[path.extname(file)] ?? 'application/octet-stream');
     if (path.extname(file) === '.html') {

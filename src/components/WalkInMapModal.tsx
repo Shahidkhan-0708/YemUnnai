@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { X, Navigation, MapPin, Copy, Check } from 'lucide-react';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useShops } from '../lib/hooks';
@@ -12,7 +12,7 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
   const { shops, loading, error, retry } = useShops();
   const [selectedId, setSelectedId] = useState(item?.vendorId ?? '');
   const [copied, setCopied] = useState(false), [copyError, setCopyError] = useState('');
-  useEffect(() => { setSelectedId(item?.vendorId ?? ''); setCopied(false); setCopyError(''); }, [item?.vendorId, isOpen]);
+  useLayoutEffect(() => { setSelectedId(item?.vendorId ?? ''); setCopied(false); setCopyError(''); }, [item?.vendorId, isOpen]);
   const entries = useMemo(() => shops.filter(s => s.isActive), [shops]);
   const selected = entries.find(s => s.id === selectedId) ?? entries.find(s => s.name === item?.vendor);
   const point = selected ? shopCoordinates(selected) : null;

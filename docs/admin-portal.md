@@ -4,7 +4,7 @@ Access uses a permanent email/password account and the existing `app_admins` mem
 
 After the owner designates an email, run `node --env-file=supabase/.env.server.local supabase/provision_admin.mjs EMAIL`. New account credentials are written only to ignored `supabase/admin-credentials.local`; existing passwords are preserved. Seller PIN accounts cannot become administrators. Never commit credentials.
 
-Businesses can be created with their own seller PIN and account, renamed, given uploaded logos and real coordinates, taken offline, archived and restored. Archiving removes the business from discovery and disables seller writes without deleting past orders. Active pickup orders must be handled before archiving. New businesses appear automatically in the seller directory.
+Businesses can be created with their own seller PIN and account, renamed, given uploaded logos and real coordinates, taken offline, archived and restored. Older businesses without an owner receive a seller account when an admin saves them with a PIN. Archiving removes the business from discovery and disables seller writes without deleting past orders. Active pickup orders must be handled before archiving. New businesses appear automatically in the seller directory.
 
 Menus support names, photos, original sections, cooked/packed tabs, descriptions, null prices, price variants, diet and stock on/off. Existing items cannot move to another restaurant. Deleting food preserves order snapshots.
 

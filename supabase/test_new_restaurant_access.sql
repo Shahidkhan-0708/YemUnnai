@@ -51,9 +51,9 @@ begin
    'sub', shop.owner_id, 'role', 'authenticated', 'is_anonymous', false)::text, true);
   assert auth.uid() = shop.owner_id, 'JWT owner: ' || shop.name;
 
-  update public.vendors set name = name where id = shop.id and owner_id = auth.uid();
+  update public.vendors set is_online = is_online where id = shop.id and owner_id = auth.uid();
   assert found, 'own vendor update: ' || shop.name;
-  update public.vendors set name = name where id = other_shop;
+  update public.vendors set is_online = is_online where id = other_shop;
   assert not found, 'cross-vendor update blocked: ' || shop.name;
 
   fixture := gen_random_uuid();
