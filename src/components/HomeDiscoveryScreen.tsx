@@ -93,21 +93,23 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       };
     });
 
-  // Group items by shop when browsing "All" shops and no search query is typed
-  const shopGroups = useMemo(() => {
-    if (selectedShop !== 'All' || searchQuery.trim()) return null;
-    const map: Record<string, FoodItem[]> = {};
+  // Interleave restaurants without changing their own menu order.
+  const feedItems = useMemo(() => {
+    if (selectedShop !== 'All') return displayedItems;
+    const byRestaurant = new Map<string, FoodItem[]>();
     for (const item of displayedItems) {
-      if (!map[item.vendor]) map[item.vendor] = [];
-      map[item.vendor].push(item);
+      const key = item.vendorId || item.vendor;
+      if (!byRestaurant.has(key)) byRestaurant.set(key, []);
+      byRestaurant.get(key)!.push(item);
     }
-    return Object.entries(map).map(([vendorName, groupItems]) => {
-      const shopMeta = shops.find(s => s.name.toLowerCase() === vendorName.toLowerCase());
-      return { vendorName, shopMeta, items: groupItems };
-    });
-  }, [displayedItems, selectedShop, searchQuery, shops]);
-  const priorityFoodIds = new Set((shopGroups ? shopGroups.flatMap(group => group.items) : displayedItems).slice(0, 4).map(item => item.id));
+    const mixed: FoodItem[] = [];
+    for (let position = 0; mixed.length < displayedItems.length; position++) {
+      for (const group of byRestaurant.values()) if (group[position]) mixed.push(group[position]);
+    }
+    return mixed;
+  }, [displayedItems, selectedShop]);
   const restaurantGroups = selectedShop !== 'All' && menuCategories.length ? menuCategories.map(category => ({category,items:displayedItems.filter(item=>item.menuCategory===category)})).filter(group=>group.items.length) : null;
+  const priorityFoodIds = new Set((restaurantGroups ? restaurantGroups.flatMap(group => group.items) : feedItems).slice(0, 4).map(item => item.id));
 
   const renderFoodCard = (item: FoodItem) => {
     const isLiked = myReactions[item.id] === 'like';
@@ -121,6 +123,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
         }} className="food-save" />
       </div>
       <div className="food-name-row"><h3 title={item.name}>{item.name}</h3></div>
+      <p className="food-vendor" title={item.vendor}>{item.vendor}</p>
       <div className="food-diet-row"><DietaryBadge isVeg={item.isVeg} /></div>
       {item.menuCategory && <p className="menu-category-label">{item.menuCategory}</p>}<div className="food-price-row"><span className={menuPrices(item).length ? 'food-price' : 'food-unavailable'} aria-label={menuPrices(item).length ? undefined : t('Price not specified','ధర పేర్కొనలేదు')} title={menuPrices(item).length ? undefined : t('Price not specified','ధర పేర్కొనలేదు')}><MenuPrice item={item}/></span><span className="food-rating" data-rated={hasRating} aria-label={hasRating ? `${t('Rating','రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')} title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet','ఇంకా రేటింగ్ లేదు')}><Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />{hasRating ? Number(item.rating).toFixed(1) : '—'}</span></div>
       <p className="food-availability" aria-hidden={unavailable || undefined}>{!unavailable ? t('Available','అందుబాటులో ఉంది') : null}</p>
@@ -145,7 +148,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
         trackSelectCategory(cat);
         setSelectedCategory(cat);
       }}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({loading && !items.length ? '…' : totalByCategory[cat]})</button>)}</div>
-      {loading && !items.length ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : shopGroups ? <div className="discovery-groups">{shopGroups.map(group => <section className="discovery-group" key={group.vendorName}><div className="discovery-group-heading">{group.shopMeta?.image && <CatalogImage src={group.shopMeta.image} alt=""/>}<div><h2>{group.vendorName}</h2><p>{t('Food Court','ఫుడ్ కోర్ట్')}</p></div><button type="button" onClick={() => {setSelectedShop(group.vendorName);onSelectShop?.(group.vendorName);}}>{t('View menu','మెనూ చూడండి')} ({group.items.length})</button></div><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : restaurantGroups ? <div>{restaurantGroups.map(group=><section className="restaurant-menu-group" key={group.category}><h2>{group.category}</h2><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{displayedItems.map(renderFoodCard)}</div>}
+      {loading && !items.length ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : restaurantGroups ? <div>{restaurantGroups.map(group=><section className="restaurant-menu-group" key={group.category}><h2>{group.category}</h2><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{feedItems.map(renderFoodCard)}</div>}
       {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{savedOnly ? (saved.ids.size ? 'No saved dishes match' : 'No saved dishes yet') : 'No dishes found'}</h2><p>{savedOnly ? (saved.ids.size ? 'Try clearing your filters or switching food categories.' : 'Tap the bookmark on a dish to keep it here.') : 'Try clearing your search or filters.'}</p><Button variant="outline" onClick={() => {setSearchQuery('');setSelectedShop('All');setMaxPrice('');setMenuCategory('All');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button></div>}
     </div>
   </section></SvgScreenFrame>;
