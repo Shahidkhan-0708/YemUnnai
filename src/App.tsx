@@ -16,6 +16,7 @@ import { safeStorage } from './lib/storage';
 import { trackPageView, trackViewItem } from './lib/analytics';
 import { Download, ExternalLink, Eye } from 'lucide-react';
 import { Toaster, toast } from './components/ui/sonner';
+import { reportAppError } from './lib/telemetry';
 
 // Lazy-loaded modal & non-critical routes for fast initial bundle & 300+ user scalability
 const FeedbackModal = lazy(() => import('./components/FeedbackModal').then(m => ({ default: m.FeedbackModal })));
@@ -28,6 +29,7 @@ const FoodItemDetailScreen = lazy(() => import('./components/FoodItemDetailScree
 const MenuStockManagementScreen = lazy(() => import('./components/MenuStockManagementScreen').then(m => ({ default: m.MenuStockManagementScreen })));
 const VendorLoginModal = lazy(() => import('./components/VendorLoginModal').then(m => ({ default: m.VendorLoginModal })));
 const ErrorPage = lazy(() => import('./components/ErrorPage'));
+const AdminPortalScreen = lazy(() => import('./components/AdminPortalScreen').then(m => ({ default: m.AdminPortalScreen })));
 const SaveToggleDemo = lazy(() => import('./components/SaveToggleDemo'));
 const StepperDemo = lazy(() => import('./components/StepperDemo'));
 const InlineDisclosureMenuDemo = lazy(() => import('./components/InlineDisclosureMenuDemo'));
@@ -70,10 +72,10 @@ const DEFAULT_ORDER_ITEM: FoodItem = {
 export function App() {
   const { vendor } = useVendorSession();
   const [buyerTab, setBuyerTab] = useState<BuyerTab>('discover');
-  const [activePortal, setActivePortal] = useState<'consumer' | 'business' | 'artifacts' | 'gallery' | 'components' | '404'>(() => {
+  const [activePortal, setActivePortal] = useState<'consumer' | 'business' | 'admin' | 'artifacts' | 'gallery' | 'components' | '404'>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('portal');
-      if (p === 'business' || p === 'gallery' || p === 'artifacts' || p === 'components' || p === '404') return p;
+      if (p === 'business' || p === 'admin' || p === 'gallery' || p === 'artifacts' || p === 'components' || p === '404') return p;
     }
     return 'consumer';
   });
@@ -106,6 +108,12 @@ export function App() {
   const buyerOrders = useBuyerOrders(activePortal === 'consumer');
   const [showLaunchSplash, setShowLaunchSplash] = useState(() => safeStorage.getItem('yemunnai-intro-seen') !== 'true');
   useEffect(() => {
+    const failure = () => reportAppError('javascript', 'A script failed while using the app.', vendor?.vendorId);
+    window.addEventListener('error', failure);
+    window.addEventListener('unhandledrejection', failure);
+    return () => { window.removeEventListener('error', failure); window.removeEventListener('unhandledrejection', failure); };
+  }, [vendor?.vendorId]);
+  useEffect(() => {
     setShowMenuStock(false);
     setIsAddEditOpen(false);
     setEditingFood(null);
@@ -127,6 +135,7 @@ export function App() {
   };
 
   // Splash first: a clean brand animation, then straight into the app (no buttons needed).
+  if (activePortal === 'admin') return <Suspense fallback={<ScreenFallback />}><AdminPortalScreen /></Suspense>;
   if (showLaunchSplash && activePortal !== '404') {
     return (
       <div className="h-dvh overflow-hidden bg-[#F06A05]">

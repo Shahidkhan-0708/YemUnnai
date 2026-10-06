@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { CatalogImage } from './CatalogImage';
 import { useEffect, useRef, useState } from 'react';
 import { X, AlertCircle, Delete } from 'lucide-react';
-import { useVendorSession } from '../lib/hooks';
+import { useVendorSession, useShops } from '../lib/hooks';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage } from '../lib/language';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
@@ -17,6 +17,8 @@ interface VendorLoginModalProps {
 export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginModalProps) {
   const { t } = useLanguage();
   const { signInWithOutlet } = useVendorSession();
+  const { shops, loading: shopsLoading, error: shopsError, retry: retryShops } = useShops();
+  const outlets = shops.length ? shops : shopsLoading ? VENDOR_OUTLETS : [];
   const [outletId, setOutletId] = useState(VENDOR_OUTLETS[0].id);
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,11 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
   const generation = useRef(0);
   const rootRef = useModalA11y<HTMLDivElement>(isOpen, () => { if (!inFlight.current) onClose(); });
   const retrySeconds = Math.max(0, Math.ceil(((retryAt[outletId] ?? 0) - now) / 1000));
+
+  useEffect(() => {
+    if (!isOpen || shopsLoading) return;
+    if (!shops.some(shop => shop.id === outletId)) { setOutletId(shops[0]?.id ?? ''); setPin(''); }
+  }, [isOpen, shopsLoading, shops, outletId]);
 
   useEffect(() => {
     generation.current++;
@@ -98,8 +105,10 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
           <select id="vendor-outlet" value={outletId} disabled={busy}
             onChange={event => { setOutletId(event.target.value); setPin(''); setError(null); }}
             className="mt-2 h-12 w-full min-w-0 rounded-xl tactile-inset px-3 text-sm font-bold">
-            {VENDOR_OUTLETS.map(outlet => <option key={outlet.id} value={outlet.id}>{outlet.name}</option>)}
+            <option value="">Choose a food business</option>
+            {outlets.map(outlet => <option key={outlet.id} value={outlet.id}>{outlet.name}</option>)}
           </select>
+          {shopsError && <button type="button" onClick={retryShops} className="mt-2 text-xs">Refresh business list</button>}
           <label htmlFor="vendor-pin" className="mt-5 text-xs font-bold">{t("4-digit PIN","భద్రతా PIN (4 అంకెలు)")}</label>
           <input id="vendor-pin" type="password" inputMode="numeric" autoComplete="off" maxLength={4}
             pattern="[0-9]{4}" required value={pin} disabled={disabled} onChange={event => updatePin(event.target.value)}

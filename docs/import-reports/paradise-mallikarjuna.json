@@ -1,0 +1,29 @@
+{
+  "restaurants": [
+    {
+      "name": "Paradise",
+      "menu_items": 16,
+      "images": 16,
+      "source_images": [
+        "WhatsApp Image 2026-10-05 at 10.50.37 PM.jpeg"
+      ],
+      "unknown_food_types": [
+        "Biryani Rice"
+      ]
+    },
+    {
+      "name": "Mallikarjuna Mess",
+      "menu_items": 34,
+      "images": 34,
+      "source_images": [
+        "image copy 25.png",
+        "image copy 26.png"
+      ],
+      "unknown_food_types": [
+        "Kushka"
+      ]
+    }
+  ],
+  "photos": "AI-generated at user request, not photographs supplied by these restaurants",
+  "existing_menus_preserved": true
+}

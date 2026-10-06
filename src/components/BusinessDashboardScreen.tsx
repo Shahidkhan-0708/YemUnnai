@@ -70,10 +70,12 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   const SHOP_IMAGES: Record<string, string> = {
     'MITS Canteen': '/images/shop_mits_canteen.jpg',
     'MITS Cafe': '/images/shop_mits_cafe.jpg',
-    'New Cafe': '/images/shop_new_cafe.jpg',
-    'Pizza And Pasta (P2)': '/images/shop_p2-brand.svg'
+    'MITS Hub': '/images/shop_new_cafe.jpg',
+    'Pizza And Pasta (P2)': '/images/shop_p2-brand.svg',
+    'Paradise': '/images/shop_paradise.svg',
+    'Mallikarjuna Mess': '/images/shop_mallikarjuna.svg'
   };
-  const shopImage = SHOP_IMAGES[vendor?.vendorName ?? ''] ?? '/images/shop_mits_canteen.jpg';
+  const shopImage = vendor?.imageUrl ?? SHOP_IMAGES[vendor?.vendorName ?? ''] ?? '/images/NewLogo.svg';
 
   const handleAccept = async (id: string) => {
     playTapSound();

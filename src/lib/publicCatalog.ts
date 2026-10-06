@@ -1,3 +1,4 @@
+import { monitoredFetch } from './telemetry';
 type Catalog = { food_items: unknown[]; vendors: unknown[] };
 let flight: Promise<Catalog | null> | null = null;
 let unavailableUntil = 0;
@@ -14,7 +15,7 @@ export async function publicCatalog(): Promise<Catalog | null> {
   if (flight) return flight;
   flight = (async () => {
     let response: Response;
-    try { response = await fetch('/api/catalog', { signal: AbortSignal.timeout(3500) }); }
+    try { response = await monitoredFetch('/api/catalog', { signal: AbortSignal.timeout(3500) }); }
     catch { unavailableUntil = Date.now() + 60000; return null; }
     if ([404,405].includes(response.status) || !response.headers.get('content-type')?.includes('application/json')) {
       unavailableUntil = Date.now() + 60000;

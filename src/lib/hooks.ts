@@ -197,6 +197,7 @@ export interface VendorSession {
   vendorId: string;
   vendorName: string;
   isOnline: boolean;
+  imageUrl?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -235,7 +236,7 @@ export function useVendorSession(): {
     const refresh = async (revision: number) => {
       try {
         const v = await getMyVendor();
-        if (revision === sessionRevision) publishVendor(v ? { vendorId: v.id, vendorName: v.name, isOnline: v.isOnline } : null);
+        if (revision === sessionRevision) publishVendor(v ? { vendorId: v.id, vendorName: v.name, isOnline: v.isOnline, imageUrl: v.imageUrl } : null);
       } catch {
         if (revision === sessionRevision) publishVendor(null);
       }
@@ -264,7 +265,7 @@ export function useVendorSession(): {
   const signInWithOutlet = useCallback(async (outletId: string, pin: string) => {
     const res = await signInVendorByOutlet(outletId, pin);
     if (res.ok) {
-      publishVendor({ vendorId: res.vendorId, vendorName: res.vendorName, isOnline: res.isOnline });
+      publishVendor({ vendorId: res.vendorId, vendorName: res.vendorName, isOnline: res.isOnline, imageUrl: res.imageUrl });
       return { ok: true };
     }
     return { ok: false, error: res.error, retrySeconds: res.retrySeconds };

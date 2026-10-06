@@ -360,7 +360,7 @@ insert into public.vendors (id, name, image_url, is_active, is_online) values
   ('a0000000-0000-4000-8000-000000000006', 'MITS Cafe',    '/images/shop_mits_cafe.jpg',    true, true),
   ('a0000000-0000-4000-8000-000000000007', 'Ekdant''s Cafe', '/images/shop_ekdants_cafe.jpg', true, true),
   ('a0000000-0000-4000-8000-000000000008', 'Lickies',      '/images/shop_lickies.jpg',      true, true),
-  ('a0000000-0000-4000-8000-000000000009', 'New Cafe',     '/images/shop_new_cafe.jpg',     true, true)
+  ('a0000000-0000-4000-8000-000000000009', 'MITS Hub',     '/images/shop_new_cafe.jpg',     true, true)
 on conflict (name) do nothing;
 
 -- Keep the extra legacy vendors (not shown on the home grid; is_active = false)
@@ -398,7 +398,7 @@ values
   ('b0000000-0000-4000-8000-000000000032', 'a0000000-0000-4000-8000-000000000008', 'Coffee',   10, 'cooked', 'walkin', '/images/item_coffee.jpg',        true, 44, 2, 14),
   ('b0000000-0000-4000-8000-000000000033', 'a0000000-0000-4000-8000-000000000008', 'Samosa',   15, 'cooked', 'order',  '/images/item_samosa_chicken.jpg', true, 58, 3, 20),
   ('b0000000-0000-4000-8000-000000000034', 'a0000000-0000-4000-8000-000000000008', 'Popsicle', 10, 'packed', 'walkin', '/images/item_popsicle.svg',      true, 82, 3, 31),
-  -- New Cafe: Tea ₹10 · Coffee ₹10 · Samosa ₹15
+  -- MITS Hub: Tea ₹10 · Coffee ₹10 · Samosa ₹15
   ('b0000000-0000-4000-8000-000000000041', 'a0000000-0000-4000-8000-000000000009', 'Tea',    10, 'cooked', 'walkin', '/images/item_tea.jpg',            true, 36, 2, 11),
   ('b0000000-0000-4000-8000-000000000042', 'a0000000-0000-4000-8000-000000000009', 'Coffee', 10, 'cooked', 'walkin', '/images/item_coffee.jpg',         true, 40, 2, 13),
   ('b0000000-0000-4000-8000-000000000043', 'a0000000-0000-4000-8000-000000000009', 'Samosa', 15, 'cooked', 'order',  '/images/item_samosa_chicken.jpg', true, 54, 3, 18)

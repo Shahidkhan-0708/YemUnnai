@@ -8,6 +8,10 @@ verify_jwt = false
 # The handler validates each token with Auth, including anonymous buyer sessions.
 verify_jwt = false
 
+[functions.admin-portal]
+# Auth.getUser and the app_admins membership are verified by the handler.
+verify_jwt = false
+
 [auth]
 enable_anonymous_sign_ins = true
 enable_manual_linking = true

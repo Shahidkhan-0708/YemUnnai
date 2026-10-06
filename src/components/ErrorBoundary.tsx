@@ -1,5 +1,6 @@
 import React, { Component, type ReactNode } from 'react';
 import ErrorPage from './ErrorPage';
+import { reportAppError } from '../lib/telemetry';
 
 interface Props {
   children: ReactNode;
@@ -22,6 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Unhandled app error:', error, errorInfo);
+    reportAppError('render', 'A screen could not render. Reload the app to recover.');
   }
 
   public render() {

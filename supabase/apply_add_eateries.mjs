@@ -42,7 +42,7 @@ const EATERIES = [
   },
   {
     id: 'a0000000-0000-4000-8000-000000000009',
-    name: 'New Cafe',
+    name: 'MITS Hub',
     image_url: '/images/shop_new_cafe.jpg',
     latitude: 13.56066,
     longitude: 78.49951,

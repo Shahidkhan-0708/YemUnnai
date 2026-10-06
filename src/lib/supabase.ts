@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { monitoredFetch } from './telemetry';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -12,6 +13,7 @@ export const supabase: SupabaseClient | null =
     ? createClient(supabaseUrl, supabaseAnonKey, {
         auth: { storageKey: 'yemunnai-vendor-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
         realtime: { params: { eventsPerSecond: 10 } },
+        global: { fetch: monitoredFetch },
       })
     : null;
 
@@ -20,6 +22,7 @@ export const isBackendConfigured = supabase !== null;
 export const buyerSupabase: SupabaseClient | null = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: { storageKey: 'yemunnai-buyer-auth', persistSession: true, autoRefreshToken: true },
+      global: { fetch: monitoredFetch },
     })
   : null;
 

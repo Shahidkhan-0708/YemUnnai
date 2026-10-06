@@ -1,6 +1,7 @@
 import { buyerSupabase, supabase } from './supabase';
 import { safeStorage } from './storage';
 import type { FoodItem, OrderRow, SupportRequest } from './types';
+import { reportAppError } from './telemetry';
 
 export class PickupError extends Error {
   code: string;
@@ -34,9 +35,10 @@ export async function pickupRequest(input: Record<string, unknown>, vendor = fal
       headers: { Authorization: `Bearer ${data.session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? '', 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     });
-  } catch { throw new PickupError('uncertain'); }
+  } catch { reportAppError('pickup', 'The order service could not be reached.'); throw new PickupError('uncertain'); }
   let result: PickupResult;
   try { result = await response.json(); } catch { throw new PickupError('uncertain'); }
+  if (response.status >= 500) reportAppError('pickup', `The order service returned HTTP ${response.status}.`, typeof input.vendorId === 'string' ? input.vendorId : undefined);
   if (!response.ok || result.error) throw new PickupError(result.error ?? 'uncertain', result.price);
   return result;
 }

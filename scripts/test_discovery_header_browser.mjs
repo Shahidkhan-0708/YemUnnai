@@ -13,7 +13,7 @@ const bootstrap=function(){
     const response=await original(resource,options);
     if(address.includes('/rest/v1/vendors')){
       const base=(await response.json())[0];
-      return Response.json([['MITS Canteen','mits_canteen'],['MITS Cafe','mits_cafe'],["Ekdant's Cafe",'ekdants_cafe'],['Lickies','lickies'],['New Cafe','new_cafe']].map(([name,image],i)=>({...base,id:'a0000000-0000-4000-8000-'+String(i+1).padStart(12,'0'),name,image_url:'/images/shop_'+image+'.jpg'})));
+      return Response.json([['MITS Canteen','mits_canteen'],['MITS Cafe','mits_cafe'],["Ekdant's Cafe",'ekdants_cafe'],['Lickies','lickies'],['MITS Hub','new_cafe']].map(([name,image],i)=>({...base,id:'a0000000-0000-4000-8000-'+String(i+1).padStart(12,'0'),name,image_url:'/images/shop_'+image+'.jpg'})));
     }
     return response;
   };

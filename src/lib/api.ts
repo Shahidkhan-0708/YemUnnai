@@ -1,10 +1,10 @@
 import { supabase, isBackendConfigured } from './supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { retryRead } from './retryRead';
 import { publicCatalog, invalidatePublicCatalog } from './publicCatalog';
 import { clearCatalogSnapshot } from './catalogSnapshot';
 import { shopCoordinates } from './mapLocations';
 import { DEFAULT_FOOD_ITEMS, LOCAL_SHOPS } from './mockData';
-import { VENDOR_OUTLETS } from './vendorAuth';
 import type {
   FoodItem,
   FoodItemRow,
@@ -61,7 +61,7 @@ let inMemoryFoodItems: FoodItem[] = DEFAULT_FOOD_ITEMS.map(i => ({ ...i, isShopO
 let inMemoryShops: ShopEntry[] = LOCAL_SHOPS.map(s => ({ ...s, isOnline: true }));
 const catalogSubscribers = new Set<() => void>();
 
-function notifySubscribers() {
+export function notifySubscribers() {
   clearCatalogSnapshot();
   invalidatePublicCatalog();
   catalogSubscribers.forEach(cb => {
@@ -200,7 +200,7 @@ export async function fetchShops(): Promise<ShopEntry[]> {
     .order('is_active', { ascending: false });
 
   /** Campus showcase order requested by the client (top of the shops row). */
-  const SHOP_PRIORITY = ['MITS Canteen', 'MITS Cafe', 'New Cafe', 'Pizza And Pasta (P2)'];
+  const SHOP_PRIORITY = ['MITS Canteen', 'MITS Cafe', 'MITS Hub', 'Pizza And Pasta (P2)', 'Paradise', 'Mallikarjuna Mess'];
   const priority = (name: string) => {
     const idx = SHOP_PRIORITY.indexOf(name);
     return idx === -1 ? SHOP_PRIORITY.length : idx;
@@ -393,10 +393,9 @@ export async function setOrderStatus(orderId: string, status: OrderStatus, prepa
 // ---------------------------------------------------------------------------
 
 export async function signInVendorByOutlet(outletId: string, pin: string): Promise<
-  { ok: true; vendorId: string; vendorName: string; isOnline: boolean } | { ok: false; error: string; retrySeconds?: number }
+  { ok: true; vendorId: string; vendorName: string; isOnline: boolean; imageUrl?: string } | { ok: false; error: string; retrySeconds?: number }
 > {
-  const outlet = VENDOR_OUTLETS.find(o => o.id === outletId);
-  if (!outlet) return { ok: false, error: 'Unknown canteen outlet' };
+  if (!/^[0-9a-f-]{36}$/i.test(outletId)) return { ok: false, error: 'Choose a food business.' };
   if (!/^\d{4}$/.test(pin)) return { ok: false, error: 'Enter a four-digit PIN.' };
   if (!supabase) return { ok: false, error: 'Business portal is unavailable.' };
   try {
@@ -413,7 +412,7 @@ export async function signInVendorByOutlet(outletId: string, pin: string): Promi
       await supabase.auth.signOut({ scope: 'local' });
       return { ok: false, error: 'This cafe account is not linked correctly. Contact support.' };
     }
-    return { ok: true, vendorId: vendor.id, vendorName: vendor.name, isOnline: vendor.isOnline };
+    return { ok: true, vendorId: vendor.id, vendorName: vendor.name, isOnline: vendor.isOnline, imageUrl: vendor.imageUrl };
   } catch {
     return { ok: false, error: 'Unable to connect. Please try again.' };
   }
@@ -425,7 +424,7 @@ export async function signOutVendor(): Promise<void> {
   if (error) throw new Error('Could not sign out. Please try again.');
 }
 
-export async function getMyVendor(): Promise<{ id: string; name: string; isOnline: boolean } | null> {
+export async function getMyVendor(): Promise<{ id: string; name: string; isOnline: boolean; imageUrl?: string } | null> {
   if (!supabase) return null;
 
   const { data: sessionData } = await supabase.auth.getSession();
@@ -433,7 +432,7 @@ export async function getMyVendor(): Promise<{ id: string; name: string; isOnlin
 
   const { data, error } = await supabase
     .from('vendors')
-    .select('id, name, is_online')
+    .select('id, name, is_online, image_url')
     .eq('owner_id', sessionData.session.user.id)
     .eq('is_active', true)
     .maybeSingle();
@@ -442,7 +441,7 @@ export async function getMyVendor(): Promise<{ id: string; name: string; isOnlin
     if (error) console.error('[api] getMyVendor:', error.message);
     return null;
   }
-  return { id: data.id, name: data.name, isOnline: data.is_online };
+  return { id: data.id, name: data.name, isOnline: data.is_online, imageUrl: data.image_url ?? undefined };
 }
 
 export async function setVendorOnline(vendorId: string, isOnline: boolean): Promise<void> {
@@ -592,10 +591,10 @@ export async function createFoodItem(vendorId: string, input: NewFoodItemInput):
 }
 
 /** Uploads to Storage under `<user-id>/<uuid>-<filename>` and returns the public URL. */
-export async function uploadFoodPhoto(file: File): Promise<string | null> {
-  if (!supabase) return null;
+export async function uploadFoodPhoto(file: File, client: SupabaseClient | null = supabase): Promise<string | null> {
+  if (!client) return null;
 
-  const { data: sessionData } = await supabase.auth.getSession();
+  const { data: sessionData } = await client.auth.getSession();
   const userId = sessionData.session?.user.id;
   if (!userId) {
     console.error('[api] uploadFoodPhoto: not signed in');
@@ -605,7 +604,7 @@ export async function uploadFoodPhoto(file: File): Promise<string | null> {
   const ext = file.name.split('.').pop() ?? 'jpg';
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
 
-  const { error } = await supabase.storage
+  const { error } = await client.storage
     .from('food-photos')
     .upload(path, file, { cacheControl: '3600', upsert: false });
   if (error) {
@@ -613,7 +612,7 @@ export async function uploadFoodPhoto(file: File): Promise<string | null> {
     return null;
   }
 
-  const { data } = supabase.storage.from('food-photos').getPublicUrl(path);
+  const { data } = client.storage.from('food-photos').getPublicUrl(path);
   return data.publicUrl;
 }
 

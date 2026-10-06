@@ -1,4 +1,5 @@
 // Google Analytics (GA4) Integration Helper
+import { isTestTraffic, recordPortalEvent } from './telemetry';
 // Measurement ID: G-JCXFNM71JQ
 
 declare global {
@@ -14,7 +15,7 @@ export const GA_MEASUREMENT_ID = 'G-JCXFNM71JQ';
  * Generic wrapper to send any GA4 event safely (handles SSR, blockers, or delayed script loading)
  */
 export function trackEvent(eventName: string, params?: Record<string, unknown>): void {
-  if (typeof window === 'undefined') return;
+  if (isTestTraffic()) return;
   if (typeof window.gtag === 'function') {
     window.gtag('event', eventName, params);
   } else if (Array.isArray(window.dataLayer)) {
@@ -32,6 +33,7 @@ export function trackPageView(pageTitle: string, pagePath?: string): void {
     page_location: typeof window !== 'undefined' ? window.location.href : '',
     page_path: path,
   });
+  void recordPortalEvent('page', { route: path.slice(0,160) });
 }
 
 /**
@@ -58,6 +60,7 @@ export function trackViewItem(item: {
       },
     ],
   });
+  if (/^[a-f0-9-]{36}$/i.test(item.id)) void recordPortalEvent('item', { itemId: item.id });
 }
 
 /**
