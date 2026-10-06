@@ -2,13 +2,20 @@
 <html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JCXFNM71JQ"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-JCXFNM71JQ');
+      (() => {
+        const query = new URLSearchParams(location.search);
+        if (['localhost', '127.0.0.1'].includes(location.hostname) || query.get('testTraffic') === '1' || query.get('portal') === 'admin') return;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        // App navigation sends page views; avoid counting the first view twice.
+        window.gtag('config', 'G-JCXFNM71JQ', { send_page_view: false });
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-JCXFNM71JQ';
+        document.head.appendChild(script);
+      })();
     </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/icons/favicon-64.png" />

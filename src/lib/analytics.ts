@@ -15,7 +15,7 @@ export const GA_MEASUREMENT_ID = 'G-JCXFNM71JQ';
  * Generic wrapper to send any GA4 event safely (handles SSR, blockers, or delayed script loading)
  */
 export function trackEvent(eventName: string, params?: Record<string, unknown>): void {
-  if (isTestTraffic()) return;
+  if (isTestTraffic() || new URLSearchParams(location.search).get('portal') === 'admin') return;
   if (typeof window.gtag === 'function') {
     window.gtag('event', eventName, params);
   } else if (Array.isArray(window.dataLayer)) {

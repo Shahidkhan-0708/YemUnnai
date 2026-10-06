@@ -27,7 +27,7 @@ export async function adminAction<T = Record<string, unknown>>(action: string, i
     const messages: Record<string, string> = { forbidden: 'This account does not have admin access.', unauthorized: 'Please sign in again.', invalid_request: 'Check the required fields and try again.', duplicate_name: 'That name is already in use.', active_orders: 'Finish or cancel the active orders before deleting this business.', not_found: 'This record no longer exists.', unavailable: 'Unable to connect. Your changes have not been confirmed. Please refresh before retrying.' };
     throw new Error(messages[body?.error] ?? 'Unable to complete this action. Refresh and try again.');
   }
-  if (action !== 'snapshot') notifySubscribers();
+  if (action !== 'snapshot' && action !== 'google_analytics') notifySubscribers();
   return data as T;
 }
 

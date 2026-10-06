@@ -1,8 +1,9 @@
+import { analyticsRange, googleAnalytics } from './google-analytics.mjs';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const text = (v, max, required = false) => typeof v === 'string' && v.length <= max && (!required || v.trim().length > 0);
 const image = v => v === null || v === '' || (typeof v === 'string' && v.length < 2048 && (/^\/(?!\/)[^\s]*$/.test(v) || /^https:\/\/[^\s]+$/.test(v)));
 const price = v => v === null || (Number.isInteger(v) && v >= 0 && v <= 1000000);
-const actions = new Set(['snapshot','vendor_save','vendor_delete','food_save','food_delete','error_resolve','support_resolve','order_transition','telemetry']);
+const actions = new Set(['snapshot','vendor_save','vendor_delete','food_save','food_delete','error_resolve','support_resolve','order_transition','telemetry','google_analytics']);
 
 export async function handleAdmin(request, env, fetcher = fetch) {
   const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Cache-Control': 'no-store' };
@@ -31,6 +32,9 @@ export async function handleAdmin(request, env, fetcher = fetch) {
   } else if (action==='telemetry') {
     if (!uuid.test(input.eventId??'') || !uuid.test(input.sessionId??'') || !['page','item','error'].includes(input.kind) || !text(input.source??'',80) || !text(input.message??'',500) || !text(input.route??'',160) || (input.vendorId!==undefined && !uuid.test(input.vendorId)) || (input.itemId!==undefined && !uuid.test(input.itemId))) return reply({error:'invalid_request'},400);
     input={eventId:input.eventId,sessionId:input.sessionId,kind:input.kind,vendorId:input.vendorId,itemId:input.itemId,source:input.source??'',message:input.message??'',route:input.route??''};
+  } else if (action==='google_analytics') {
+    input=analyticsRange(input);
+    if(!input)return reply({error:'invalid_request'},400);
   } else {
     const key={vendor_delete:'vendorId',food_delete:'foodId',error_resolve:'errorId',support_resolve:'supportId',order_transition:'orderId'}[action];
     if (key && !uuid.test(input[key]??'')) return reply({error:'invalid_request'},400);
@@ -53,6 +57,7 @@ export async function handleAdmin(request, env, fetcher = fetch) {
       if (!membership.ok) return reply({error:'unavailable'},503);
       if (!(await membership.json()).some(a=>a.user_id===user.id)) return reply({error:'forbidden'},403);
     }
+    if(action==='google_analytics')return reply(await googleAnalytics(env,input,fetcher));
     let needsOwner=action==='vendor_save' && !input.vendor.id;
     if(action==='vendor_save' && input.vendor.id){
       const record=await fetcher(`${env.url}/rest/v1/vendors?id=eq.${input.vendor.id}&select=owner_id`,{headers:serviceHeaders,signal:AbortSignal.timeout(10000)});
