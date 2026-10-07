@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { ThumbsUp, MessageSquare, ChevronRight, Star } from 'lucide-react';
+import { ThumbsUp, MessageSquare, ChevronRight, Star, ArrowLeft, Search, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useFoodItems, useShops, useReactions } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
@@ -10,7 +10,7 @@ import { SavedSyncNotice } from './SavedSyncNotice';
 import { CatalogImage } from './CatalogImage';
 import { DietaryBadge } from './DietaryBadge';
 import { DiscoveryHeader } from './DiscoveryHeader';
-import { trackSelectCategory, trackSaveItem } from '../lib/analytics';
+import { trackSelectCategory, trackSaveItem, trackPageView } from '../lib/analytics';
 import type { FoodCategory, FoodItem } from '../lib/types';
 import { MenuPrice } from './MenuPrice';
 import { menuPrices } from '../lib/menuPricing';
@@ -19,13 +19,14 @@ export type { FoodItem } from '../lib/types';
 
 interface HomeDiscoveryScreenProps {
   savedOnly?: boolean;
-  initialShop?: string;
+  restaurantId?: string | null;
+  onBack?: () => void;
   cartCount?: number;
   onOrderNow?: (item: FoodItem) => void;
   onWalkIn?: (item: FoodItem) => void;
   onReview?: (item: FoodItem) => void;
   onCartClick?: () => void;
-  onSelectShop?: (shopName: string) => void;
+  onSelectShop?: (shopName: string, shopId?: string) => void;
   onBusinessPortal?: () => void;
   onSelectItem?: (item: FoodItem) => void;
   onReplayIntro?: () => void;
@@ -34,7 +35,8 @@ interface HomeDiscoveryScreenProps {
 
 export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   savedOnly = false,
-  initialShop = 'All',
+  restaurantId,
+  onBack,
   cartCount = 0,
   onWalkIn,
   onReview,
@@ -45,33 +47,54 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory>('cooked');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedShop, setSelectedShop] = useState<string>(initialShop);
   const [menuCategory, setMenuCategory] = useState('All');
-  React.useEffect(() => setMenuCategory('All'), [selectedShop]);
+  React.useEffect(() => setMenuCategory('All'), [restaurantId, selectedCategory]);
+  const heading = React.useRef<HTMLHeadingElement>(null);
   const { t } = useLanguage();
   const saved = useSaved();
   const [maxPrice, setMaxPrice] = useState('');
   const [availableOnly, setAvailableOnly] = useState(false);
   const [vegOnly, setVegOnly] = useState(false);
   const { shops, loading: shopsLoading, error: shopsError, retry: retryShops } = useShops();
-  const { items, loading, error, retry, totalByCategory } = useFoodItems(savedOnly ? undefined : selectedCategory);
+  const { items, loading, error, retry } = useFoodItems();
+  const restaurant = shops.find(shop => shop.id === restaurantId);
+  const restaurantUnavailable = !!restaurantId && !shopsLoading && !shopsError && !restaurant;
+  const selectedShop = restaurantId ? restaurant?.name ?? '' : 'All';
+  const shopItems = restaurantId ? items.filter(item => item.vendorId === restaurantId) : items;
+  const totalByCategory = shopItems.reduce((counts, item) => { counts[item.category]++; return counts; }, {cooked: 0, packed: 0});
+  const restaurantEmpty = !!restaurantId && !loading && !restaurantUnavailable && totalByCategory.cooked + totalByCategory.packed === 0;
+  const initialCategoryApplied = React.useRef(false);
+  React.useEffect(() => {
+    if (!restaurantId || loading || initialCategoryApplied.current || !totalByCategory.cooked && !totalByCategory.packed) return;
+    initialCategoryApplied.current = true;
+    setSelectedCategory(totalByCategory.cooked ? 'cooked' : 'packed');
+  }, [restaurantId, loading, totalByCategory.cooked, totalByCategory.packed]);
+  React.useEffect(() => {
+    const headline = selectedShop || (restaurantUnavailable ? 'Restaurant unavailable' : '');
+    if (!restaurantId || !headline) return;
+    const title = `${headline} | YEMUNNAI`;
+    document.title = title;
+    heading.current?.focus({preventScroll: true});
+    trackPageView(title, window.location.pathname + window.location.search);
+  }, [restaurantId, selectedShop, restaurantUnavailable]);
   const { myReactions, counts, toggleLike, pending: pendingReactions, error: reactionError } = useReactions(items);
-  const menuCategories = [...new Set(items.filter(item => item.vendor === selectedShop && item.menuCategory).map(item => item.menuCategory!))];
+  const menuCategories = restaurantId ? [...new Set(shopItems.filter(item => item.category === selectedCategory && item.menuCategory).map(item => item.menuCategory!))] : [];
 
   // Filter by query + shop, hiding offline shop items when browsing all shops
   const displayedItems = items
     .filter(item => {
+      if (restaurantUnavailable) return false;
       const q = searchQuery.trim().toLowerCase();
       const matchesQuery = item.name.toLowerCase().includes(q) ||
                            item.vendor.toLowerCase().includes(q);
-      const matchesShop = selectedShop === 'All' || item.vendor === selectedShop;
+      const matchesShop = !restaurantId || item.vendorId === restaurantId;
 
       // Check if this item's shop is offline
-      const shopMeta = shops.find(s => s.name.toLowerCase() === item.vendor.toLowerCase());
+      const shopMeta = shops.find(s => s.id === item.vendorId);
       const isShopOffline = shopMeta ? shopMeta.isOnline === false : item.isShopOnline === false;
 
       // When browsing 'All' canteens, do not display products from offline canteens
-      if (!savedOnly && selectedShop === 'All' && isShopOffline) {
+      if (!savedOnly && !restaurantId && isShopOffline) {
         return false;
       }
 
@@ -83,7 +106,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     })
     .map(item => {
       const c = counts[item.id];
-      const shopMeta = shops.find(s => s.name.toLowerCase() === item.vendor.toLowerCase());
+      const shopMeta = shops.find(s => s.id === item.vendorId);
       const isShopOffline = shopMeta ? shopMeta.isOnline === false : item.isShopOnline === false;
       return {
         ...item,
@@ -95,7 +118,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 
   // Interleave restaurants without changing their own menu order.
   const feedItems = useMemo(() => {
-    if (selectedShop !== 'All') return displayedItems;
+    if (restaurantId) return displayedItems;
     const byRestaurant = new Map<string, FoodItem[]>();
     for (const item of displayedItems) {
       const key = item.vendorId || item.vendor;
@@ -107,8 +130,11 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       for (const group of byRestaurant.values()) if (group[position]) mixed.push(group[position]);
     }
     return mixed;
-  }, [displayedItems, selectedShop]);
-  const restaurantGroups = selectedShop !== 'All' && menuCategories.length ? menuCategories.map(category => ({category,items:displayedItems.filter(item=>item.menuCategory===category)})).filter(group=>group.items.length) : null;
+  }, [displayedItems, restaurantId]);
+  const restaurantGroups = restaurantId && menuCategories.length ? [
+    ...menuCategories.map(category => ({category,items:displayedItems.filter(item=>item.menuCategory===category)})),
+    {category:'More dishes',items:displayedItems.filter(item=>!item.menuCategory)}
+  ].filter(group=>group.items.length) : null;
   const priorityFoodIds = new Set((restaurantGroups ? restaurantGroups.flatMap(group => group.items) : feedItems).slice(0, 4).map(item => item.id));
 
   const renderFoodCard = (item: FoodItem) => {
@@ -133,8 +159,11 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   };
   // Product labels and prices always come from live data, including a 40-item menu.
   return <SvgScreenFrame screen={null}><section className="discovery-screen screen-enter">
-    <DiscoveryHeader shops={shops} loading={shopsLoading} selectedShop={selectedShop} searchQuery={searchQuery} cartCount={cartCount}
-      onSearch={setSearchQuery} onShop={name => {setSelectedShop(name);onSelectShop?.(name);}} onCart={onCartClick} onBusinessPortal={onBusinessPortal}/>
+    {restaurantId ? <header className="restaurant-header">
+      <div className="restaurant-heading-row"><button className="restaurant-back" type="button" aria-label="Back to Discover" onClick={onBack}><ArrowLeft size={20}/></button><h1 ref={heading} tabIndex={-1}>{selectedShop || (restaurantUnavailable ? 'Restaurant unavailable' : 'Restaurant menu')}</h1></div>
+      <label className="discovery-search"><Search size={19}/><input type="search" aria-label="Search food or shops" placeholder="Search this menu" value={searchQuery} onChange={event=>setSearchQuery(event.target.value)}/>{searchQuery && <button type="button" aria-label="Clear search" onClick={()=>setSearchQuery('')}><X size={16}/></button>}</label>
+    </header> : <DiscoveryHeader shops={shops} loading={shopsLoading} selectedShop={selectedShop} searchQuery={searchQuery} cartCount={cartCount}
+      onSearch={setSearchQuery} onShop={onSelectShop ?? (()=>{})} onCart={onCartClick} onBusinessPortal={onBusinessPortal}/>}
 
     <div className="discovery-content">
       {loading && items.length > 0 && <p className="menu-refresh-status" role="status">{t('Updating prices and availability…','ధరలు మరియు లభ్యత నవీకరిస్తున్నాం…')}</p>}
@@ -149,7 +178,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
         setSelectedCategory(cat);
       }}>{cat === 'cooked' ? t('Cooked foods','వండిన ఆహారం') : t('Packed foods','ప్యాక్ చేసిన ఆహారం')} ({loading && !items.length ? '…' : totalByCategory[cat]})</button>)}</div>
       {loading && !items.length ? <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">{[0,1,2,3].map(i => <div className="food-card food-skeleton" key={i}><div/><span/><span/></div>)}</div> : restaurantGroups ? <div>{restaurantGroups.map(group=><section className="restaurant-menu-group" key={group.category}><h2>{group.category}</h2><div className="food-grid">{group.items.map(renderFoodCard)}</div></section>)}</div> : <div className="food-grid discovery-loading">{feedItems.map(renderFoodCard)}</div>}
-      {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{savedOnly ? (saved.ids.size ? 'No saved dishes match' : 'No saved dishes yet') : 'No dishes found'}</h2><p>{savedOnly ? (saved.ids.size ? 'Try clearing your filters or switching food categories.' : 'Tap the bookmark on a dish to keep it here.') : 'Try clearing your search or filters.'}</p><Button variant="outline" onClick={() => {setSearchQuery('');setSelectedShop('All');setMaxPrice('');setMenuCategory('All');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button></div>}
+      {!loading && !error && !displayedItems.length && <div className="pickup-card empty-menu"><h2>{restaurantUnavailable ? 'Restaurant unavailable' : restaurantEmpty ? 'Menu coming soon' : savedOnly ? (saved.ids.size ? 'No saved dishes match' : 'No saved dishes yet') : 'No dishes found'}</h2><p>{restaurantUnavailable ? 'Return to Discover to choose another restaurant.' : restaurantEmpty ? 'Food items will appear here when the restaurant adds its menu.' : savedOnly ? (saved.ids.size ? 'Try clearing your filters or switching food categories.' : 'Tap the bookmark on a dish to keep it here.') : 'Try clearing your search or filters.'}</p>{!restaurantUnavailable && !restaurantEmpty && <Button variant="outline" onClick={() => {setSearchQuery('');setMaxPrice('');setMenuCategory('All');setVegOnly(false);setAvailableOnly(false);}}>Clear filters</Button>}</div>}
     </div>
   </section></SvgScreenFrame>;
 };

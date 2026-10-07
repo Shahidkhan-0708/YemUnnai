@@ -118,7 +118,7 @@ for(const layout of layouts){
    source_image:layout.source,source_bbox:{x:box.x,y:box.y,width:box.width,height:box.height},
    source_tile:{row:box.row,column:box.column,caption_start:box.caption_start,tile_bottom:box.tile_bottom},
    output_width:outputWidth,output_height:outputHeight,native_resolution:`${box.width}x${box.height}`,
-   processing:restored ? 'original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration' : 'source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening',
+   processing:restored ? `original crop; ${restoration.model} luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration` : 'source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening',
    perceptual_hash:dHash.toString(16).padStart(16,'0'),sha256:createHash('sha256').update(jpeg).digest('hex')};
   items.push(record);hashes.push({id:item.item_id,hash:dHash,sha:record.sha256});allImages.push(record);
  }
@@ -133,7 +133,7 @@ for(const layout of layouts){
  const report={hotel:layout.hotel,expected_items:layout.expected,image_records:items.length,images_extracted:files.length,
   images_missing:0,images_failed:0,images_duplicate:duplicates.length,duplicates,perceptually_similar_candidates:similar,
   min_resolution:'1024x1024',target_resolution:'1536px minimum on the shorter side; natural aspect ratio preserved',
-  method:restoration ? 'FSRCNN 4x luminance super-resolution (80%) blended with Lanczos4 source interpolation (20%); original source chroma; Lanczos3 final resize; no regenerated dishes' : 'Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels',
+  method:restoration ? `${restoration.model} luminance super-resolution (${restoration.luminance_model_blend*100}%) blended with Lanczos4 source interpolation; original source chroma; Lanczos3 final resize; no regenerated dishes` : 'Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels',
   ...(restoration ? {restoration_model:{name:restoration.model,url:restoration.model_url,sha256:restoration.model_sha256},max_native_restoration_rmse:Math.max(...restoration.items.filter(record=>record.hotel===layout.hotel).map(record=>record.source_pixel_rmse))} : {}),
   inspected_sources:[19,20,21,22,23,24].map(i=>`image copy ${i}.png`),selected_source:layout.source,
   source_sha256:createHash('sha256').update(sourceBuffer).digest('hex'),

@@ -106,7 +106,28 @@ export function App() {
   const [selectedWalkInFood, setSelectedWalkInFood] = useState<FoodItem | null>(null);
   const [selectedReviewFood, setSelectedReviewFood] = useState<FoodItem | null>(null);
   const [selectedDetailFood, setSelectedDetailFood] = useState<FoodItem | null>(null);
-  const [buyerShopFilter, setBuyerShopFilter] = useState('All');
+  const [buyerRestaurantId, setBuyerRestaurantId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('restaurant'));
+  useEffect(() => {
+    const restoreRestaurant = () => {
+      setBuyerRestaurantId(new URLSearchParams(window.location.search).get('restaurant'));
+      setSelectedDetailFood(null);
+      setBuyerTab('discover');
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener('popstate', restoreRestaurant);
+    return () => window.removeEventListener('popstate', restoreRestaurant);
+  }, []);
+  const openRestaurant = (id: string | null) => {
+    setSelectedDetailFood(null);
+    setBuyerTab('discover');
+    window.scrollTo(0, 0);
+    if (id === buyerRestaurantId) return;
+    const url = new URL(window.location.href);
+    if (id) url.searchParams.set('restaurant', id);
+    else url.searchParams.delete('restaurant');
+    window.history.pushState(window.history.state, '', url);
+    setBuyerRestaurantId(id);
+  };
   const [editingFood, setEditingFood] = useState<FoodItem | null>(null);
   const [isAddEditOpen, setIsAddEditOpen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -132,6 +153,7 @@ export function App() {
 
   // Track virtual page views for SPA navigation in Google Analytics
   useEffect(() => {
+    if (activePortal === 'consumer' && buyerTab === 'discover' && buyerRestaurantId) return;
     const pageTitle = activePortal === 'consumer' 
       ? `Yemunnai - ${buyerTab.charAt(0).toUpperCase() + buyerTab.slice(1)}`
       : `Yemunnai - ${activePortal.charAt(0).toUpperCase() + activePortal.slice(1)}`;
@@ -139,7 +161,7 @@ export function App() {
       ? 'Yemunnai — Food between lectures'
       : pageTitle;
     trackPageView(pageTitle, `/?portal=${activePortal}&tab=${buyerTab}`);
-  }, [activePortal, buyerTab]);
+  }, [activePortal, buyerTab, buyerRestaurantId]);
 
   const showToast = (msg: string) => {
     toast(msg);
@@ -202,7 +224,9 @@ export function App() {
                   />
                 ) : (
                   <HomeDiscoveryScreen
-                    initialShop={buyerTab === 'saved' ? 'All' : buyerShopFilter}
+                    key={`${buyerTab}:${buyerTab === 'saved' ? 'all' : buyerRestaurantId ?? 'all'}`}
+                    restaurantId={buyerTab === 'saved' ? null : buyerRestaurantId}
+                    onBack={() => openRestaurant(null)}
                     savedOnly={buyerTab === 'saved'}
                     cartCount={buyerOrders.orders.filter(o => ['pending','preparing','ready'].includes(o.status)).length}
                     onBusinessPortal={() => {
@@ -224,10 +248,10 @@ export function App() {
                       setSelectedReviewFood(item);
                     }}
                     onCartClick={() => setBuyerTab('orders')}
-                    onSelectShop={(name) => {
-                      setBuyerShopFilter(name);
+                    onSelectShop={(name, id) => {
+                      if (name !== 'All' && !id) return;
+                      openRestaurant(name === 'All' ? null : id!);
                       playTapSound();
-                      showToast(`Filtered by ${name}`);
                     }}
                     onSelectItem={(item) => {
                       playTapSound();

@@ -10,13 +10,13 @@
   "perceptually_similar_candidates": [],
   "min_resolution": "1024x1024",
   "target_resolution": "1536px minimum on the shorter side; natural aspect ratio preserved",
-  "method": "FSRCNN 4x luminance super-resolution (80%) blended with Lanczos4 source interpolation (20%); original source chroma; Lanczos3 final resize; no regenerated dishes",
+  "method": "EDSR_x4 luminance super-resolution (90%) blended with Lanczos4 source interpolation; original source chroma; Lanczos3 final resize; no regenerated dishes",
   "restoration_model": {
-    "name": "FSRCNN_x4",
-    "url": "https://raw.githubusercontent.com/Saafke/FSRCNN_Tensorflow/master/models/FSRCNN_x4.pb",
-    "sha256": "5c68d18db561aed8ead4ffedf1b897ea615baaf60ebf6c35f8e641f8fa4a21bf"
+    "name": "EDSR_x4",
+    "url": "https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x4.pb",
+    "sha256": "dd35ce3cae53ecee2d16045e08a932c3e7242d641bb65cb971d123e06904347f"
   },
-  "max_native_restoration_rmse": 6.9775,
+  "max_native_restoration_rmse": 4.9862,
   "inspected_sources": [
     "image copy 19.png",
     "image copy 20.png",

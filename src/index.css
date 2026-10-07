@@ -122,6 +122,12 @@ html[lang=te] .discovery-shops-heading button { width:auto; min-width:78px; padd
 .discovery-hero button:focus-visible { outline-color:#FFFFFF; }
 @media (hover:hover) { .discovery-shops-heading button:hover,.discovery-selected-chip:hover { background:#FFE3CB; } .discovery-cart:hover { background:#FFF7EF; } }
 .discovery-content { padding:18px 16px 0; }
+.restaurant-header { padding:20px 16px; background:#FFFBF7; border-top:4px solid #F06A05; }
+.restaurant-heading-row { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.restaurant-heading-row h1 { flex:1; min-width:0; margin:0; font-size:23px; line-height:30px; font-weight:700; letter-spacing:-.5px; overflow-wrap:anywhere; }
+.restaurant-heading-row h1:focus { outline:none; }
+.restaurant-back { display:grid; place-items:center; flex-shrink:0; width:44px; height:44px; background:#FFF0E3; color:#A23D00; border-radius:14px; }
+.restaurant-header .discovery-search { box-shadow:none; border:1px solid #E9DFD6; height:48px; border-radius:14px; }
 .discovery-filters { display:grid; grid-template-columns:.85fr 1.35fr 1fr; gap:8px; margin:0 4px; border:0; padding:0; }
 .discovery-filters label { display:flex; align-items:center; justify-content:center; gap:6px; height:32px; border-radius:9px; background:white; font-size:11px; white-space:nowrap; }
 .discovery-filters label:has(:focus-visible) { outline:2px solid #F06A05; outline-offset:2px; }
