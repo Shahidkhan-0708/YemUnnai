@@ -18,7 +18,13 @@
   ],
   "min_resolution": "1024x1024",
   "target_resolution": "1536px minimum on the shorter side; natural aspect ratio preserved",
-  "method": "Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels",
+  "method": "FSRCNN 4x luminance super-resolution (80%) blended with Lanczos4 source interpolation (20%); original source chroma; Lanczos3 final resize; no regenerated dishes",
+  "restoration_model": {
+    "name": "FSRCNN_x4",
+    "url": "https://raw.githubusercontent.com/Saafke/FSRCNN_Tensorflow/master/models/FSRCNN_x4.pb",
+    "sha256": "5c68d18db561aed8ead4ffedf1b897ea615baaf60ebf6c35f8e641f8fa4a21bf"
+  },
+  "max_native_restoration_rmse": 5.5084,
   "inspected_sources": [
     "image copy 19.png",
     "image copy 20.png",

@@ -6,6 +6,8 @@ import {createHash} from 'node:crypto';
 import sharp from 'sharp';
 
 const target=1536;
+const restoration=process.argv.includes('--superres')
+ ? JSON.parse(await fs.readFile('.tmp/menu-upscale/restoration.json','utf8')) : null;
 const layouts=[
  {hotel:'hotel1',source:'image copy 19.png',expected:89,left:0,right:1536,rows:[0,125,253,380,508,636,764,891,1024],columns:[12,12,12,12,12,12,12,11]},
  {hotel:'hotel2',source:'image copy 20.png',expected:53,left:904,right:1535,rows:[42,161,267,383,495,598,706,811,911,1018],columns:[6,6,6,6,6,6,5,6,6]},
@@ -90,22 +92,33 @@ for(const layout of layouts){
   assert(black/(pixels.length/3)<.8&&white/(pixels.length/3)<.8,'Mostly blank photo: '+item.item_id);
   const hashPixels=await sharp(native).greyscale().resize(9,8,{fit:'fill'}).raw().toBuffer();
   let dHash=0n;for(let y=0;y<8;y++)for(let x=0;x<8;x++)dHash=(dHash<<1n)|BigInt(hashPixels[y*9+x]>hashPixels[y*9+x+1]);
-  const jpeg=await sharp(native).blur(.3).resize(outputWidth,outputHeight,{kernel:'lanczos3'})
-   .linear(1.015,-1.5).sharpen({sigma:.5,m1:.3,m2:.5}).jpeg({quality:95,chromaSubsampling:'4:4:4'}).toBuffer();
+  const restored=restoration?.items.find(record=>record.item_id===item.item_id&&record.hotel===layout.hotel);
+  if(restoration){
+   assert(restored,'Missing restored photo: '+item.item_id);
+   assert.deepEqual(restored.source_bbox,{x:box.x,y:box.y,width:box.width,height:box.height});
+   assert.equal(restored.source_sha256,createHash('sha256').update(sourceBuffer).digest('hex'));
+  }
+  const restoredPixels=restored ? await fs.readFile(restored.image_path) : null;
+  if(restored)assert.equal(createHash('sha256').update(restoredPixels).digest('hex'),restored.sha256);
+  const jpeg=restoredPixels
+   ? await sharp(restoredPixels).resize(outputWidth,outputHeight,{kernel:'lanczos3'}).jpeg({quality:96,chromaSubsampling:'4:4:4'}).toBuffer()
+   : await sharp(native).blur(.3).resize(outputWidth,outputHeight,{kernel:'lanczos3'})
+     .linear(1.015,-1.5).sharpen({sigma:.5,m1:.3,m2:.5}).jpeg({quality:95,chromaSubsampling:'4:4:4'}).toBuffer();
   const metadata=await sharp(jpeg).metadata();assert(metadata.width>=1024&&metadata.height>=1024&&jpeg.length>8000);
   await fs.writeFile(`${outputDirectory}/${file}`,jpeg);await fs.writeFile(`${publicDirectory}/${file}`,jpeg);
   const url=`/menu-assets/${layout.hotel}/images/${file}`,variants=[];
   for(const width of [320,640,960]){
-   const optimized=file.replace('.jpg',`-${width}.webp`);
-   await sharp(jpeg).resize({width}).webp({quality:88}).toFile(`${publicDirectory}/${optimized}`);
+   const fingerprint=createHash('sha256').update(jpeg).digest('hex').slice(0,10);
+   const optimized=file.replace('.jpg',`-${fingerprint}-${width}.webp`);
+   await sharp(restoredPixels??jpeg).resize({width,kernel:'lanczos3'}).webp({quality:92,effort:6,smartSubsample:true}).toFile(`${publicDirectory}/${optimized}`);
    variants.push({src:`/menu-assets/${layout.hotel}/images/${optimized}`,width});
   }
-  registry[url]={width:outputWidth,height:outputHeight,variants,extracted:true};
+  registry[url]={width:outputWidth,height:outputHeight,variants,extracted:true,fit:'contain'};
   const record={...item,image_file:file,image_path:`images/${file}`,image_url:url,image_status:'extracted',
    source_image:layout.source,source_bbox:{x:box.x,y:box.y,width:box.width,height:box.height},
    source_tile:{row:box.row,column:box.column,caption_start:box.caption_start,tile_bottom:box.tile_bottom},
    output_width:outputWidth,output_height:outputHeight,native_resolution:`${box.width}x${box.height}`,
-   processing:'source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening',
+   processing:restored ? 'original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration' : 'source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening',
    perceptual_hash:dHash.toString(16).padStart(16,'0'),sha256:createHash('sha256').update(jpeg).digest('hex')};
   items.push(record);hashes.push({id:item.item_id,hash:dHash,sha:record.sha256});allImages.push(record);
  }
@@ -120,7 +133,8 @@ for(const layout of layouts){
  const report={hotel:layout.hotel,expected_items:layout.expected,image_records:items.length,images_extracted:files.length,
   images_missing:0,images_failed:0,images_duplicate:duplicates.length,duplicates,perceptually_similar_candidates:similar,
   min_resolution:'1024x1024',target_resolution:'1536px minimum on the shorter side; natural aspect ratio preserved',
-  method:'Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels',
+  method:restoration ? 'FSRCNN 4x luminance super-resolution (80%) blended with Lanczos4 source interpolation (20%); original source chroma; Lanczos3 final resize; no regenerated dishes' : 'Lanczos3 fallback; no generative model, new pixels are interpolated exclusively from source pixels',
+  ...(restoration ? {restoration_model:{name:restoration.model,url:restoration.model_url,sha256:restoration.model_sha256},max_native_restoration_rmse:Math.max(...restoration.items.filter(record=>record.hotel===layout.hotel).map(record=>record.source_pixel_rmse))} : {}),
   inspected_sources:[19,20,21,22,23,24].map(i=>`image copy ${i}.png`),selected_source:layout.source,
   source_sha256:createHash('sha256').update(sourceBuffer).digest('hex'),
   excluded_source_tiles:layout.hotel==='hotel1'?['Romeno Chicken Pasta','Aglio Prawns Pasta','Hotel 2 tiles in last row']:[],

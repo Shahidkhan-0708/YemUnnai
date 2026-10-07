@@ -33,9 +33,9 @@
       "output_width": 1650,
       "output_height": 1536,
       "native_resolution": "101x94",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "678f5b23475d491f",
-      "sha256": "1a6e2f6eb77d04e86bf027176c8c8edc21296bd960ee893856e5dcc92c605d8c"
+      "sha256": "c25a05ce22ab4cf80dc160628fc8374c3dc3875ad805df74a79619da66310d44"
     },
     {
       "item_id": "H2-091",
@@ -69,9 +69,9 @@
       "output_width": 1568,
       "output_height": 1536,
       "native_resolution": "97x95",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "79076c2b15554f1f",
-      "sha256": "8df7c0eb32fa491ceb204ecda0ac37be9c62c80b97d8bf2c18bf1402e66b6165"
+      "sha256": "92badd5d9ec911d0b26f9740956591d7c1f13abc2ef49d39affc43d6f850d2e5"
     },
     {
       "item_id": "H2-092",
@@ -105,9 +105,9 @@
       "output_width": 1568,
       "output_height": 1536,
       "native_resolution": "97x95",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "5ccd0763711b8ee8",
-      "sha256": "e00f34ab5ee6476e1263101438c421b9e9f73f765e2383582445c03ebd5413a0"
+      "sha256": "e106cabb7283e32b3e766f50fc0ea2991705c91183faf9753c988dc23c622b9d"
     },
     {
       "item_id": "H2-093",
@@ -141,9 +141,9 @@
       "output_width": 1536,
       "output_height": 1552,
       "native_resolution": "94x95",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "328f97336d1797e8",
-      "sha256": "6cec1c60df8b3b02de227e29b88e1c4242e2d50c7306da1498e950016ab27725"
+      "sha256": "c0dc6efc65e9fb267cad41c79308c24bb2da87938266a0494b1042d649514623"
     },
     {
       "item_id": "H2-094",
@@ -177,9 +177,9 @@
       "output_width": 1536,
       "output_height": 1604,
       "native_resolution": "91x95",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "278e9733751b97f0",
-      "sha256": "961732896980242f216fdf6fd4cfc06eed36dc2b5ed72799cb7af2c6a5b264a0"
+      "sha256": "8778d3efe774f67216c9cf43f25f17cd620a35a31fa7f16c28030df4f6f1ea92"
     },
     {
       "item_id": "H2-095",
@@ -213,9 +213,9 @@
       "output_width": 1617,
       "output_height": 1536,
       "native_resolution": "100x95",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "3373ec87130f1e70",
-      "sha256": "477a44c5cf589fb16b62b926f3d005733671e3f183a42879374c0173774269ea"
+      "sha256": "0ed1860a2ccae62667701de91970638a89d8e3f42ae4c6bdb20c178eee5e1430"
     },
     {
       "item_id": "H2-096",
@@ -249,9 +249,9 @@
       "output_width": 1740,
       "output_height": 1536,
       "native_resolution": "94x83",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "f143041a69f73f18",
-      "sha256": "95a4a50cf8f1e6483478b1be7a00eeee9cd36add7faff6ddc022a14ec1ebeffa"
+      "sha256": "84ef59573e1c3ab892b06b2b04c7fbc6b8987117e0fa81cf3741ffb6d41e91c3"
     },
     {
       "item_id": "H2-097",
@@ -285,9 +285,9 @@
       "output_width": 1925,
       "output_height": 1536,
       "native_resolution": "104x83",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "1ec8851f3f2597f4",
-      "sha256": "810c8c120fe2da90bbd0aa36b74dd154ef27cb5c374b6d67cda1b94c92ac077e"
+      "sha256": "5c03494bcf311de65a6443efa29159912c9e9b1212d8ac2ef2812569afae00f4"
     },
     {
       "item_id": "H2-098",
@@ -321,9 +321,9 @@
       "output_width": 1721,
       "output_height": 1536,
       "native_resolution": "93x83",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "67c71b33631f9fcf",
-      "sha256": "15ffde9f341f22801b6f98466ca256949f9bd0bfe6045290dcc0b1e055f25ab7"
+      "sha256": "c718ce2861c1b8586f023293096c81ae29dbffc422967d762b603f1c4ecec2dc"
     },
     {
       "item_id": "H2-099",
@@ -357,9 +357,9 @@
       "output_width": 1795,
       "output_height": 1536,
       "native_resolution": "97x83",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "30e9b32f2d373f9b",
-      "sha256": "3384b62dd0efff40e1fab64b6a32cda3b89e185c1076ecd039cacac45cde877e"
+      "sha256": "823752d487d71abce5dfb0f73eb82f6a3f211f2f0c6eb1c795888dc0259a21f2"
     },
     {
       "item_id": "H2-100",
@@ -393,9 +393,9 @@
       "output_width": 1758,
       "output_height": 1536,
       "native_resolution": "95x83",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "34e98f37373f5ff0",
-      "sha256": "f540da43624e07f896ad395670bb5bae45b4e183b34002b396f7ee1d9bc18274"
+      "sha256": "cfcd520a0514410ad5d849f1f74eaaba563dafa49f0c73ddce79a6a7f73ed807"
     },
     {
       "item_id": "H2-101",
@@ -429,9 +429,9 @@
       "output_width": 1795,
       "output_height": 1536,
       "native_resolution": "97x83",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "ecd9c70b33737737",
-      "sha256": "f034d2a41fa4fbfeb3011debd35166dea732d07c521345c299570954b3050b81"
+      "sha256": "55ae0a89f36bd48da312c6831b20def08d9467422c984949ea02604c0dff6284"
     },
     {
       "item_id": "H2-102",
@@ -465,9 +465,9 @@
       "output_width": 1671,
       "output_height": 1536,
       "native_resolution": "99x91",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "f9933f6f4d4d0f67",
-      "sha256": "f6aadc0a34d0f77ac196dee0e9479c41730cebc15bd8be22d0bdb9e1305e10c9"
+      "sha256": "4a65298456bb513480135f93c819bc0460974a406710d8ba01f26d372199a680"
     },
     {
       "item_id": "H2-103",
@@ -501,9 +501,9 @@
       "output_width": 1604,
       "output_height": 1536,
       "native_resolution": "95x91",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "7cc71b397e733fbd",
-      "sha256": "ecebdbfc9a09234b43e6c6b8afc9f556a793143c8aea8261046fc09f8036464a"
+      "sha256": "3066d4d266ebb95b2497a724edb86162ff0bc563e59daf838c8bd8a0219fbe3e"
     },
     {
       "item_id": "H2-104",
@@ -537,9 +537,9 @@
       "output_width": 1637,
       "output_height": 1536,
       "native_resolution": "97x91",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "193aef1733331fce",
-      "sha256": "b231a492184c9d62aac0b0322478fae185303f60b6a582da67b93f2f7aee6059"
+      "sha256": "92e057c511a3c3ab227482e90a216489e2f185225fd73929b031502fa21785e7"
     },
     {
       "item_id": "H2-105",
@@ -573,9 +573,9 @@
       "output_width": 1604,
       "output_height": 1536,
       "native_resolution": "95x91",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "eef38f1f333f3f9d",
-      "sha256": "f771b4267293e59aab99e7b8165017faa47ff015c1291f94975bf0e077282a21"
+      "sha256": "b05211840a90cea11422b51bae01c473c373dc3541ef2f01d4c281e2424bf376"
     },
     {
       "item_id": "H2-106",
@@ -609,9 +609,9 @@
       "output_width": 1654,
       "output_height": 1536,
       "native_resolution": "98x91",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "2377c733313d1f0c",
-      "sha256": "3657698e5c0f4b115fa9003e8aeee8c0f53bf6d98fd02ac5c8ce6a5de4060eaf"
+      "sha256": "680949446bf4207b5a4f3cd57a53c8ceaaa765c63600c56943a27ab033bb5f54"
     },
     {
       "item_id": "H2-107",
@@ -645,9 +645,9 @@
       "output_width": 1603,
       "output_height": 1536,
       "native_resolution": "96x92",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "0f9d31e41d33473b",
-      "sha256": "fe4a646991a0f9e20e4d87ac8319e8b4ce0d199290c4c5ebd3b7c6a78f45cae1"
+      "sha256": "8336d1909d6c5a63aff2da9a6afbbd924764c892b1adbddab9c2b97524f57c22"
     },
     {
       "item_id": "H2-108",
@@ -681,9 +681,9 @@
       "output_width": 1658,
       "output_height": 1536,
       "native_resolution": "95x88",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "9c31638636795f3b",
-      "sha256": "e9117993ae9aaf4784e3c666bdba913ddbe53bb604cea438b67b18e184b4be06"
+      "sha256": "db2631bc0d98cc78c3453f89b8b38a30a2b3d286aaa44aba75800f9f8d190619"
     },
     {
       "item_id": "H2-109",
@@ -717,9 +717,9 @@
       "output_width": 1763,
       "output_height": 1536,
       "native_resolution": "101x88",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "43076d7a1d4e3807",
-      "sha256": "1f6771a31c37157d178862186e7f572b634001f8aba31f2969d366e0bb29ec1b"
+      "sha256": "8990539a450e70294fbf34a8734872c20ca8fe3bb1ac2dc99b52174446b74a1f"
     },
     {
       "item_id": "H2-110",
@@ -753,9 +753,9 @@
       "output_width": 1642,
       "output_height": 1536,
       "native_resolution": "93x87",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "e2832776ba58370f",
-      "sha256": "3666f86a5e9ec88d70357b7ab703541d3b86257fa8d053450df3a8576b315442"
+      "sha256": "0133d4340ceb08eea50bfdca1fc76f09d44f3eccc11287f3b45701f86a406c18"
     },
     {
       "item_id": "H2-111",
@@ -789,9 +789,9 @@
       "output_width": 1676,
       "output_height": 1536,
       "native_resolution": "96x88",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "3cf1831876a78f4f",
-      "sha256": "80dfe671673c30ee4e19d218f206d0cc6635a078f46a38497e59fba08f95ec06"
+      "sha256": "a2e33418301102e0f04917a4655d937327879c1706b04cd95e908acb78161a66"
     },
     {
       "item_id": "H2-112",
@@ -825,9 +825,9 @@
       "output_width": 1801,
       "output_height": 1536,
       "native_resolution": "102x87",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "dc91620e35434f1d",
-      "sha256": "933845c522b03baae17b99be1595619690223f96aa3613c89fa689eba3b8bd4a"
+      "sha256": "a3a0de98ba370b436b4e3601c073b8c5acd0df62df3b5f45b3272263ea4e4027"
     },
     {
       "item_id": "H2-113",
@@ -861,9 +861,9 @@
       "output_width": 1701,
       "output_height": 1536,
       "native_resolution": "93x84",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "38f9ce9733553f3f",
-      "sha256": "9b1f97f608d75c480bbcedfd9722529d789b95c449320da4efc55ff20735f2a2"
+      "sha256": "f1fe0abc0f2ecbcd2a8d2e88abe9dfd7a6ca59d42b4f773a1f843cd2c7c1c0ca"
     },
     {
       "item_id": "H2-114",
@@ -897,9 +897,9 @@
       "output_width": 1900,
       "output_height": 1536,
       "native_resolution": "94x76",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "38073b3a76651d17",
-      "sha256": "3c4bb1c8aae39873b034680703f0e480e264eae62311f6dc3cad8afcb8f9f99a"
+      "sha256": "fad6ccbcf4bfd5257b23dd5a5756247180ff40ab8fa572576096a9793e861fed"
     },
     {
       "item_id": "H2-115",
@@ -933,9 +933,9 @@
       "output_width": 1960,
       "output_height": 1536,
       "native_resolution": "97x76",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "e7871b1b16351d1a",
-      "sha256": "a2c97c47aa51191e5c196b12d4fe1572cb578a3777a09ddb84e4538d1bf0a316"
+      "sha256": "0391c412cd3f65a70c2521d58fd9024aac3e538d6e168eb7afc9962df50952f9"
     },
     {
       "item_id": "H2-116",
@@ -969,9 +969,9 @@
       "output_width": 2061,
       "output_height": 1536,
       "native_resolution": "102x76",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "23671f293b651f9b",
-      "sha256": "41975c58ad4fa76508e175b27bcd4e726981d62af434571225b8e3493aad0aeb"
+      "sha256": "1f80e0c0fe9e646f654ae8de5cf59db1fd4532d6f743b1916c527a28a581b6f8"
     },
     {
       "item_id": "H2-117",
@@ -1005,9 +1005,9 @@
       "output_width": 2096,
       "output_height": 1536,
       "native_resolution": "101x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "798f1f3b35611716",
-      "sha256": "bf32206159d7c12c68887990d604b35b2ee33d3ce12a63e009e6331f16620b80"
+      "sha256": "88312c00099b8e595a76d0c6b91b1678d82d03612e7a77be50053ca52c45d2b4"
     },
     {
       "item_id": "H2-118",
@@ -1041,9 +1041,9 @@
       "output_width": 1839,
       "output_height": 1536,
       "native_resolution": "91x76",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "72c79f3b4d753b1e",
-      "sha256": "014bc454bcb8dab572789901d91ec091bf4f9c55481f1d60b48f184e4e7f6748"
+      "sha256": "f98542e91d4acfe67f701925d7b2577d043921434d95e85ffaee73b2df2823c3"
     },
     {
       "item_id": "H2-119",
@@ -1077,9 +1077,9 @@
       "output_width": 1920,
       "output_height": 1536,
       "native_resolution": "95x76",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "6c9c175d697b3737",
-      "sha256": "45779f19be30dc6b9e35375200a5f3e5ac5ab9d927d936794ad2848cdf50e647"
+      "sha256": "497d11b9a9399a811824de6fdfcba74c6f04ccbcc7d0240c9de655b13d439411"
     },
     {
       "item_id": "H2-120",
@@ -1113,9 +1113,9 @@
       "output_width": 1858,
       "output_height": 1536,
       "native_resolution": "98x81",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "664f975d79651337",
-      "sha256": "015a111f50280b9348b74d7cc0ddf4574841107b7d159b90e8f793f5b5657f5f"
+      "sha256": "41dd1e00523e7b66138bb7f5c1a73ad2a4befff7de55588959a95629bde14912"
     },
     {
       "item_id": "H2-121",
@@ -1149,9 +1149,9 @@
       "output_width": 1855,
       "output_height": 1536,
       "native_resolution": "93x77",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "bcec0f2b5f641797",
-      "sha256": "ae57fe3aaafc2203843bc5b35304b5a0546dc82199635524ce0fc39e2680baed"
+      "sha256": "c1a7c067ac03b21a6f5b32a0d9ab655e96b70e93619e0bbc8cab6016e3d578ee"
     },
     {
       "item_id": "H2-122",
@@ -1185,9 +1185,9 @@
       "output_width": 2107,
       "output_height": 1536,
       "native_resolution": "107x78",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "e9cb1f376f699bf6",
-      "sha256": "82afe9c86e48593c74b2036947dca88bd485b2504e275633e7ce994a977471b3"
+      "sha256": "5b562da11a478c1a745d6ac6f858dadc6f93c4cb7956075ff7269affc2571da2"
     },
     {
       "item_id": "H2-123",
@@ -1221,9 +1221,9 @@
       "output_width": 1915,
       "output_height": 1536,
       "native_resolution": "101x81",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "29973f372d6112cc",
-      "sha256": "f9569d301afbcbf398b81b2a858a7807fd1cfc160ac2eeb958518d4c696344be"
+      "sha256": "3cccad336b4aa69ef27464c0f2d8ebdf7f869eb637b084974822db01fb7c05d0"
     },
     {
       "item_id": "H2-124",
@@ -1257,9 +1257,9 @@
       "output_width": 1780,
       "output_height": 1536,
       "native_resolution": "95x82",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "a98f3f6f0d6db7d4",
-      "sha256": "0ba69b6a8bdceaaf1ffe7516d663ea51348aa39c7a4585cbb1cb31471824e4a2"
+      "sha256": "21e44616a520934e242641c00116838ea4f5e3387540aae0feff9be5bad6ff0b"
     },
     {
       "item_id": "H2-125",
@@ -1293,9 +1293,9 @@
       "output_width": 1651,
       "output_height": 1536,
       "native_resolution": "86x80",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "3903063a772d7d1f",
-      "sha256": "76ec4461adbe5f5d180445ae852ffe87e16f622d2f749b14110e32d66a48dc6d"
+      "sha256": "ead59d4d6555fa8939f31aa6b70bb304262e55c4d0ed9564476c42c7929d8aa6"
     },
     {
       "item_id": "H2-126",
@@ -1329,9 +1329,9 @@
       "output_width": 2469,
       "output_height": 1536,
       "native_resolution": "127x79",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "5d0f375d9b337726",
-      "sha256": "393869e0ba1e367b35995a0d5891893d458f0b04f06dc9d528b7de2609918b6d"
+      "sha256": "6b80ba768753a070c19f8c4cc364c484fed7315a0f09ca004f6b8d87f1881f45"
     },
     {
       "item_id": "H2-127",
@@ -1365,9 +1365,9 @@
       "output_width": 2642,
       "output_height": 1536,
       "native_resolution": "129x75",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "27471d3f7d7d2b1f",
-      "sha256": "87c9efe8583dc1ae8ee50322fd7e04e370ee70262ce580aa5ac16a043a30b382"
+      "sha256": "02ac17b9c19a2ac7fb22dbbd8240308249c806dd91bdf6b8c9f786977d271fec"
     },
     {
       "item_id": "H2-128",
@@ -1401,9 +1401,9 @@
       "output_width": 2294,
       "output_height": 1536,
       "native_resolution": "112x75",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "170f2d276d55338b",
-      "sha256": "d6983461b7107ab878dc06d6e35389188845788e6ae03f9da0fbe53c727bb5f8"
+      "sha256": "95befb7185a819bbdec6e08e35a3cd2ce7a660aa0e7b3083a406457ea7ffd728"
     },
     {
       "item_id": "H2-129",
@@ -1437,9 +1437,9 @@
       "output_width": 2478,
       "output_height": 1536,
       "native_resolution": "121x75",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "f3bf3f57752b2b2f",
-      "sha256": "e9cba57f16e8adbacd98e164a05016fb4c96c51c57d4897af2ecf1b6cd23e308"
+      "sha256": "8bfe0c10312b8e830c11ba0444927b9589703d8d011bb20af151f6c149aa7dec"
     },
     {
       "item_id": "H2-130",
@@ -1473,9 +1473,9 @@
       "output_width": 2028,
       "output_height": 1536,
       "native_resolution": "99x75",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "531f496baa3167de",
-      "sha256": "ccf2633fc112b7f3fa6d5b297fcdce64fdf42e3cf0efde8c2613154bebc32176"
+      "sha256": "f5b75371360aa4fbe1120c3c70f66e47879769ba43e3a35d5ce547a5bbedccb5"
     },
     {
       "item_id": "H2-131",
@@ -1509,9 +1509,9 @@
       "output_width": 1847,
       "output_height": 1536,
       "native_resolution": "89x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "5407073f393d3f1f",
-      "sha256": "730f8ab7e2adef234293a727c86d9d1b0f24d70a2e42fd84748ed7aad74b80d0"
+      "sha256": "cb5a9bca5bb5a7c5c530482cd817eb7ac3f5d0a3dd37e3139f0a9dfedc59570d"
     },
     {
       "item_id": "H2-132",
@@ -1545,9 +1545,9 @@
       "output_width": 2034,
       "output_height": 1536,
       "native_resolution": "98x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "1d07233b3b3d3f9e",
-      "sha256": "ff3df09df8bc3b72134d1519014f9cf31806410988b6b59f82943017f64a10c9"
+      "sha256": "99a7246d0a9192f85c1898eaa652872246da86b0424984ba9135c53e971f126d"
     },
     {
       "item_id": "H2-133",
@@ -1581,9 +1581,9 @@
       "output_width": 2013,
       "output_height": 1536,
       "native_resolution": "97x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "161717179f1b1b57",
-      "sha256": "874a01422f287c4128f248493ba842e29d42e2cf80613fabe5d214d76e3c59d4"
+      "sha256": "bc5065eebf324b0e06af105be3c4a4d350607a0a3bb20f905eb3bc301ce03aa7"
     },
     {
       "item_id": "H2-134",
@@ -1617,9 +1617,9 @@
       "output_width": 2076,
       "output_height": 1536,
       "native_resolution": "100x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "4d1f1e3735979ddd",
-      "sha256": "76844be820412de09c6e238238023bdd7a8f777e5674745be92b1b784e033688"
+      "sha256": "3b0c9c61349e791b241ba766d3c5598ec64be554d4534bb11ead3a6e37d59c49"
     },
     {
       "item_id": "H2-135",
@@ -1653,9 +1653,9 @@
       "output_width": 1951,
       "output_height": 1536,
       "native_resolution": "94x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "171f2f3632b29ef6",
-      "sha256": "53613a84b23b0f31287b39ffc7b48daaa435a830ad0b28c04bbc3ccba7ba61eb"
+      "sha256": "e9213f5a11f1044196a9217d770489e7f96a523772553c5fa2b873d2c0803f35"
     },
     {
       "item_id": "H2-136",
@@ -1689,9 +1689,9 @@
       "output_width": 2117,
       "output_height": 1536,
       "native_resolution": "102x74",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "341d07171f1f9f5f",
-      "sha256": "c546993b76b871962ae06e957d2cc63a678dbf1c29cf743de5566617638fd58f"
+      "sha256": "859cbb77e85adcf8a9029a40f40a3c47198687e8c9562709f257b6fdd06f087e"
     },
     {
       "item_id": "H2-137",
@@ -1725,9 +1725,9 @@
       "output_width": 1670,
       "output_height": 1536,
       "native_resolution": "87x80",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "bd97838f9995bdaf",
-      "sha256": "c85dfea57029b1ee4f1f02f88b975e05b4178b64e4b02eeb8649206ef0c58396"
+      "sha256": "d916cd63c7dee3d3a54a9281be560c5f9613d0cfcaa34ff2f6528fff18b7c0a9"
     },
     {
       "item_id": "H2-138",
@@ -1761,9 +1761,9 @@
       "output_width": 1747,
       "output_height": 1536,
       "native_resolution": "91x80",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "1e370b3733317537",
-      "sha256": "50216be4d9c9736148d247d0f6f059ff9a72445c217f0de720d4929ec5787116"
+      "sha256": "0d1ab5250b4bc018f798669df4691768b133bc367642a645205f9836781fa774"
     },
     {
       "item_id": "H2-139",
@@ -1797,9 +1797,9 @@
       "output_width": 1825,
       "output_height": 1536,
       "native_resolution": "101x85",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "531b1f8f1b1b3f67",
-      "sha256": "e52d91b0308854a3361986287726f6005eb0d35d06a34ca645b1b271c84a183d"
+      "sha256": "7880a833d68b8b2e2af8faae147816f41c2622ac912836bab5d920f5399efce7"
     },
     {
       "item_id": "H2-140",
@@ -1833,9 +1833,9 @@
       "output_width": 2061,
       "output_height": 1536,
       "native_resolution": "106x79",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "343737373337379d",
-      "sha256": "14078a2740c91cc0116ecb2659851b5e96696c26328d407b6665d7236c888052"
+      "sha256": "3d5f442ae5e92ab297ba9b48a19fa52af95d6f2607aaaa37c8d0594d5a6d3e38"
     },
     {
       "item_id": "H2-141",
@@ -1869,9 +1869,9 @@
       "output_width": 1843,
       "output_height": 1536,
       "native_resolution": "96x80",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "9987236b33379fbd",
-      "sha256": "9261c069e8de9c1ee07ca96438a803618571903aed29704196140027b6651070"
+      "sha256": "04f14cfe1f5d2741883f3cbb8b0ad55e9ec977f4c13b3b60eea6666136762632"
     },
     {
       "item_id": "H2-142",
@@ -1905,9 +1905,9 @@
       "output_width": 1905,
       "output_height": 1536,
       "native_resolution": "98x79",
-      "processing": "source crop; light Gaussian denoise; Lanczos3 upscale; mild contrast; mild sharpening",
+      "processing": "original crop; FSRCNN 4x luminance restoration blended with source interpolation; Lanczos3 final resize; no dish regeneration",
       "perceptual_hash": "33861d277f3d3ebc",
-      "sha256": "01b9609729d1511d4d87ea1ba9f077b2c8b4bb966c4d9566158abe8719b25359"
+      "sha256": "b9e6ad451b41a5e87e4ec589444896c51e1e1b10f7ff035c8c4e0026e482ac99"
     }
   ]
 }
