@@ -73,7 +73,8 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
     'MITS Hub': '/images/shop_new_cafe.jpg',
     'Pizza And Pasta (P2)': '/images/shop_p2-brand.svg',
     'Paradise': '/images/shop_paradise.svg',
-    'Mallikarjuna Mess': '/images/shop_mallikarjuna.svg'
+    'Mallikarjuna Mess': '/images/shop_mallikarjuna.svg',
+    'ACS Cafe': '/images/shop_acs_cafe.png'
   };
   const shopImage = vendor?.imageUrl ?? SHOP_IMAGES[vendor?.vendorName ?? ''] ?? '/images/NewLogo.svg';
 

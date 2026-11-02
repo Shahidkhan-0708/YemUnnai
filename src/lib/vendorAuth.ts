@@ -6,4 +6,5 @@ export const VENDOR_OUTLETS = [
   { id: 'a0000000-0000-4000-8000-000000000010', name: 'Pizza And Pasta (P2)' },
   { id: 'a0000000-0000-4000-8000-000000000011', name: 'Paradise' },
   { id: 'a0000000-0000-4000-8000-000000000012', name: 'Mallikarjuna Mess' },
+  { id: '702d2142-4f0a-4fa5-888d-b4f11b011f15', name: 'ACS Cafe' },
 ];

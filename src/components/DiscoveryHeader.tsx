@@ -5,7 +5,7 @@ import { useLanguage } from '../lib/language';
 import type { ShopEntry } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 
-const CANTEEN_PHOTOS: Record<string, string> = { 'MITS Canteen': '/images/shop_mits_canteen.jpg', 'MITS Cafe': '/images/shop_mits_cafe.jpg', 'MITS Hub': '/images/shop_new_cafe.jpg', 'Pizza And Pasta (P2)': '/images/shop_p2-brand.svg', 'Paradise': '/images/shop_paradise.svg', 'Mallikarjuna Mess': '/images/shop_mallikarjuna.svg' };
+const CANTEEN_PHOTOS: Record<string, string> = { 'MITS Canteen': '/images/shop_mits_canteen.jpg', 'MITS Cafe': '/images/shop_mits_cafe.jpg', 'MITS Hub': '/images/shop_new_cafe.jpg', 'Pizza And Pasta (P2)': '/images/shop_p2-brand.svg', 'Paradise': '/images/shop_paradise.svg', 'Mallikarjuna Mess': '/images/shop_mallikarjuna.svg', 'ACS Cafe': '/images/shop_acs_cafe.png' };
 const CANTEEN_DIRECTORY = VENDOR_OUTLETS.map(shop => ({ ...shop, image: CANTEEN_PHOTOS[shop.name] }));
 
 interface Props {
@@ -27,8 +27,10 @@ export function DiscoveryHeader({ shops, loading, selectedShop, searchQuery, car
   const labels = (name: string) => {
     if (name === 'MITS Canteen') return ['MITS', 'Canteen'];
     if (name === 'MITS Cafe') return ['MITS', 'Cafe'];
+    if (name === 'MITS Hub') return ['MITS', 'Hub'];
     if (name === 'Pizza And Pasta (P2)') return ['Pizza And', 'Pasta (P2)'];
     if (name === 'Mallikarjuna Mess') return ['Mallikarjuna', 'Mess'];
+    if (name === 'ACS Cafe') return ['ACS', 'Cafe'];
     return [name, ''];
   };
   return <header className="discovery-header">

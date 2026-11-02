@@ -184,6 +184,7 @@ export function cleanShopTag(tag?: string | null): string {
   if (lower.includes('library')) return 'Library';
   if (lower.includes('gate')) return 'Gate Block';
   if (lower.includes('hostel')) return 'Boys Hostel';
+  if (lower.includes('acs')) return 'ACS Ground';
   return tag.replace(/,.*$/, '').trim();
 }
 
@@ -200,7 +201,7 @@ export async function fetchShops(): Promise<ShopEntry[]> {
     .order('is_active', { ascending: false });
 
   /** Campus showcase order requested by the client (top of the shops row). */
-  const SHOP_PRIORITY = ['MITS Canteen', 'MITS Cafe', 'MITS Hub', 'Pizza And Pasta (P2)', 'Paradise', 'Mallikarjuna Mess'];
+  const SHOP_PRIORITY = ['MITS Canteen', 'MITS Cafe', 'MITS Hub', 'Pizza And Pasta (P2)', 'Paradise', 'Mallikarjuna Mess', 'ACS Cafe'];
   const priority = (name: string) => {
     const idx = SHOP_PRIORITY.indexOf(name);
     return idx === -1 ? SHOP_PRIORITY.length : idx;

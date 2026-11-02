@@ -40,3 +40,7 @@ supabase/.temp/
 /*.png
 /*.mp4
 /*.zip
+/*.jpeg
+acs_cafe_images/
+mits_hub_images/
+skillSystem/

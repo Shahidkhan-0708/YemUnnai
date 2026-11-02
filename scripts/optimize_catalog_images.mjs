@@ -5,7 +5,10 @@ import sharp from 'sharp';
 
 const directory = 'public/images', output = path.join(directory, 'optimized');
 await fs.mkdir(output, { recursive: true });
-const manifest = {};
+let manifest = {};
+try {
+  manifest = JSON.parse(await fs.readFile('src/lib/catalog-images.json', 'utf8'));
+} catch (e) {}
 let originalBytes = 0, cardBytes = 0;
 async function optimize(buffer, name, source) {
   const hash = createHash('sha256').update(buffer).digest('hex').slice(0, 10);
@@ -23,9 +26,16 @@ async function optimize(buffer, name, source) {
   manifest[source] = { width: metadata.width, height: metadata.height, variants };
 }
 for (const name of (await fs.readdir(directory)).sort()) {
-  if (!/^(item_|shop_).*\.(png|jpe?g)$/i.test(name) && name !== 'NewLogo.png') continue;
+  if (!/^(item_|shop_|\d{2}_).*\.(png|jpe?g)$/i.test(name) && name !== 'NewLogo.png') continue;
   await optimize(await fs.readFile(path.join(directory, name)), name, `/images/${name}`);
 }
+const acsDir = path.join(directory, 'acs_cafe');
+try {
+  for (const name of (await fs.readdir(acsDir)).sort()) {
+    if (!/\.(png|jpe?g)$/i.test(name)) continue;
+    await optimize(await fs.readFile(path.join(acsDir, name)), `acs_${name}`, `/images/acs_cafe/${name}`);
+  }
+} catch (e) {}
 for (const source of JSON.parse(await fs.readFile('scripts/catalog-remote-images.json', 'utf8'))) {
   const response = await fetch(source, { signal: AbortSignal.timeout(30000) });
   if (!response.ok) throw Error(`Cannot optimize the published photo: ${response.status}`);
