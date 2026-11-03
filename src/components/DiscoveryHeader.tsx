@@ -111,7 +111,7 @@ interface Props {
   loading: boolean;
   selectedShop: string;
   searchQuery: string;
-  cartCount: number;
+  cartCount?: number;
   onSearch: (value: string) => void;
   onShop: (name: string, id?: string) => void;
   onCart?: () => void;
@@ -123,10 +123,8 @@ export function DiscoveryHeader({
   loading,
   selectedShop,
   searchQuery,
-  cartCount,
   onSearch,
   onShop,
-  onCart,
   onBusinessPortal,
 }: Props) {
   const { t } = useLanguage();
