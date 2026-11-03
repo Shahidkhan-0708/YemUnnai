@@ -1,0 +1,4 @@
+interface:
+  display_name: "Effective Prompt Interactive"
+  short_description: "Improve a prompt through focused questions"
+  default_prompt: "Use $effective-prompt-interactive to interview me before improving my draft."

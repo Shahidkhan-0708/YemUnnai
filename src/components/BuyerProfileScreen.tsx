@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bookmark, ChevronRight, ShoppingBag, UserRound } from 'lucide-react';
+import { Bookmark, ChevronRight, UserRound } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import type { BuyerTab } from './BuyerTabBar';
 import { buyerSupabase } from '../lib/supabase';
@@ -59,7 +59,7 @@ export function BuyerProfileScreen({ onNavigate }: { onNavigate: (tab: BuyerTab)
       <div><h2>{loading ? t('Loading profile…', 'ప్రొఫైల్ లోడ్ అవుతోంది…') : verified ? t('Your account', 'మీ ఖాతా') : t('Guest profile', 'అతిథి ప్రొఫైల్')}</h2><p>{verified ? user.email : t('Discover food at your own pace.', 'మీకు నచ్చిన ఆహారాన్ని కనుగొనండి.')}</p></div>
     </div>
     <div className="buyer-profile-links">
-      {[{ tab: 'orders' as const, Icon: ShoppingBag, title: t('My orders', 'నా ఆర్డర్లు'), description: t('Pickup updates and order history', 'పికప్ వివరాలు మరియు ఆర్డర్ చరిత్ర') }, { tab: 'saved' as const, Icon: Bookmark, title: t('Saved food', 'భద్రపరచిన ఆహారం'), description: t('Your bookmarked dishes', 'మీరు భద్రపరచిన వంటకాలు') }].map(({ tab, Icon, title, description }) => <button key={tab} type="button" onClick={() => onNavigate(tab)}><span className="buyer-profile-link-icon"><Icon size={20} aria-hidden="true" /></span><span><strong>{title}</strong><small>{description}</small></span><ChevronRight size={18} aria-hidden="true" /></button>)}
+      {[{ tab: 'saved' as const, Icon: Bookmark, title: t('Saved food', 'భద్రపరచిన ఆహారం'), description: t('Your bookmarked dishes', 'మీరు భద్రపరచిన వంటకాలు') }].map(({ tab, Icon, title, description }) => <button key={tab} type="button" onClick={() => onNavigate(tab)}><span className="buyer-profile-link-icon"><Icon size={20} aria-hidden="true" /></span><span><strong>{title}</strong><small>{description}</small></span><ChevronRight size={18} aria-hidden="true" /></button>)}
     </div>
     <details className="buyer-profile-account">
       <summary>{t('Account & recovery', 'ఖాతా మరియు పునరుద్ధరణ')}<ChevronRight size={18} aria-hidden="true" /></summary>

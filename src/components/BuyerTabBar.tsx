@@ -1,13 +1,12 @@
-import { Bookmark, Compass, ShoppingBag, UserRound } from 'lucide-react';
+import { Bookmark, Compass, UserRound } from 'lucide-react';
 import { TabsList, TabsTrigger } from './watermelon/tabs';
 import { useLanguage } from '../lib/language';
 
-export type BuyerTab = 'discover' | 'saved' | 'orders' | 'profile';
+export type BuyerTab = 'discover' | 'saved' | 'profile';
 
 const tabs = [
   { value: 'discover', en: 'Discover', te: 'కనుగొనండి', Icon: Compass },
   { value: 'saved', en: 'Saved', te: 'భద్రపరచినవి', Icon: Bookmark },
-  { value: 'orders', en: 'Orders', te: 'ఆర్డర్లు', Icon: ShoppingBag },
   { value: 'profile', en: 'Profile', te: 'ప్రొఫైల్', Icon: UserRound },
 ] as const;
 

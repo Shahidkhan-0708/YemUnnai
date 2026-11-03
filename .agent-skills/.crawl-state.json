@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-11-02T17:00:14.911Z",
+  "categories": {
+    "ai-agents": {
+      "nextPage": 14,
+      "totalPages": null,
+      "done": true
+    },
+    "design": {
+      "nextPage": 15,
+      "totalPages": null,
+      "done": true
+    },
+    "security": {
+      "nextPage": 7,
+      "totalPages": null,
+      "done": true
+    },
+    "devops": {
+      "nextPage": 5,
+      "totalPages": null,
+      "done": true
+    },
+    "documentation": {
+      "nextPage": 6,
+      "totalPages": null,
+      "done": false
+    }
+  }
+}

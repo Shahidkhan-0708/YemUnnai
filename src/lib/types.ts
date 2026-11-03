@@ -110,13 +110,13 @@ export interface FoodItem {
   originalPrice?: number;
   category: FoodCategory;
   image: string;
-  likes: number;
-  dislikes: number;
-  reviews: number;
-  rating: number | null;
+  likes?: number;
+  dislikes?: number;
+  reviews?: number;
+  rating?: number | null;
   freshnessTag?: string;
   stockLeft?: number;
-  walkTime: string;
+  walkTime?: string;
   actionType: ActionType;
   inStock: boolean;
   isVeg?: boolean;
@@ -157,6 +157,8 @@ export interface VendorStats {
   ordersToday: number;
   totalLikes: number;
   avgRating: number | null;
+  liveVisitors?: number;
+  viewsToday?: number;
 }
 
 export interface NewFoodItemInput {

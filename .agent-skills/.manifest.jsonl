@@ -1,0 +1,786 @@
+{"s":"chatway-app-chatway-support-triage","n":"chatway-support-triage","f":"development","g":"A","b":5345,"ok":true}
+{"s":"chatway-app-chatway-support-insights","n":"chatway-support-insights","f":"development","g":"A","b":5300,"ok":true}
+{"s":"chatway-app-chatway-smart-routing","n":"chatway-smart-routing","f":"development","g":"A","b":6001,"ok":true}
+{"s":"bartdudzic-keepmacawake","n":"keepmacawake","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wireflowinc-ai-background-music","n":"ai-background-music","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"mesmerlord-ad-research","n":"ad-research","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"mesmerlord-lurkapi","n":"lurkapi","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"davit-khaburdzania-rillow-seo","n":"rillow-seo","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"kaitoinfra-tiktokapi-mcp","n":"tiktokapi-mcp","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"jackvitick-weekly-what-worked","n":"weekly-what-worked","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"jackvitick-social-queue-analytics","n":"social-queue-analytics","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"jackvitick-notes-to-carousel","n":"notes-to-carousel","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"jackvitick-film-once-week-of-shorts","n":"film-once-week-of-shorts","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"jackvitick-schedule-social-post","n":"schedule-social-post","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"rofldark-roundimals","n":"roundimals","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"onlinewebdirectory-onlinewebdirectory","n":"onlinewebdirectory","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"longwave-ai-lab-open-core-skill-compiler","n":"open-core-skill-compiler","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"kinti-a11y-toolkit","n":"a11y-toolkit","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wireflowinc-ai-voiceover-for-ugc-ads","n":"ai-voiceover-for-ugc-ads","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"popnow-ai-popnow-media","n":"popnow-media","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"malikkhaledsaid-agent-team-check-lite","n":"agent-team-check-lite","f":"development","ok":false,"e":"density: 1338B < 1500B"}
+{"s":"malikkhaledsaid-research-brief-lite","n":"research-brief-lite","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"malikkhaledsaid-numbers-check-lite","n":"numbers-check-lite","f":"development","ok":false,"e":"density: 1408B < 1500B"}
+{"s":"malikkhaledsaid-lessons-log-lite","n":"lessons-log-lite","f":"development","ok":false,"e":"density: 1412B < 1500B"}
+{"s":"rachmanzz-evidence-led-concurrency-and-delivery","n":"evidence-led-concurrency-and-delivery","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"rachmanzz-performance-and-resource-efficiency","n":"performance-and-resource-efficiency","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"wireflowinc-ai-storyboard-generator","n":"ai-storyboard-generator","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"luynoxrd-safe-live-database-access","n":"safe-live-database-access","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"spicyapi-ai-spicyapi","n":"spicyapi","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"aidevs-pt-supplier-catalog-to-store","n":"supplier-catalog-to-store","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-sop-to-ai-workflow","n":"sop-to-ai-workflow","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-rfq-to-quote","n":"rfq-to-quote","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-purchase-order-intake","n":"purchase-order-intake","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-product-finder-builder","n":"product-finder-builder","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-multilingual-catalog-launch","n":"multilingual-catalog-launch","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-ecommerce-support-copilot","n":"ecommerce-support-copilot","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-customer-feedback-to-fixes","n":"customer-feedback-to-fixes","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-company-knowledge-qa","n":"company-knowledge-qa","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"aidevs-pt-ai-automation-opportunity-finder","n":"ai-automation-opportunity-finder","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"revanbcn-publish-kfa-solution","n":"publish-kfa-solution","f":"development","ok":false,"e":"density: 1415B < 1500B"}
+{"s":"revanbcn-publish-kfa-problem","n":"publish-kfa-problem","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"revanbcn-participate-in-kfa-discussion","n":"participate-in-kfa-discussion","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"revanbcn-authenticate-to-kfa","n":"authenticate-to-kfa","f":"development","ok":false,"e":"density: 1192B < 1500B"}
+{"s":"wireflowinc-ai-infographic-generator","n":"ai-infographic-generator","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"revanbcn-read-kfa-record","n":"read-kfa-record","f":"development","ok":false,"e":"density: 1228B < 1500B"}
+{"s":"revanbcn-search-kfa","n":"search-kfa","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"revanbcn-knowledge-for-agents","n":"knowledge-for-agents","f":"development","ok":false,"e":"popularity: stars=1"}
+{"s":"malikkhaledsaid-agent-token-auditor-lite","n":"agent-token-auditor-lite","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"kyisaiah47-steal","n":"steal","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"kyisaiah47-mobile-refine","n":"mobile-refine","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"kyisaiah47-dont-stop-working","n":"dont-stop-working","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"logbrewco-verify-release","n":"verify-release","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"logbrewco-debug-production","n":"debug-production","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"wireflowinc-ai-instagram-carousel-generator","n":"ai-instagram-carousel-generator","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"linglistack-linkedin-outreach-os","n":"linkedin-outreach-os","f":"development","ok":false,"e":"popularity: stars=0"}
+{"s":"jensen-yao-windows-deployment-cli-locations","n":"Windows Deployment Cli Locations","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-visiomaster","n":"Visiomaster","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ui-skills-root","n":"Ui Skills Root","f":"development","ok":false,"e":"density: 1242B < 1500B"}
+{"s":"jensen-yao-sci-zotero","n":"Sci Zotero","f":"development","ok":false,"e":"density: 1456B < 1500B"}
+{"s":"jensen-yao-sci-search","n":"Sci Search","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-sci-ppt","n":"Sci Ppt","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-sci-html","n":"Sci Html","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-sci-figure","n":"Sci Figure","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-scholar-ppt-cn","n":"Scholar Ppt Cn","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-review-animations","n":"Review Animations","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-prototype","n":"Prototype","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-presenting-conference-talks","n":"Presenting Conference Talks","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ppt-router","n":"Ppt Router","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ppt-master","n":"Ppt Master","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-pick-ui-library","n":"Pick Ui Library","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ml-paper-writing","n":"Ml Paper Writing","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-local-models","n":"Local Models","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-libreoffice-local-install","n":"Libreoffice Local Install","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-improve-ui","n":"Improve Ui","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-imagegen","n":"Imagegen","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-fixing-motion-performance","n":"Fixing Motion Performance","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-fixing-metadata","n":"Fixing Metadata","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-fixing-accessibility","n":"Fixing Accessibility","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-figure-router","n":"Figure Router","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-drawio-skill","n":"Drawio Skill","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-references","n":"References","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-dramaclaw","n":"Dramaclaw","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-create-design-md","n":"Create Design Md","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-search","n":"Cnki Search","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-researcher","n":"Cnki Researcher","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-parse-results","n":"Cnki Parse Results","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-paper-detail","n":"Cnki Paper Detail","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-navigate-pages","n":"Cnki Navigate Pages","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-journal-toc","n":"Cnki Journal Toc","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-journal-search","n":"Cnki Journal Search","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-journal-index","n":"Cnki Journal Index","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-export","n":"Cnki Export","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-download","n":"Cnki Download","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cnki-advanced-search","n":"Cnki Advanced Search","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-cli-anything","n":"Cli Anything","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-chinese-plot-labels","n":"Chinese Plot Labels","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-visual-composer","n":"Ccf Visual Composer","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-submission-checker","n":"Ccf Submission Checker","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-skill-forger","n":"Ccf Skill Forger","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-rebuttal-writer","n":"Ccf Rebuttal Writer","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-project-scaffolder","n":"Ccf Project Scaffolder","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-pipeline-orchestrator","n":"Ccf Pipeline Orchestrator","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-paper-to-exemplar","n":"Ccf Paper To Exemplar","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-paper-reviewer","n":"Ccf Paper Reviewer","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-literature-monitor","n":"Ccf Literature Monitor","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-integrity-auditor","n":"Ccf Integrity Auditor","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-idea-reviewer","n":"Ccf Idea Reviewer","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-idea-optimizer","n":"Ccf Idea Optimizer","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-humanization","n":"Ccf Humanization","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-experiment-designer","n":"Ccf Experiment Designer","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-ccf-common","n":"Ccf Common","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-bugbounty-workflow","n":"Bugbounty Workflow","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-baseline-ui","n":"Baseline Ui","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-app-shell-ui","n":"App Shell Ui","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-alibabacloud-find-skills","n":"Alibabacloud Find Skills","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"jensen-yao-academic-plotting","n":"Academic Plotting","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"yf040528-video-recreation-skill","n":"Video Recreation Skill","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-wireframe","n":"Wireframe","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-vsa","n":"Vsa","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-user-journey-map","n":"User Journey Map","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-understand","n":"Understand","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-technical-article","n":"Technical Article","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-system-one","n":"System One","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-system-modeling","n":"System Modeling","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-symfony-ai-platform","n":"Symfony Ai Platform","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-symfony-ai-chat","n":"Symfony Ai Chat","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-symfony-ai-agent","n":"Symfony Ai Agent","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-review","n":"Review","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-requirement-intake","n":"Requirement Intake","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-release-notes","n":"Release Notes","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-red-first","n":"Red First","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-readability-sweep","n":"Readability Sweep","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-quality-audit","n":"Quality Audit","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-performance-audit","n":"Performance Audit","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-manual-test-cases","n":"Manual Test Cases","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-llm-eval","n":"Llm Eval","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-information-architecture","n":"Information Architecture","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-deployment","n":"Deployment","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-ddd-symfony","n":"Ddd Symfony","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-code-standards","n":"Code Standards","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"digitaldreams-blast-radius","n":"Blast Radius","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"yanbozhang-topics","n":"Topics","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"hyhy111-gam-workflow","n":"Gam Workflow","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"hyhy111-gam-video-prompt","n":"Gam Video Prompt","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"hyhy111-gam-pic-prompt","n":"Gam Pic Prompt","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"hyhy111-gam-guide","n":"Gam Guide","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"hyhy111-gam-export","n":"Gam Export","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"hyhy111-gam-cli","n":"Gam Cli","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"huaxialucaicaizi-opc-registration-compliance","n":"Opc Registration Compliance","f":"development","g":"A","b":3632,"ok":true}
+{"s":"huaxialucaicaizi-opc-pricing-sales","n":"Opc Pricing Sales","f":"development","g":"A","b":3263,"ok":true}
+{"s":"huaxialucaicaizi-opc-policy-navigator","n":"Opc Policy Navigator","f":"development","g":"A","b":4815,"ok":true}
+{"s":"huaxialucaicaizi-opc-growth-playbook","n":"Opc Growth Playbook","f":"development","g":"A","b":3677,"ok":true}
+{"s":"huaxialucaicaizi-business-plan-skill","n":"Business Plan Skill","f":"development","g":"A","b":5645,"ok":true}
+{"s":"huaxialucaicaizi-ai-pitch-coach","n":"Ai Pitch Coach","f":"development","g":"A","b":2605,"ok":true}
+{"s":"huaxialucaicaizi-ai-mvp-validation","n":"Ai Mvp Validation","f":"development","g":"A","b":7483,"ok":true}
+{"s":"huaxialucaicaizi-ai-startup-skills","n":"ai-startup-skills","f":"development","g":"A","b":2751,"ok":true}
+{"s":"taublast-agent-signals","n":"Agent Signals","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jaylooloomi-wake","n":"Wake","f":"development","ok":false,"e":"density: 625B < 1500B"}
+{"s":"jaylooloomi-stop","n":"Stop","f":"development","ok":false,"e":"density: 625B < 1500B"}
+{"s":"jaylooloomi-sleep","n":"Sleep","f":"development","ok":false,"e":"density: 537B < 1500B"}
+{"s":"jaylooloomi-night-shift-job-generator","n":"Night Shift Job Generator","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"mengjiasun1992-sllmwiki","n":"Sllmwiki","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-rezero-subscribe-claude-rezero-subscribe-claude","n":"Rezero Subscribe Claude","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-task-implement","n":"Task Implement","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-task-closeout","n":"Task Closeout","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-repo-init","n":"Repo Init","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-project-prd","n":"Project Prd","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-project-plan","n":"Project Plan","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-project-lite","n":"Project Lite","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-project-delivery","n":"Project Delivery","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-project-arch","n":"Project Arch","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-architecture-review","n":"Architecture Review","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-security-and-hardening","n":"Security And Hardening","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-code-review-and-quality","n":"Code Review And Quality","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-planning-and-task-breakdown","n":"Planning And Task Breakdown","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-spec-driven-development","n":"Spec Driven Development","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"finderlzy-incremental-implementation","n":"Incremental Implementation","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"nazmulnahid-git-shipit","n":"Shipit","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"nazmulnahid-git-prodcheck","n":"Prodcheck","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"nazmulnahid-git-mergemain","n":"Mergemain","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"vuca-dev-review","n":"Review","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"parag0508-lang-ai-app-security","n":"Ai App Security","f":"development","ok":false,"e":"popularity: stars=3"}
+{"s":"zhuziheng66-lab-report-tex","n":"Lab Report Tex","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"silvernine-script-to-guide","n":"script-to-guide","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"automatelab-tech-content-distribution","n":"content-distribution","f":"development","ok":false,"e":"popularity: stars=5"}
+{"s":"wayne930242-writing","n":"Writing","f":"development","ok":false,"e":"density: 576B < 1500B"}
+{"s":"wayne930242-playbooks","n":"Playbooks","f":"development","ok":false,"e":"density: 910B < 1500B"}
+{"s":"wayne930242-solid-loop-anchorloop","n":"Solid Loop","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-investigating-anchorloop","n":"Investigating","f":"development","ok":false,"e":"density: 968B < 1500B"}
+{"s":"wayne930242-inspecting-anchorloop","n":"Inspecting","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-human-feedback-anchorloop","n":"Human Feedback","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-grilling-anchorloop","n":"Grilling","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-domain-modeling-anchorloop","n":"Domain Modeling","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-coding","n":"Coding","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-answering","n":"Answering","f":"development","ok":false,"e":"density: 861B < 1500B"}
+{"s":"wayne930242-anchorloop","n":"Anchorloop","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"wayne930242-agent-terse","n":"Agent Terse","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"soulddgy-work-to-skills","n":"Work To Skills","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"wenhanweime-writing-commit-messages","n":"Writing Commit Messages","f":"development","ok":false,"e":"popularity: stars=8"}
+{"s":"longvo2k-pointer","n":"Pointer","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vn-design-system-ux","n":"Vn Design System Ux","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-real-estate-construction","n":"Vietnamese Real Estate Construction","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-media-journalism-pr","n":"Vietnamese Media Journalism Pr","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-legal-contracts","n":"Vietnamese Legal Contracts","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-landing-copy","n":"Vietnamese Landing Copy","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-insurance-insurtech","n":"Vietnamese Insurance Insurtech","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-hr-recruitment","n":"Vietnamese Hr Recruitment","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-hospitality-travel","n":"Vietnamese Hospitality Travel","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-healthcare-copy","n":"Vietnamese Healthcare Copy","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-government-public-service","n":"Vietnamese Government Public Service","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-finance-copy","n":"Vietnamese Finance Copy","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-education-copy","n":"Vietnamese Education Copy","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-ecommerce-retail","n":"Vietnamese Ecommerce Retail","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-cybersecurity-infosec","n":"Vietnamese Cybersecurity Infosec","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"jangtrinh-vietnamese-business-comms","n":"Vietnamese Business Comms","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"michaelshimeles-unslop-rstack","n":"Unslop","f":"development","g":"A","b":6509,"ok":true}
+{"s":"michaelshimeles-new-feature-rstack","n":"New Feature","f":"development","g":"A","b":2790,"ok":true}
+{"s":"michaelshimeles-greploop-rstack","n":"Greploop","f":"development","g":"A","b":3407,"ok":true}
+{"s":"michaelshimeles-greploop-apps-rstack","n":"Greploop Apps","f":"development","ok":false,"e":"density: 803B < 1500B"}
+{"s":"michaelshimeles-evidence-driven-testing-rstack","n":"Evidence Driven Testing","f":"development","g":"A","b":15682,"ok":true}
+{"s":"michaelshimeles-code-structure-rstack","n":"Code Structure","f":"development","g":"A","b":4753,"ok":true}
+{"s":"michaelshimeles-before-and-after-rstack","n":"Before And After","f":"development","g":"A","b":3807,"ok":true}
+{"s":"sjkeller-vault-triage-a55c9ca7","n":"Vault Triage","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"sjkeller-vault-review-0f5730c3","n":"Vault Review","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"sjkeller-vault-maintenance-a2e0fdf8","n":"Vault Maintenance","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"sjkeller-vault-capture-7e8b3069","n":"Vault Capture","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"sjkeller-second-brain-harvest-second-brain-template","n":"Second Brain Harvest","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"sjkeller-template","n":"Template","f":"development","ok":false,"e":"density: 490B < 1500B"}
+{"s":"sjkeller-vault-triage-second-brain-template","n":"Vault Triage","f":"development","ok":false,"e":"density: 171B < 1500B"}
+{"s":"sjkeller-vault-review-second-brain-template","n":"Vault Review","f":"development","ok":false,"e":"density: 171B < 1500B"}
+{"s":"sjkeller-vault-maintenance-second-brain-template","n":"Vault Maintenance","f":"development","ok":false,"e":"density: 176B < 1500B"}
+{"s":"sjkeller-vault-capture-second-brain-template","n":"Vault Capture","f":"development","ok":false,"e":"density: 172B < 1500B"}
+{"s":"sjkeller-vault-triage","n":"Vault Triage","f":"development","ok":false,"e":"density: 171B < 1500B"}
+{"s":"sjkeller-vault-review","n":"Vault Review","f":"development","ok":false,"e":"density: 171B < 1500B"}
+{"s":"sjkeller-vault-maintenance","n":"Vault Maintenance","f":"development","ok":false,"e":"density: 176B < 1500B"}
+{"s":"sjkeller-vault-capture","n":"Vault Capture","f":"development","ok":false,"e":"density: 172B < 1500B"}
+{"s":"sjkeller-second-brain-harvest","n":"Second Brain Harvest","f":"development","ok":false,"e":"density: 179B < 1500B"}
+{"s":"heronbo111-heronbo-aigc-prompt","n":"HeronBo-AIGC-Prompt","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"comet-ml-opik-cipx","n":"Opik Cipx","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"x1a0hezzzz-open-book-exam-pack","n":"Open Book Exam Pack","f":"development","ok":false,"e":"popularity: stars=4"}
+{"s":"payit2-promote","n":"Promote","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"payit2-engage","n":"Engage","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"payit2-check-in","n":"Check In","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"payit2-campaign","n":"Campaign","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"payit2-campaign-context","n":"Campaign Context","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"mayzmei-anime-series-maker","n":"Anime Series Maker","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"dylanddeng-bb-video","n":"Bb Video","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"kokushin-charakuru-claude-code","n":"charakuru-claude-code","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"novatechflow-ai-watermark-scrambler","n":"Ai Watermark Scrambler","f":"development","ok":false,"e":"popularity: stars=2"}
+{"s":"romiluz13-writing-for-agents","n":"Writing For Agents","f":"development","g":"A","b":11084,"ok":true}
+{"s":"romiluz13-wizard","n":"Wizard","f":"development","g":"A","b":4123,"ok":true}
+{"s":"romiluz13-wayfinder","n":"Wayfinder","f":"development","g":"A","b":12462,"ok":true}
+{"s":"rishabhyadav0807-ui-ux-ultra-max-skill","n":"ui-ux-ultra-max-skill","f":"design","ok":false,"e":"popularity: stars=0"}
+{"s":"jangtrinh-design-os","n":"design-os","f":"design","g":"A","b":2165,"ok":true}
+{"s":"jensen-yao-apple-design","n":"Apple Design","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"dhruvjainin-pristine","n":"Pristine","f":"design","g":"A","b":7171,"ok":true}
+{"s":"finderlzy-frontend-ui-engineering","n":"Frontend Ui Engineering","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"ayushrajsinghparihar-apple-hig-buttons","n":"Apple Hig Buttons","f":"design","ok":false,"e":"popularity: stars=7"}
+{"s":"ayushrajsinghparihar-apple-hig-foundations","n":"Apple Hig Foundations","f":"design","ok":false,"e":"popularity: stars=7"}
+{"s":"ayushrajsinghparihar-apple-hig-motion","n":"Apple Hig Motion","f":"design","ok":false,"e":"popularity: stars=7"}
+{"s":"ayushrajsinghparihar-apple-hig-accessibility","n":"Apple Hig Accessibility","f":"design","ok":false,"e":"popularity: stars=7"}
+{"s":"ayushrajsinghparihar-apple-hig","n":"Apple Hig","f":"design","ok":false,"e":"popularity: stars=7"}
+{"s":"joshuashepherd-color-audit-59a7ba71","n":"Color Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-typography-polish-my-skills","n":"Typography Polish","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-visualization","n":"Pathway Visualization","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-icon-audit-f79dd64a","n":"Icon Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-figma-prompt-my-skills","n":"Figma Prompt","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-section-my-skills","n":"Design Section","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-audit-7d1b09e6","n":"Design Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-color-audit-664c1faa","n":"Color Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-exploded-view-my-skills","n":"Asset Exploded View","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-brand-check-my-skills","n":"Asset Brand Check","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-animate-my-skills","n":"Asset Animate","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-video-consult-my-skills","n":"Video Consult","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-visual-storytelling-audit-my-skills","n":"Visual Storytelling Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-to-react","n":"Stitch To React","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-ssot-dashboard","n":"Ssot Dashboard","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-responsive-audit-my-skills","n":"Responsive Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-page-audit-my-skills","n":"Page Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movement-leader-platform-build-my-skills","n":"Movement Leader Platform Build","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-icon-audit-my-skills","n":"Icon Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-gpt-export-my-skills","n":"Gpt Export","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-chain-audit-my-skills","n":"Design Chain Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-audit-my-skills","n":"Design Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-color-audit-my-skills","n":"Color Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-chat-ui-audit-my-skills","n":"Chat Ui Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-audit-experience-my-skills","n":"Audit Experience","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-studio-style","n":"Studio Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-studio-prompt","n":"Studio Prompt","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-studio-export","n":"Studio Export","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-studio-design","n":"Studio Design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-variants","n":"Stitch Variants","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-react","n":"Stitch React","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-export","n":"Stitch Export","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-build","n":"Stitch Build","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-integrate-stitch-template","n":"Integrate Stitch Template","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-visual-scrape","n":"Visual Scrape","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-tenant-structural-port","n":"Tenant Structural Port","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-token-bridge","n":"Stitch Token Bridge","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-platform-demo-architect","n":"Platform Demo Architect","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-oatmeal-template-audit","n":"Oatmeal Template Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movemental-page-auditor","n":"Movemental Page Auditor","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movement-leader-platform-build","n":"Movement Leader Platform Build","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-ml-template-from-reference","n":"Ml Template From Reference","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-feature-constitution","n":"Feature Constitution","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-docs-design-system","n":"Docs Design System","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-zenwrite-ui-audit","n":"Zenwrite Ui Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-zenwrite-design","n":"Zenwrite Design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-zenwrite-design-chain","n":"Zenwrite Design Chain","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-visual-storytelling-audit","n":"Visual Storytelling Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-typography-polish","n":"Typography Polish","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-typeset","n":"Typeset","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-scholarly-editorial-ui","n":"Scholarly Editorial Ui","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-scholarly-authority-ui","n":"Scholarly Authority Ui","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-page-audit","n":"Page Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-oatmeal-editorial-ui","n":"Oatmeal Editorial Ui","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movemental-ink","n":"Movemental Ink","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-icon-system","n":"Icon System","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-icon-audit","n":"Icon Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-html-to-react-tailwind","n":"Html To React Tailwind","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-figma-prompt","n":"Figma Prompt","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-designer-dashboard","n":"Designer Dashboard","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-section","n":"Design Section","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-chain","n":"Design Chain","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-chain-audit","n":"Design Chain Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-design-audit","n":"Design Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-color-audit","n":"Color Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-chat-ui-audit","n":"Chat Ui Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-audit-experience","n":"Audit Experience","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-animation","n":"Animation","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-dialogue-craft","n":"Dialogue Craft","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-course-ux","n":"Course Ux","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-course-audit","n":"Course Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-visualization-repair","n":"Visualization Repair","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-storybook-setup","n":"Storybook Setup","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-video-consult","n":"Video Consult","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-remotion-best-practices","n":"Remotion Best Practices","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movemental-pdf","n":"Movemental Pdf","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-gpt-export","n":"Gpt Export","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-video-prompt","n":"Asset Video Prompt","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-exploded-view","n":"Asset Exploded View","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-brand-check","n":"Asset Brand Check","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-author-style","n":"Asset Author Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-asset-animate","n":"Asset Animate","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-video-studio","n":"Video Studio","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ui-ux-pro-max","n":"Ui Ux Pro Max","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ui-polish","n":"Ui Polish","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-radix-ui","n":"Radix Ui","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-design-kit","n":"Design Kit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-deck-studio","n":"Deck Studio","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ultrathink","n":"D3","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-chrome-devtools","n":"Chrome Devtools","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-app-audit","n":"App Audit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ai-multimodal","n":"Ai Multimodal","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-accessibility","n":"Accessibility","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"duanth-nasapunk-design","n":"nasapunk-design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"tzzs-apple-design","n":"apple-design","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"23ag1-ink-wash-painting","n":"ink-wash-painting","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"kajisho5-motion-graphics","n":"motion-graphics","f":"design","ok":false,"e":"popularity: stars=9"}
+{"s":"hainrixz-motion-architect","n":"Motion Architect","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"oborchers-visual-interest-expression","n":"Visual Interest Expression","f":"design","g":"A","b":8152,"ok":true}
+{"s":"anon5376-fine-design","n":"Fine Design","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"xiaomao8090-toothpick","n":"Toothpick","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"runkids-figlens-release","n":"Figlens Release","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"runkids-figlens-code-review","n":"Figlens Code Review","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"zeeshani42-ui-ux-designer","n":"ui-ux-designer","f":"design","ok":false,"e":"popularity: stars=0"}
+{"s":"venom9078-gradientdeck","n":"gradientdeck","f":"design","ok":false,"e":"popularity: stars=0"}
+{"s":"ninjasln-labs-frontend-design","n":"Frontend Design","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"amadeusbio-ai-new-film","n":"New Film","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"vstlmkh-building-design","n":"building-design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"aliangsss-aliang-knowledge-video","n":"aliang-knowledge-video","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"sagargupta16-svg-audit","n":"Svg Audit","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"sagargupta16-motion-scene","n":"Motion Scene","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"sagargupta16-animated-svg","n":"Animated Svg","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"waseemnasir2k26-skynet-site-skynet-site-system","n":"skynet-site","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"youssef4laa-artistic-color-palettes","n":"Artistic Color Palettes","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"2boysfromtown-hyperframes-motion","n":"hyperframes-motion","f":"design","ok":false,"e":"popularity: stars=8"}
+{"s":"kingadow-email-remix","n":"Email Remix","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"sfmqrb-magic-move-slides","n":"Magic Move Slides","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"geevarghesekthomas84-sys-android-ui-ux-design","n":"Android Ui Ux Design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"iamjeffia-ui-para-video","n":"Ui Para Video","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"iamjeffia-motion-narrado","n":"Motion Narrado","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"oxygenframe-voiceover","n":"Voiceover","f":"design","ok":false,"e":"density: 1269B < 1500B"}
+{"s":"oxygenframe-slides","n":"Slides","f":"design","ok":false,"e":"density: 1178B < 1500B"}
+{"s":"oxygenframe-remotion-to-oxframe","n":"Remotion To Oxframe","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"oxygenframe-release-to-video","n":"Release To Video","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"oxygenframe-pr-to-video","n":"Pr To Video","f":"design","ok":false,"e":"density: 1398B < 1500B"}
+{"s":"oxygenframe-oxframe-check","n":"Oxframe Check","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"oxygenframe-motion-canvas-to-oxframe","n":"Motion Canvas To Oxframe","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"oxygenframe-math-explainer","n":"Math Explainer","f":"design","ok":false,"e":"density: 1281B < 1500B"}
+{"s":"oxygenframe-manim-to-oxframe","n":"Manim To Oxframe","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"oxygenframe-code-walkthrough","n":"Code Walkthrough","f":"design","ok":false,"e":"density: 1417B < 1500B"}
+{"s":"oxygenframe-chart-video","n":"Chart Video","f":"design","ok":false,"e":"density: 1153B < 1500B"}
+{"s":"dragoshont-writing-skills","n":"Writing Skills","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-subagent-driven-development","n":"Subagent Driven Development","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-architrave","n":"Architrave","f":"design","ok":false,"e":"density: 786B < 1500B"}
+{"s":"dragoshont-architrave-work","n":"Architrave Work","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-architrave-tournament","n":"Architrave Tournament","f":"design","ok":false,"e":"density: 711B < 1500B"}
+{"s":"dragoshont-architrave-skill-authoring","n":"Architrave Skill Authoring","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-architrave-review","n":"Architrave Review","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-architrave-mcp-integration","n":"Architrave Mcp Integration","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-architrave-cto","n":"Architrave Cto","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"dragoshont-architrave-agent-authoring","n":"Architrave Agent Authoring","f":"design","ok":false,"e":"density: 1441B < 1500B"}
+{"s":"maddhruv-pristine","n":"Pristine","f":"design","ok":false,"e":"popularity: stars=8"}
+{"s":"moddingflow-better-design","n":"Better Design","f":"design","g":"A","b":34562,"ok":true}
+{"s":"noamdorr-saas-product-demo-video","n":"Saas Product Demo Video","f":"design","g":"A","b":18986,"ok":true}
+{"s":"leduardo99-diorama","n":"Diorama","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"juan52878911-editor-filmcraft","n":"Editor Filmcraft","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"meraj-08-stage-and-camera","n":"Stage And Camera","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"meraj-08-sfx-sync","n":"Sfx Sync","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"meraj-08-music-to-picture","n":"Music To Picture","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"meraj-08-mix-master","n":"Mix Master","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"meraj-08-frame-review","n":"Frame Review","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"meraj-08-footage-cleanup","n":"Footage Cleanup","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"p-a-u-l-i-e-no-fi","n":"No Fi","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"p-a-u-l-i-e-update-changelog","n":"Update Changelog","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"massipetro-app-ui-slopless","n":"app-ui-slopless","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"kkenny0-card-skill","n":"card-skill","f":"design","ok":false,"e":"popularity: stars=5"}
+{"s":"leahycc-wcag-accessibility","n":"Wcag Accessibility","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"kyaa-a-nongeneric-gsap","n":"Nongeneric Gsap","f":"design","ok":false,"e":"popularity: stars=9"}
+{"s":"visualxintelligence-papermotion","n":"Papermotion","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-voice-subtitle-sync","n":"Voice Subtitle Sync","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-video-workflow","n":"Video Workflow","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-video-source-index","n":"Video Source Index","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-video-shot-planner","n":"Video Shot Planner","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-video-release-qa","n":"Video Release Qa","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-video-reference-study","n":"Video Reference Study","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-generated-broll","n":"Generated Broll","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-explainer-motion","n":"Explainer Motion","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-evidence-story-script","n":"Evidence Story Script","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-cover-independent-review","n":"Cover Independent Review","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-cover-art-direction","n":"Cover Art Direction","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-motion-graphics-music-video","n":"Motion Graphics Music Video","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-lemo-opuscar","n":"Lemo Opuscar","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-kinetic-reel","n":"Kinetic Reel","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"visualxintelligence-3d-product","n":"3d Product","f":"design","ok":false,"e":"popularity: stars=4"}
+{"s":"adamramadhn-impeccable","n":"Impeccable","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"adamramadhn-design-taste-frontend","n":"Design Taste Frontend","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"adamramadhn-atelier","n":"Atelier","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"its-magdy-sync-design","n":"Sync Design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"its-magdy-build-screen","n":"Build Screen","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"its-magdy-audit-design","n":"Audit Design","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"timscheuerai-launch-story","n":"Launch Story","f":"design","g":"A","b":6029,"ok":true}
+{"s":"heygen-com-hyperframes-creative","n":"Hyperframes Creative","f":"design","g":"A","b":6202,"ok":true}
+{"s":"heygen-com-wireframe-portal-title","n":"Wireframe Portal Title","f":"design","g":"A","b":4038,"ok":true}
+{"s":"fiqryq-snap-swiftui","n":"Snap Swiftui","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-visual-review-orchestration","n":"Visual Review Orchestration","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-mobile-verifier","n":"Infocard Mobile Verifier","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-update-vs-new-pattern","n":"Infocard Update Vs New Pattern","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-wood-style","n":"Infocard Wood Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-white-purple-style","n":"Infocard White Purple Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-style-man-skill","n":"Infocard Style Man Skill","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-redswiss-style","n":"Infocard Redswiss Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-q-style","n":"Infocard Q Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-pixelstack-style","n":"Infocard Pixelstack Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-paper-warm-style","n":"Infocard Paper Warm Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-main-style","n":"Infocard Main Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-ivy-architecture-style","n":"Infocard Ivy Architecture Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-handline-style","n":"Infocard Handline Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-graph-paper-style","n":"Infocard Graph Paper Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-editorial-system-style","n":"Infocard Editorial System Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-darkgreen-style","n":"Infocard Darkgreen Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-codex-notebook-style","n":"Infocard Codex Notebook Style","f":"design","ok":false,"e":"density: 1281B < 1500B"}
+{"s":"ccwq-infocard-black-head-style","n":"Infocard Black Head Style","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-rebuild-template-grill","n":"Infocard Rebuild Template Grill","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-layout-debugging","n":"Infocard Layout Debugging","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"nicolleadduci-reference-to-motion","n":"Reference To Motion","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-social-proof","n":"Social Proof","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-navigation","n":"Navigation","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-how-it-works","n":"How It Works","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-hero","n":"Hero","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-footer","n":"Footer","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-features","n":"Features","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-faq","n":"Faq","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-cta","n":"Cta","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-contact-form","n":"Contact Form","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-comparison-table","n":"Comparison Table","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-product-page","n":"Product Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-pricing-page","n":"Pricing Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-landing-page","n":"Landing Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-downloads-page","n":"Downloads Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-contact-page","n":"Contact Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-blog-page","n":"Blog Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-about-page","n":"About Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-404-page","n":"404 Page","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"senlindesign-proof","n":"Proof","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"temporarylooker22-stud-ui-clean-roblox","n":"stud-ui-clean-roblox","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"sanidhya14321-video-motion","n":"Video Motion","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"sanidhya14321-video-delivery","n":"Video Delivery","f":"design","ok":false,"e":"density: 1339B < 1500B"}
+{"s":"alextraykov-glyph-kit","n":"Glyph Kit","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"ozaysahin-screenshot-to-qml","n":"Screenshot To Qml","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"sirius-cc-wu-visual-parity","n":"Visual Parity","f":"design","ok":false,"e":"popularity: stars=5"}
+{"s":"sirius-cc-wu-specify-quality-constraints","n":"Specify Quality Constraints","f":"design","ok":false,"e":"popularity: stars=5"}
+{"s":"sirius-cc-wu-prototype-spike","n":"Prototype Spike","f":"design","ok":false,"e":"popularity: stars=5"}
+{"s":"choaterboater-quality","n":"Quality","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"choaterboater-frontend","n":"Frontend","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"xkazm04-ai-registry","n":"Cx","f":"design","ok":false,"e":"popularity: stars=2"}
+{"s":"hikyo-org-design-loop","n":"Design Loop","f":"design","g":"A","b":5234,"ok":true}
+{"s":"soceremite-paper-illustration-image2-evoinquiry","n":"Paper Illustration Image2","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-figure-spec-evoinquiry","n":"Figure Spec","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-paper-illustration-image2","n":"Paper Illustration Image2","f":"design","ok":false,"e":"popularity: stars=3"}
+{"s":"thedivergentai-godot-shaders-basics","n":"Godot Shaders Basics","f":"design","g":"A","b":12570,"ok":true}
+{"s":"thedivergentai-godot-platform-vr","n":"Godot Platform Vr","f":"design","g":"A","b":11585,"ok":true}
+{"s":"thedivergentai-godot-genre-visual-novel","n":"Godot Genre Visual Novel","f":"design","g":"A","b":11971,"ok":true}
+{"s":"thedivergentai-godot-genre-romance","n":"Godot Genre Romance","f":"design","g":"A","b":13089,"ok":true}
+{"s":"thedivergentai-godot-genre-puzzle","n":"Godot Genre Puzzle","f":"design","g":"A","b":12535,"ok":true}
+{"s":"thedivergentai-godot-genre-platformer","n":"Godot Genre Platformer","f":"design","g":"A","b":13765,"ok":true}
+{"s":"thedivergentai-godot-genre-moba","n":"Godot Genre Moba","f":"design","g":"A","b":19744,"ok":true}
+{"s":"thedivergentai-godot-genre-card-game","n":"Godot Genre Card Game","f":"design","g":"A","b":11802,"ok":true}
+{"s":"thedivergentai-godot-composition","n":"Godot Composition","f":"design","g":"A","b":14606,"ok":true}
+{"s":"thedivergentai-godot-composition-apps","n":"Godot Composition Apps","f":"design","g":"A","b":13874,"ok":true}
+{"s":"thedivergentai-godot-agent-vision","n":"Godot Agent Vision","f":"design","g":"A","b":13731,"ok":true}
+{"s":"swarmsec-app-verify","n":"verify","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"swarmsec-app-report","n":"report","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"swarmsec-app-invariants","n":"invariants","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"swarmsec-app-diff-audit","n":"diff-audit","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"swarmsec-app-defi-audit","n":"defi-audit","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"swarmsec-app-audit","n":"audit","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"swarmsec-app-attack-surface","n":"attack-surface","f":"security","ok":false,"e":"popularity: stars=0"}
+{"s":"noeljabraham-effective-prompt-quick","n":"effective-prompt-quick","f":"security","ok":false,"e":"popularity: stars=1"}
+{"s":"parag0508-lang-security-review","n":"Security Review","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"parag0508-lang-secure-coding","n":"Secure Coding","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"parag0508-lang-preflight","n":"Preflight","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"danoszz-research","n":"Research","f":"security","g":"A","b":10838,"ok":true}
+{"s":"joshuashepherd-supabase-security-audit-my-skills","n":"Supabase Security Audit","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movemental-tenant-provision","n":"Movemental Tenant Provision","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-supabase-security-audit","n":"Supabase Security Audit","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-security-setup","n":"Security Setup","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ultrathink-review","n":"Ultrathink Review","f":"security","ok":false,"e":"density: 1376B < 1500B"}
+{"s":"nhan03bit-ut-review","n":"Ut Review","f":"security","ok":false,"e":"density: 1389B < 1500B"}
+{"s":"nhan03bit-oauth","n":"Oauth","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-next-auth","n":"Next Auth","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-dependency-analyzer","n":"Dependency Analyzer","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-code-review","n":"Code Review","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-authentication","n":"Authentication","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-audit","n":"Audit","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ai-prompts","n":"Ai Prompts","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"cristianps1988-supabase-two-doors","n":"supabase-two-doors","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"oborchers-security-supply-chain","n":"Security Supply Chain","f":"security","g":"A","b":8702,"ok":true}
+{"s":"ccevans-bobby-security","n":"Bobby Security","f":"security","ok":false,"e":"popularity: stars=6"}
+{"s":"onepathtofreedom-n8n-publish-check","n":"n8n-publish-check","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"ninjasln-labs-security-scan","n":"Security Scan","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"dfadify-web-noproblem","n":"noproblem","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"darwinsubramaniam-patman","n":"Patman","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"righettod-secure-saml-response-validation","n":"Secure Saml Response Validation","f":"security","ok":false,"e":"popularity: stars=7"}
+{"s":"righettod-secure-jwt-validation","n":"Secure Jwt Validation","f":"security","ok":false,"e":"popularity: stars=7"}
+{"s":"agricidaniel-pya","n":"Pya","f":"security","g":"A","b":13690,"ok":true}
+{"s":"geevarghesekthomas84-sys-android-security-lab-builder","n":"Android Security Lab Builder","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"geevarghesekthomas84-sys-android-security-engineer","n":"Android Security Engineer","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"ibrahimabdallatif-appsec-review-appsec-review","n":"Appsec Review","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"ibrahimabdallatif-appsec-review","n":"Appsec Review","f":"security","ok":false,"e":"density: 710B < 1500B"}
+{"s":"noushiflex-am-i-cooked","n":"Am I Cooked","f":"security","ok":false,"e":"popularity: stars=5"}
+{"s":"better-isms-secure-development-policy-from-pipeline","n":"Secure Development Policy From Pipeline","f":"security","ok":false,"e":"popularity: stars=6"}
+{"s":"vulnetix-vex-publish","n":"Vex Publish","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-verify-fix","n":"Verify Fix","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-typosquat-check","n":"Typosquat Check","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-secure-code-write","n":"Secure Code Write","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-secret-scan","n":"Secret Scan","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-sbom-generate","n":"Sbom Generate","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-sast-scan","n":"Sast Scan","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-repo-impact","n":"Repo Impact","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-license-check","n":"License Check","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-iac-scan","n":"Iac Scan","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-fix","n":"Fix","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-exploit-test","n":"Exploit Test","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-eol-check","n":"Eol Check","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-detection-rules","n":"Detection Rules","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-dependency-choice","n":"Dependency Choice","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-dep-resolve","n":"Dep Resolve","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-dashboard","n":"Dashboard","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"vulnetix-container-scan","n":"Container Scan","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"joaoribasio-capture","n":"Capture","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"sirius-cc-wu-github-issue-workflow","n":"Github Issue Workflow","f":"security","ok":false,"e":"popularity: stars=5"}
+{"s":"choaterboater-clearpass","n":"Clearpass","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"choaterboater-central","n":"Central","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"xkazm04-mvp","n":"Mvp","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"wso2-thunder-authentication","n":"Thunder Authentication","f":"security","g":"A","b":44153,"ok":true}
+{"s":"wso2-authorization-model","n":"Authorization Model","f":"security","g":"A","b":7982,"ok":true}
+{"s":"nguyen-thanh-1-templates","n":"Templates","f":"security","ok":false,"e":"density: 668B < 1500B"}
+{"s":"nguyen-thanh-1-startup-it-troubleshooting","n":"Startup It Troubleshooting","f":"security","ok":false,"e":"popularity: stars=3"}
+{"s":"yyc-cube-stride-analysis-patterns","n":"Stride Analysis Patterns","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"yyc-cube-security-requirement-extraction","n":"Security Requirement Extraction","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"khalilbenaz-dev-owasp-checker","n":"Dev Owasp Checker","f":"security","g":"A","b":8516,"ok":true}
+{"s":"khalilbenaz-owasp-checker","n":"Owasp Checker","f":"security","g":"A","b":8026,"ok":true}
+{"s":"johnalbertini14-glitch-yellowagents","n":"Yellowagents","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-messageguard","n":"Messageguard","f":"security","ok":false,"e":"density: 1352B < 1500B"}
+{"s":"johnalbertini14-glitch-a2achat","n":"A2achat","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-perplexity-web-search","n":"Perplexity Web Search","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-moltflow-admin","n":"Moltflow Admin","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-moltflow-a2a","n":"Moltflow A2a","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-wachai-x402","n":"Wachai X402","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-skill-auditor-v2","n":"Skill Auditor V2","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-security-monitor-deploy","n":"Security Monitor Deploy","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-mrscraper","n":"Mrscraper","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-skill-dfyx-code-security-review","n":"Skill Dfyx Code Security Review","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-redshift","n":"Redshift","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-discogs-claw","n":"Discogs Claw","f":"security","ok":false,"e":"density: 1201B < 1500B"}
+{"s":"johnalbertini14-glitch-x-twitter-by-altf1be","n":"X Twitter By Altf1be","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-strava-python","n":"Strava Python","f":"security","ok":false,"e":"density: 1337B < 1500B"}
+{"s":"johnalbertini14-glitch-gotchi-finder","n":"Gotchi Finder","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-universal-checkout","n":"Universal Checkout","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-kryptogo-meme-trader","n":"Kryptogo Meme Trader","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-clawfeed-2","n":"Clawfeed 2","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-meerkat-governance","n":"Meerkat Governance","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-afrexai-disaster-recovery","n":"Afrexai Disaster Recovery","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-afrexai-cybersecurity","n":"Afrexai Cybersecurity","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"johnalbertini14-glitch-tweet-cli","n":"Tweet Cli","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"mikeparcewski-platform-security-engineer","n":"Platform Security Engineer","f":"security","ok":false,"e":"popularity: stars=9"}
+{"s":"chulioz-security-audit","n":"Security Audit","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"chulioz-pick-issue","n":"Pick Issue","f":"security","ok":false,"e":"popularity: stars=2"}
+{"s":"diegosouzapw-zero-trust-majiayu000","n":"Zero Trust Majiayu000","f":"security","g":"A","b":31233,"ok":true}
+{"s":"diegosouzapw-typespec-m365-copilot","n":"Typespec M365 Copilot","f":"security","g":"A","b":11211,"ok":true}
+{"s":"diegosouzapw-memory-forensics-awesome-omni-skill","n":"Memory Forensics","f":"security","g":"A","b":10747,"ok":true}
+{"s":"diegosouzapw-mcp-installer","n":"Mcp Installer","f":"security","g":"A","b":2777,"ok":true}
+{"s":"diegosouzapw-mcp-builder-jscraik","n":"Mcp Builder Jscraik","f":"security","g":"A","b":15903,"ok":true}
+{"s":"diegosouzapw-mandate-2-4-4-runtime-evidence-intake-and-guidance","n":"Mandate 2 4 4 Runtime Evidence Intake And Guidance","f":"security","g":"A","b":4099,"ok":true}
+{"s":"diegosouzapw-copilot-vscode","n":"Copilot Vscode","f":"security","g":"A","b":24642,"ok":true}
+{"s":"diegosouzapw-compliance","n":"Compliance","f":"security","g":"A","b":16340,"ok":true}
+{"s":"diegosouzapw-ccmvn","n":"Ccmvn","f":"security","g":"A","b":5508,"ok":true}
+{"s":"diegosouzapw-attack-tree-construction-awesome-omni-skill","n":"Attack Tree Construction","f":"security","ok":false,"e":"density: 1065B < 1500B"}
+{"s":"diegosouzapw-2600-magazine","n":"2600 Magazine","f":"security","g":"A","b":6575,"ok":true}
+{"s":"diegosouzapw-tinman","n":"Tinman","f":"security","g":"A","b":2419,"ok":true}
+{"s":"diegosouzapw-threat-model-awesome-omni-skill","n":"Threat Model","f":"security","g":"A","b":1970,"ok":true}
+{"s":"diegosouzapw-threat-model-generation","n":"Threat Model Generation","f":"security","g":"A","b":5382,"ok":true}
+{"s":"maplibre-maplibre-pmtiles-patterns","n":"Maplibre Pmtiles Patterns","f":"devops","g":"A","b":18175,"ok":true}
+{"s":"dceoy-local-qa-gha-for-devops","n":"Local Qa","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-integration-tests","n":"Integration Tests","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-vercel-audit","n":"Vercel Audit","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-ci-setup","n":"Ci Setup","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-debug-traces","n":"Debug Traces","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-agent-trace","n":"Agent Trace","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-docs","n":"Docs","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-turborepo","n":"Turborepo","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-observability-kit","n":"Observability Kit","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-ml-ops","n":"Ml Ops","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-microservices","n":"Microservices","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-message-queues","n":"Message Queues","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-load-testing","n":"Load Testing","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-kanban","n":"Kanban","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-hono","n":"Hono","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-grpc","n":"Grpc","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-golang","n":"Golang","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-feature-flags","n":"Feature Flags","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-design-doc","n":"Design Doc","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-cloudflare","n":"Cloudflare","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-caching","n":"Caching","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-aws","n":"Aws","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"oborchers-using-cloud-foundation-principles","n":"Using Cloud Foundation Principles","f":"devops","g":"A","b":4754,"ok":true}
+{"s":"oborchers-unified-cicd-platform","n":"Unified Cicd Platform","f":"devops","g":"A","b":12883,"ok":true}
+{"s":"oborchers-terraform-module-patterns","n":"Terraform Module Patterns","f":"devops","g":"A","b":15192,"ok":true}
+{"s":"oborchers-tag-based-production-deploys","n":"Tag Based Production Deploys","f":"devops","g":"A","b":13616,"ok":true}
+{"s":"oborchers-service-owned-infrastructure","n":"Service Owned Infrastructure","f":"devops","g":"A","b":11293,"ok":true}
+{"s":"oborchers-security-monitoring-from-day-one","n":"Security Monitoring From Day One","f":"devops","g":"A","b":10485,"ok":true}
+{"s":"oborchers-repository-and-state-strategy","n":"Repository And State Strategy","f":"devops","g":"A","b":12892,"ok":true}
+{"s":"oborchers-operational-hygiene","n":"Operational Hygiene","f":"devops","g":"A","b":13361,"ok":true}
+{"s":"oborchers-multi-account-from-day-one","n":"Multi Account From Day One","f":"devops","g":"A","b":10244,"ok":true}
+{"s":"oborchers-managed-services-over-self-hosted","n":"Managed Services Over Self Hosted","f":"devops","g":"A","b":14118,"ok":true}
+{"s":"oborchers-container-image-tagging","n":"Container Image Tagging","f":"devops","g":"A","b":11115,"ok":true}
+{"s":"datacontract-contract-ci","n":"Contract Ci","f":"devops","ok":false,"e":"popularity: stars=4"}
+{"s":"k8s-servant-k8s-fluent-bit-troubleshooting","n":"K8s Fluent Bit Troubleshooting","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"csakaszamok-deploy-p9m","n":"Deploy","f":"devops","ok":false,"e":"popularity: stars=6"}
+{"s":"csakaszamok-deploy","n":"Deploy","f":"devops","ok":false,"e":"popularity: stars=6"}
+{"s":"svierk-salesforce-devops-builder","n":"Salesforce Devops Builder","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"geevarghesekthomas84-sys-devops-release-engineer","n":"Devops Release Engineer","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"manoagois-conforme-saas","n":"Conforme Saas","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"manoagois-conforme-lgpd","n":"Conforme Lgpd","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"manoagois-conforme-ecommerce","n":"Conforme Ecommerce","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"manoagois-conforme-documentos","n":"Conforme Documentos","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"manoagois-conforme-corrigir","n":"Conforme Corrigir","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"stacktape-wtf-stacktape","n":"Wtf","f":"devops","ok":false,"e":"density: 243B < 1500B"}
+{"s":"stacktape-stacktape-design-stacktape","n":"Stacktape Design","f":"devops","ok":false,"e":"density: 463B < 1500B"}
+{"s":"stacktape-wtf","n":"Wtf","f":"devops","g":"A","b":2256,"ok":true}
+{"s":"stacktape-stacktape-design","n":"Stacktape Design","f":"devops","g":"A","b":9661,"ok":true}
+{"s":"stacktape-load","n":"Load","f":"devops","g":"A","b":5464,"ok":true}
+{"s":"stacktape-console-development","n":"Console Development","f":"devops","g":"A","b":5134,"ok":true}
+{"s":"ccwq-visual-verification-gate","n":"Visual Verification Gate","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-visual-pass-loop","n":"Infocard Visual Pass Loop","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-three-stage-pipeline","n":"Infocard Three Stage Pipeline","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-publish-closeout","n":"Infocard Publish Closeout","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-preview-delivery","n":"Infocard Preview Delivery","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-build-and-deploy","n":"Infocard Build And Deploy","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-any2card-github-hardblue-workflow","n":"Any2card Github Hardblue Workflow","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-any2card","n":"Any2card","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-infocard-visual-evidence-grounding","n":"Infocard Visual Evidence Grounding","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"minhhaduong-submission-event","n":"Submission Event","f":"devops","ok":false,"e":"popularity: stars=2"}
+{"s":"tvproductions-gz-airlock","n":"Gz Airlock","f":"devops","ok":false,"e":"popularity: stars=9"}
+{"s":"nvidia-omniverse-ovstorage-contributor-services-client-conformance","n":"Ovstorage Contributor Services Client Conformance","f":"devops","g":"A","b":3955,"ok":true}
+{"s":"choaterboater-media","n":"Media","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"choaterboater-clearpass-nac","n":"Clearpass Nac","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"hikyo-org-hikyo-contributor-bootstrap","n":"Hikyo Contributor Bootstrap","f":"devops","g":"A","b":5527,"ok":true}
+{"s":"soceremite-serverless-modal-evoinquiry","n":"Serverless Modal","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-run-experiment-evoinquiry","n":"Run Experiment","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-project-governance-evoinquiry","n":"Project Governance","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-experiment-queue-evoinquiry","n":"Experiment Queue","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-auto-review-loop-69b0800c","n":"Auto Review Loop","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-serverless-modal","n":"Serverless Modal","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-run-experiment","n":"Run Experiment","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-project-governance","n":"Project Governance","f":"devops","ok":false,"e":"popularity: stars=3"}
+{"s":"thedivergentai-godot-platform-console","n":"Godot Platform Console","f":"devops","g":"A","b":13506,"ok":true}
+{"s":"thedivergentai-godot-genre-rhythm","n":"Godot Genre Rhythm","f":"devops","g":"A","b":13001,"ok":true}
+{"s":"scratchpad-sh-inbox-triage","n":"inbox-triage","f":"product","ok":false,"e":"popularity: stars=4"}
+{"s":"momentoanima-dayz-ce-health-check","n":"dayz-ce-health-check","f":"product","ok":false,"e":"popularity: stars=0"}
+{"s":"maplibre-maplibre-v6-migration","n":"Maplibre V6 Migration","f":"product","g":"A","b":9942,"ok":true}
+{"s":"maplibre-maplibre-mapbox-migration","n":"Maplibre Mapbox Migration","f":"product","g":"A","b":18442,"ok":true}
+{"s":"joshuashepherd-docs-sync","n":"Docs Sync","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-scripture","n":"Pathway Scripture","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-overview","n":"Pathway Overview","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-author-my-skills","n":"Pathway Author","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-youtube-transcript-my-skills","n":"Youtube Transcript","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-ui-hook-wiring-audit-my-skills","n":"Ui Hook Wiring Audit","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-transcript-to-docs","n":"Transcript To Docs","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-studio-export-my-skills","n":"Studio Export","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-resume-coach","n":"Resume Coach","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-organizer","n":"Pathway Organizer","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movemental-pdf-my-skills","n":"Movemental Pdf","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-movement-leader-voice-my-skills","n":"Movement Leader Voice","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-madden-youtube-meta","n":"Madden Youtube Meta","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-docs-type-safety-my-skills","n":"Docs Type Safety","f":"product","ok":false,"e":"density: 373B < 1500B"}
+{"s":"joshuashepherd-doc-organizer","n":"Doc Organizer","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-youtube-transcript","n":"Youtube Transcript","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-stitch-migration-validate","n":"Stitch Migration Validate","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-docs-type-safety","n":"Docs Type Safety","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-ui-hook-wiring-audit","n":"Ui Hook Wiring Audit","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-tailwind-cleanup-general","n":"Tailwind Cleanup General","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-content-author","n":"Pathway Content Author","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-pathway-author","n":"Pathway Author","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-author-style-guide","n":"Author Style Guide","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joshuashepherd-app-architect","n":"App Architect","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-paperclip-create-agent","n":"Paperclip Create Agent","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-plan-validate","n":"Plan Validate","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-github-pages-deployer","n":"Github Pages Deployer","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-docs-kit","n":"Docs Kit","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"nhan03bit-context-engineering","n":"Context Engineering","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"oborchers-documentation","n":"Documentation","f":"product","g":"A","b":10616,"ok":true}
+{"s":"hamidpl-site-to-doc","n":"Site To Doc","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"hamidpl-figma-to-doc","n":"Figma To Doc","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"hamidpl-doc-reviewer","n":"Doc Reviewer","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"hamidpl-brief-to-doc","n":"Brief To Doc","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"ccwq-docs","n":"Docs","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-delegated-infocard-publishing","n":"Delegated Infocard Publishing","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"ccwq-social-source-boundary","n":"Social Source Boundary","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"joaoribasio-update-alterbrain","n":"Update Alterbrain","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"joaoribasio-json-canvas","n":"Json Canvas","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"minhhaduong-verify-gate","n":"Verify Gate","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"minhhaduong-typography-finish","n":"Typography Finish","f":"product","ok":false,"e":"density: 1397B < 1500B"}
+{"s":"minhhaduong-memory-sweep","n":"Memory Sweep","f":"product","ok":false,"e":"density: 1301B < 1500B"}
+{"s":"chromoany-readme-atlas","n":"Readme Atlas","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"pvmalove-wayfinder","n":"Wayfinder","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"pvmalove-to-guide","n":"To Guide","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"rcostache230-bridge","n":"bridge","f":"product","ok":false,"e":"popularity: stars=0"}
+{"s":"tvproductions-gz-session-handoff","n":"Gz Session Handoff","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-patch-release","n":"Gz Patch Release","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-foundation-triage","n":"Gz Foundation Triage","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-context","n":"Gz Context","f":"product","ok":false,"e":"density: 1115B < 1500B"}
+{"s":"tvproductions-gz-competitor-radar","n":"Gz Competitor Radar","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-cli-audit","n":"Gz Cli Audit","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-adr-sync","n":"Gz Adr Sync","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-adr-status","n":"Gz Adr Status","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-adr-create","n":"Gz Adr Create","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-gz-adr-closeout-ceremony","n":"Gz Adr Closeout Ceremony","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"tvproductions-ghi-triage","n":"Ghi Triage","f":"product","ok":false,"e":"popularity: stars=9"}
+{"s":"sirius-cc-wu-design-repository-artifact-layout","n":"Design Repository Artifact Layout","f":"product","ok":false,"e":"popularity: stars=5"}
+{"s":"xkazm04-assay","n":"Assay","f":"product","ok":false,"e":"popularity: stars=2"}
+{"s":"soceremite-pixel-art-evoinquiry","n":"Pixel Art","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-jurisdiction-format-evoinquiry","n":"Jurisdiction Format","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-interview-cheatsheet-evoinquiry","n":"Interview Cheatsheet","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-mermaid-diagram","n":"Mermaid Diagram","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-jurisdiction-format","n":"Jurisdiction Format","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"soceremite-interview-cheatsheet","n":"Interview Cheatsheet","f":"product","ok":false,"e":"popularity: stars=3"}
+{"s":"lee-w-work-board","n":"Work Board","f":"product","g":"A","b":45346,"ok":true}
+{"s":"lee-w-strict-triage","n":"Strict Triage","f":"product","g":"A","b":8565,"ok":true}
+{"s":"lee-w-strict-review","n":"Strict Review","f":"product","g":"A","b":26734,"ok":true}
+{"s":"lee-w-pr-context-cache","n":"Pr Context Cache","f":"product","g":"A","b":4301,"ok":true}
+{"s":"lee-w-orchestrator-voice","n":"Orchestrator Voice","f":"product","g":"A","b":14487,"ok":true}
+{"s":"lee-w-harness-discipline","n":"Harness Discipline","f":"product","g":"A","b":10549,"ok":true}
+{"s":"lee-w-git-workflow","n":"Git Workflow","f":"product","g":"A","b":16848,"ok":true}
+{"s":"lee-w-doc-link-convention","n":"Doc Link Convention","f":"product","g":"A","b":3663,"ok":true}
+{"s":"lee-w-copyable-deliverable","n":"Copyable Deliverable","f":"product","g":"A","b":6109,"ok":true}
+{"s":"lee-w-change-site-enumeration","n":"Change Site Enumeration","f":"product","g":"A","b":10202,"ok":true}
+{"s":"thedivergentai-godot-version-migration","n":"Godot Version Migration","f":"product","g":"A","b":6101,"ok":true}
+{"s":"thedivergentai-godot-ui-theming","n":"Godot Ui Theming","f":"product","g":"A","b":14451,"ok":true}
+{"s":"thedivergentai-godot-ui-containers","n":"Godot Ui Containers","f":"product","g":"A","b":14097,"ok":true}
+{"s":"thedivergentai-godot-tweening","n":"Godot Tweening","f":"product","g":"A","b":11160,"ok":true}
+{"s":"thedivergentai-godot-tilemap-mastery","n":"Godot Tilemap Mastery","f":"product","g":"A","b":11183,"ok":true}
+{"s":"thedivergentai-godot-theme-easter","n":"Godot Theme Easter","f":"product","g":"A","b":12081,"ok":true}
+{"s":"thedivergentai-godot-signal-architecture","n":"Godot Signal Architecture","f":"product","g":"A","b":11862,"ok":true}

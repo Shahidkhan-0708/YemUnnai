@@ -1,0 +1,35 @@
+{
+  "scope": "page",
+  "isRedesign": true,
+  "targetPath": "src/components/",
+  "targetName": "Yemunnai Premium Screens",
+  "painPoints": ["Poor visual polish", "Lacks premium motion", "Outdated look", "Unclear hierarchy"],
+  "inspiration": {
+    "visual": ["Swiggy", "Zomato", "Toing"],
+    "functional": ["Smooth bottom sheet animations", "Delightful loading states", "Micro-interactions on cards", "Progressive disclosure", "Optimistic updates"]
+  },
+  "brand": {
+    "adjectives": ["Premium", "Trustworthy", "Playful", "Energetic"],
+    "density": "comfortable",
+    "darkMode": "nice-to-have"
+  },
+  "persona": {
+    "primary": "End consumer",
+    "context": "mobile-first",
+    "keyTasks": ["Browse & discover food", "Place quick orders", "Track order status", "Give feedback", "Walk-in map/directions to shops"]
+  },
+  "constraints": {
+    "mustKeep": ["Color palette (orange theme #F06A05)", "Plus Jakarta Sans typography", "Existing screen flow/navigation"],
+    "technical": ["No new dependencies", "Use existing design tokens", "WCAG accessible", "Output: Raw SVG + CSS/SMIL, React/Framer Motion, Lottie/JSON"]
+  },
+  "framework": "vite-react",
+  "packageManager": "npm",
+  "stylingSystem": "tailwind-v4",
+  "priorityScreens": [
+    "Home Discovery",
+    "Food Item Detail",
+    "Quick Order Modal",
+    "Splash/Onboarding"
+  ],
+  "outputFormats": ["svg-css-smil", "react-framer-motion", "lottie-json"]
+}

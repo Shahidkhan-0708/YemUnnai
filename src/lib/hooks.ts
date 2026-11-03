@@ -151,7 +151,7 @@ export function useReactions(items: FoodItem[]) {
 
   useEffect(() => {
     const next = { ...currentCounts.current };
-    for (const item of items) if (!busy.current.has(item.id)) next[item.id] = { likes: item.likes, dislikes: item.dislikes };
+    for (const item of items) if (!busy.current.has(item.id)) next[item.id] = { likes: item.likes ?? 0, dislikes: item.dislikes ?? 0 };
     currentCounts.current = next; setCounts(next);
   }, [items]);
 
@@ -160,7 +160,7 @@ export function useReactions(items: FoodItem[]) {
     if (!item || busy.current.has(itemId)) return;
     busy.current.add(itemId); edited.current.add(itemId); setPending(new Set(busy.current)); setError('');
     const before = reactions.current[itemId];
-    const previousCounts = currentCounts.current[itemId] ?? { likes: item.likes, dislikes: item.dislikes };
+    const previousCounts = currentCounts.current[itemId] ?? { likes: item.likes ?? 0, dislikes: item.dislikes ?? 0 };
     const nextValue = before === value ? undefined : value;
     const nextCounts = {
       likes: Math.max(0, previousCounts.likes + (nextValue === 'like' ? 1 : 0) - (before === 'like' ? 1 : 0)),

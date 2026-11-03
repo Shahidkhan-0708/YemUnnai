@@ -4,3 +4,21 @@
 @media(prefers-reduced-motion:reduce){.admin-portal button,.admin-overlay button{transition:none}}
 .admin-ga-range{display:flex;align-items:end;flex-wrap:wrap;gap:14px}.admin-ga-range label{flex:1;min-width:140px}.admin-ga-range label:first-child{flex:1.4}.admin-ga-comparison{display:block;margin-top:12px;color:var(--admin-muted);font-size:11px}.admin-google-analytics a{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#b74e08;text-decoration:none}.admin-ga-setup ol{font-size:13px;color:var(--admin-muted);line-height:1.9;padding-left:22px;margin:16px 0}.admin-ga-setup summary{margin-top:22px}.admin-ga-logo{color:var(--admin-orange);margin-bottom:15px}.admin-ga-live{display:flex;align-items:center;gap:14px}.admin-ga-live h2{margin-bottom:4px}.admin-ga-live p{margin:0}.admin-ga-live strong{font-size:32px;margin-left:auto}.admin-ga-live-dot{width:9px;height:9px;border-radius:50%;background:#19735c;flex-shrink:0}.admin-ga-chart>div{min-width:48px;flex-shrink:0}.admin-ga-more>.admin-metrics{margin-top:24px}.admin-ga-more strong{font-size:23px}.admin-ga-report summary{margin-bottom:20px}.admin-ga-report:not([open]) summary{margin-bottom:0}.admin-ga-report td{max-width:320px;overflow-wrap:anywhere}.admin-ga-report .admin-section-title p{margin:0}.admin-ga-setup details{margin-top:18px}.admin-ga-metrics .admin-card{min-width:0}
 @media(max-width:650px){.admin-ga-range{gap:10px}.admin-ga-range label{min-width:calc(50% - 10px)}.admin-ga-range label:first-child{flex-basis:100%}.admin-ga-range>button{width:100%}.admin-ga-live{gap:10px}.admin-ga-live h2{font-size:15px}.admin-ga-live p{font-size:11px}.admin-ga-live strong{font-size:28px}.admin-ga-more strong{font-size:20px}.admin-google-analytics .admin-section-title{align-items:flex-start}.admin-google-analytics .admin-section-title>button{font-size:10px;padding:8px}.admin-ga-comparison{font-size:10px}.admin-ga-chart>div{min-width:45px}}
+
+/* Non-tech Friendly Admin & AI Photo Generation Controls */
+.admin-photo-section { margin-bottom: 18px; }
+.admin-field-title { font-size: 12px; font-weight: 500; display: block; margin-bottom: 8px; }
+.admin-photo-btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.admin-upload-action-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 10px 16px; border: 1px solid #ded5ce; border-radius: 11px; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--admin-ink); margin: 0; }
+.admin-upload-action-btn:hover { background: #fff4ea; border-color: #e7b48e; }
+.admin-upload-action-btn input { display: none; }
+.admin-ai-generate-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 10px 18px; border: 1px solid #ffba82; border-radius: 11px; background: linear-gradient(135deg, #fff3ea, #ffe5d0); color: #d65502; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(237, 101, 6, 0.12); transition: transform 0.15s, box-shadow 0.15s; }
+.admin-ai-generate-btn:hover:not(:disabled) { background: linear-gradient(135deg, #ffe5d0, #ffd3b3); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(237, 101, 6, 0.2); }
+.admin-ai-generate-btn:disabled { opacity: 0.6; cursor: wait; }
+.admin-photo-preview-box { display: flex; align-items: center; gap: 14px; padding: 10px; background: #fbf9f7; border: 1px solid #eee8e3; border-radius: 12px; }
+.admin-photo-preview-box .admin-preview { margin: 0; width: 68px; height: 68px; border-radius: 8px; object-fit: cover; }
+.admin-remove-photo { font-size: 12px!important; color: #b5402c!important; background: transparent!important; border: 0!important; min-height: auto!important; padding: 4px 8px!important; text-decoration: underline; cursor: pointer; }
+.admin-stock-toggle-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid transparent; min-height: 30px!important; }
+.admin-stock-toggle-btn.online { background: #e9f6ef; color: #19735c; border-color: #c2ebd7; }
+.admin-stock-toggle-btn.offline { background: #f4f1ee; color: #8a7c73; border-color: #ded7d0; }
+.admin-stock-toggle-btn:hover { filter: brightness(0.96); }

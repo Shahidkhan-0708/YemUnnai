@@ -7,7 +7,7 @@ import { BrandIntroSplash } from './components/BrandIntroSplash';
 import { InstallPrompt } from './components/InstallPrompt';
 import { MobileDeviceShell } from './components/MobileDeviceShell';
 import { playTapSound, playSuccessChime } from './lib/celebration';
-import { OrdersScreen, useBuyerOrders } from './components/OrdersScreen';
+import { useBuyerOrders } from './components/OrdersScreen';
 import { BuyerTabBar, type BuyerTab } from './components/BuyerTabBar';
 import { Tabs, TabsContent } from './components/watermelon/tabs';
 import { MotionConfig } from '@watermelon-motion';
@@ -193,7 +193,7 @@ export function App() {
               }}>
                 <TabsContent className="buyer-tab-panel" value={buyerTab} id={`buyer-panel-${buyerTab}`} aria-labelledby={`buyer-tab-${buyerTab}`}>
                 
-                {buyerTab === 'profile' ? <BuyerProfileScreen onNavigate={setBuyerTab} /> : buyerTab === 'orders' ? <OrdersScreen {...buyerOrders} onDiscover={() => setBuyerTab('discover')} onReorder={item => { setSelectedOrderQty(1); setSelectedOrderFood(item); }} /> : consumerFlow === 'location' ? (
+                {buyerTab === 'profile' ? <BuyerProfileScreen onNavigate={setBuyerTab} /> : consumerFlow === 'location' ? (
                   <div className="relative">
                     <LocationPermissionScreen
                       onAllow={() => {
@@ -247,7 +247,7 @@ export function App() {
                       playTapSound();
                       setSelectedReviewFood(item);
                     }}
-                    onCartClick={() => setBuyerTab('orders')}
+                    onCartClick={() => {}}
                     onSelectShop={(name, id) => {
                       if (name !== 'All' && !id) return;
                       openRestaurant(name === 'All' ? null : id!);

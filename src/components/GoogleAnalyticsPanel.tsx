@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { BarChart3, Download, ExternalLink } from 'lucide-react';
 import { adminAction } from '../lib/admin';
+import { fetchAllRestaurantsTraffic, type RestaurantTrafficSummary } from '../lib/api';
 
 type Row=Record<string,string|number>;
 interface Report {dimensions:string[];metrics:string[];rows:Row[];rowCount:number;currency?:string;timeZone?:string;thresholded?:boolean;sampled?:boolean;otherRows?:boolean;error?:string}
-interface Analytics {state:string;message?:string;propertyId?:string;startDate?:string;endDate?:string;updatedAt?:string;previousRange?:{startDate:string;endDate:string};reports?:Record<string,Report>;realtime?:Report|null;realtimeError?:string|null}
+interface Analytics {state:string;message?:string;propertyId?:string;startDate?:string;endDate?:string;updatedAt?:string;previousRange?:{startDate:string;endDate:string};reports?:Record<string,Report>;realtime?:Report|null;realtimeRestaurants?:Report|null;realtimeError?:string|null}
 const labels:Record<string,string>={totalUsers:'Visitors',activeUsers:'Active visitors',newUsers:'First-time visitors',sessions:'Visits',screenPageViews:'Page views',engagedSessions:'Engaged visits',engagementRate:'Engagement rate',userEngagementDuration:'Engagement time',eventCount:'Actions',keyEvents:'Key actions',ecommercePurchases:'Recorded purchases',purchaseRevenue:'Recorded revenue',sessionDefaultChannelGroup:'Traffic channel',sessionSourceMedium:'Source / medium',pagePath:'Page',pageTitle:'Page name',landingPage:'First page visited',eventName:'Action',newVsReturning:'Visitor type',country:'Country',city:'City',deviceCategory:'Device',browser:'Browser',operatingSystem:'Operating system',sessionCampaignName:'Campaign',itemName:'Dish',itemBrand:'Business',itemCategory:'Category',itemsViewed:'Dish views',itemsAddedToCart:'Added to cart',itemsPurchased:'Items purchased',itemRevenue:'Item revenue',searchTerm:'Search',date:'Date'};
 const sections=[['channels','Where visitors come from'],['sources','Websites and sources'],['pages','Popular pages'],['landing','Where visits start'],['events','What visitors do'],['products','Popular dishes and businesses'],['searches','What visitors search for'],['audience','New and returning visitors'],['locations','Visitor locations'],['devices','Phones, tablets and computers'],['technology','Browsers and operating systems'],['campaigns','Campaign performance']] as const;
 const day=(date:Date)=>date.toISOString().slice(0,10);
@@ -26,10 +27,12 @@ export function GoogleAnalyticsPanel({refreshId}:{refreshId:number}){
   const [draft,setDraft]=useState(()=>preset(30)),[range,setRange]=useState(()=>preset(30));
   const [period,setPeriod]=useState('30');
   const [analytics,setAnalytics]=useState<Analytics|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[paging,setPaging]=useState('');
+  const [restaurantTraffic, setRestaurantTraffic] = useState<RestaurantTrafficSummary[]>([]);
   const revision=useRef(0);
   useEffect(()=>{
     let live=true;const current=++revision.current;setLoading(true);setError('');setAnalytics(null);setPaging('');
     void adminAction<Analytics>('google_analytics',range).then(data=>{if(live&&current===revision.current)setAnalytics(data);}).catch(cause=>{if(live)setError((cause as Error).message);}).finally(()=>{if(live)setLoading(false);});
+    void fetchAllRestaurantsTraffic().then(res => { if (live) setRestaurantTraffic(res); });
     return()=>{live=false;revision.current++;};
   },[range,refreshId]);
   const loadMore=async(name:string)=>{
@@ -51,12 +54,88 @@ export function GoogleAnalyticsPanel({refreshId}:{refreshId:number}){
     </form>
     {loading&&<p role="status" className="admin-card admin-empty">Loading Google Analytics…</p>}
     {error&&<p role="alert" className="admin-error">{error} <button onClick={()=>setRange({...range})}>Retry</button></p>}
-    {!loading&&analytics&&analytics.state!=='connected'&&<section className="admin-card admin-ga-setup"><BarChart3 size={24} className="admin-ga-logo"/><h2>{analytics.state==='not_connected'?'Connect your website analytics':'Google Analytics needs attention'}</h2><p>{analytics.message}</p>{analytics.propertyId&&<p className="admin-caption">Property {analytics.propertyId} is configured.</p>}{analytics.state==='not_connected'&&<p>Your website already records visits. Connecting its Google Analytics property will bring the existing history into this dashboard.</p>}<a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer">Open Google Analytics <ExternalLink size={15}/></a><details><summary>Connection checklist</summary><ol><li>Find the numeric Property ID in Google Analytics → Admin → Property details.</li><li>Enable the Google Analytics Data API in Google Cloud and create a service account.</li><li>Give that service account Viewer access to this property.</li><li>Save its JSON key in the ignored local credential file and configure the server connection.</li></ol><p className="admin-caption">A measurement ID beginning with G- records visits; it cannot read reports.</p></details></section>}
+    {!loading&&analytics&&analytics.state!=='connected'&&<>
+      <section className="admin-card admin-ga-setup"><BarChart3 size={24} className="admin-ga-logo"/><h2>{analytics.state==='not_connected'?'Connect your website analytics':'Google Analytics needs attention'}</h2><p>{analytics.message}</p>{analytics.propertyId&&<p className="admin-caption">Property {analytics.propertyId} is configured.</p>}{analytics.state==='not_connected'&&<p>Your website already records visits. Connecting its Google Analytics property will bring the existing history into this dashboard.</p>}<a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer">Open Google Analytics <ExternalLink size={15}/></a><details><summary>Connection checklist</summary><ol><li>Find the numeric Property ID in Google Analytics → Admin → Property details.</li><li>Enable the Google Analytics Data API in Google Cloud and create a service account.</li><li>Give that service account Viewer access to this property.</li><li>Save its JSON key in the ignored local credential file and configure the server connection.</li></ol><p className="admin-caption">A measurement ID beginning with G- records visits; it cannot read reports.</p></details></section>
+      {restaurantTraffic.length > 0 && <section className="admin-card">
+        <div className="admin-section-title">
+          <div>
+            <h2>Real-Time Traffic by Restaurant</h2>
+            <p>Live active visitors (last 30 min) and total views today per restaurant</p>
+          </div>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block', boxShadow: '0 0 6px #10b981' }} />
+            Live Sync
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px', marginTop: '12px' }}>
+          {restaurantTraffic.map(r => (
+            <div key={r.vendorId} style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', background: '#F8FAFC' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <strong style={{ fontSize: '14px', color: '#0F172A' }}>{r.vendorName}</strong>
+                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', background: r.isOnline ? '#ECFDF5' : '#F1F5F9', color: r.isOnline ? '#059669' : '#64748B', fontWeight: 600 }}>
+                  {r.isOnline ? 'Online' : 'Offline'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div>
+                  <small style={{ color: '#64748B', display: 'block', fontSize: '11px' }}>Active Visitors</small>
+                  <strong style={{ fontSize: '18px', color: r.activeVisitors > 0 ? '#10B981' : '#334155', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    {r.activeVisitors > 0 && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />}
+                    {r.activeVisitors}
+                  </strong>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <small style={{ color: '#64748B', display: 'block', fontSize: '11px' }}>Views Today</small>
+                  <strong style={{ fontSize: '16px', color: '#0F172A' }}>{r.viewsToday}</strong>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>}
+    </>}
     {!loading&&analytics?.state==='connected'&&<>
       <div className="admin-section-title"><div><strong>Google Analytics · website reports</strong><p>{analytics.startDate} to {analytics.endDate} · {reports?.summary?.timeZone??'Property time zone'}</p></div><a href={`https://analytics.google.com/analytics/web/#/p${analytics.propertyId}/reports/intelligenthome`} target="_blank" rel="noopener noreferrer">Open full Analytics <ExternalLink size={14}/></a></div>
       <div className="admin-metrics admin-ga-metrics">{['totalUsers','sessions','screenPageViews','newUsers','engagementRate','activeUsers'].map(key=><article className="admin-card" key={key}><p>{labels[key]}</p><strong>{summary?display(key,summary[key]??0):'—'}</strong>{summary&&previous&&<small className="admin-ga-comparison">{Number(previous[key]??0)===0?'No comparable earlier data':`${Number(summary[key]??0)>=Number(previous[key]??0)?'+':''}${((Number(summary[key]??0)/Number(previous[key]??0)-1)*100).toFixed(1)}% vs previous period`}</small>}</article>)}</div>
       <section className="admin-card admin-ga-live"><span className="admin-ga-live-dot"/><div><h2>Visitors right now</h2><p>Active visitors in the last 30 minutes · updated when you refresh</p></div><strong>{analytics.realtime?display('activeUsers',analytics.realtime.rows[0]?.activeUsers??0):'—'}</strong></section>
       {analytics.realtimeError&&<p role="status" className="admin-caption">{analytics.realtimeError}</p>}
+      <section className="admin-card">
+        <div className="admin-section-title">
+          <div>
+            <h2>Real-Time Traffic by Restaurant</h2>
+            <p>Live active visitors (last 30 min) and total views today per restaurant</p>
+          </div>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block', boxShadow: '0 0 6px #10b981' }} />
+            Real-time GA Sync
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px', marginTop: '12px' }}>
+          {restaurantTraffic.map(r => (
+            <div key={r.vendorId} style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', background: '#F8FAFC' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <strong style={{ fontSize: '14px', color: '#0F172A' }}>{r.vendorName}</strong>
+                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', background: r.isOnline ? '#ECFDF5' : '#F1F5F9', color: r.isOnline ? '#059669' : '#64748B', fontWeight: 600 }}>
+                  {r.isOnline ? 'Online' : 'Offline'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div>
+                  <small style={{ color: '#64748B', display: 'block', fontSize: '11px' }}>Active Visitors</small>
+                  <strong style={{ fontSize: '18px', color: r.activeVisitors > 0 ? '#10B981' : '#334155', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    {r.activeVisitors > 0 && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />}
+                    {r.activeVisitors}
+                  </strong>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <small style={{ color: '#64748B', display: 'block', fontSize: '11px' }}>Views Today</small>
+                  <strong style={{ fontSize: '16px', color: '#0F172A' }}>{r.viewsToday}</strong>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
       <section className="admin-card"><div className="admin-section-title"><div><h2>Website activity over time</h2><p>Page views · {chart.size>31?'scroll to see every date':'selected dates'}</p></div>{reports?.daily&&!reports.daily.error&&<button onClick={()=>download('daily',reports.daily)}><Download size={15}/>Download</button>}</div>{reports?.daily?.error?<p>{reports.daily.error}</p>:chart.size?<div className="admin-chart admin-ga-chart" aria-label="Google Analytics page views over time">{[...chart].map(([date,views])=><div key={date} title={`${date}: ${views} page views`}><span>{views}</span><i style={{height:`${Math.max(2,views/max*130)}px`}}/><small>{date}</small></div>)}</div>:<p className="admin-empty">Google Analytics has no recorded page views for these dates.</p>}</section>
       <details className="admin-card admin-ga-more"><summary>Engagement and purchases</summary><div className="admin-metrics">{['engagedSessions','userEngagementDuration','eventCount','keyEvents'].map(key=><article key={key}><p>{labels[key]}</p><strong>{summary?display(key,summary[key]??0):'—'}</strong></article>)}{['ecommercePurchases','purchaseRevenue'].map(key=><article key={key}><p>{labels[key]}</p><strong>{reports?.commerce&&!reports.commerce.error?display(key,reports.commerce.rows[0]?.[key]??0,currency):'—'}</strong></article>)}</div><p className="admin-caption">Purchases and revenue are events recorded by Google Analytics, not proof of payment at a canteen. Engagement time is the total foreground time across visitors.</p></details>
       {sections.map(([name,title])=>{const report=reports?.[name];return <details className="admin-card admin-ga-report" key={name} open={['channels','pages','products'].includes(name)}><summary>{title}</summary>{!report||report.error?<p>{report?.error??'This report could not be loaded.'}</p>:<>

@@ -71,9 +71,10 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
     'MITS Canteen': '/images/shop_mits_canteen.jpg',
     'MITS Cafe': '/images/shop_mits_cafe.jpg',
     'MITS Hub': '/images/shop_new_cafe.jpg',
-    'Pizza And Pasta (P2)': '/images/shop_p2-brand.svg',
-    'Paradise': '/images/shop_paradise.svg',
-    'Mallikarjuna Mess': '/images/shop_mallikarjuna.svg',
+    'Happy Tea': '/images/shop_happy_tea_uploaded.jpg',
+    'Pizza And Pasta (P2)': '/menu-assets/hotel1/images/hotel1_001_margherita_pizza.jpg',
+    'Paradise': '/menu-assets/paradise/images/001_chicken_biryani.jpg',
+    'Mallikarjuna Mess': '/menu-assets/mallikarjuna/images/015_meals.jpg',
     'ACS Cafe': '/images/shop_acs_cafe.png'
   };
   const shopImage = vendor?.imageUrl ?? SHOP_IMAGES[vendor?.vendorName ?? ''] ?? '/images/NewLogo.svg';
@@ -144,7 +145,21 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
       <div className="business-online"><span>{isOnline?t('Accepting orders','ఆర్డర్లు అంగీకరిస్తున్నారు'):t('Shop closed','దుకాణం మూసివేయబడింది')}</span><div className="segmented">{[true,false].map(value=><button key={String(value)} type="button" aria-pressed={isOnline===value} disabled={busyAction!==null} onClick={()=>{if(isOnline!==value)void toggleOnline();}}>{value?t('Online','అందుబాటులో ఉంది'):t('Offline','మూసివేయబడింది')}</button>)}</div></div>
     </header>
     <div className="business-content">
-      <dl className="business-stats">{[['Orders today',stats.error||stats.loading?'—':stats.ordersToday],['Likes',stats.error||stats.loading?'—':stats.totalLikes],['Rating',stats.loading||stats.avgRating==null?'—':Number(stats.avgRating).toFixed(1)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+      <dl className="business-stats">
+        {[
+          ['Orders today', stats.error || stats.loading ? '—' : stats.ordersToday],
+          ['Live visitors (GA)', stats.loading ? '—' : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: (stats.liveVisitors ?? 0) > 0 ? '#10b981' : '#94a3b8', display: 'inline-block', boxShadow: (stats.liveVisitors ?? 0) > 0 ? '0 0 6px #10b981' : 'none' }} />
+              {stats.liveVisitors ?? 0} active
+            </span>
+          )],
+          ['Views today', stats.loading ? '—' : (stats.viewsToday ?? 0)],
+          ['Rating', stats.loading || stats.avgRating == null ? '—' : Number(stats.avgRating).toFixed(1)]
+        ].map(([label, value]) => (
+          <div key={label as string}><dt>{label}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
       {error && <p className="pickup-error" role="alert">{error}</p>}
       {stats.error && <div className="feed-notice" role="status"><span>{stats.error}</span></div>}
       <div className="business-orders-heading"><h2>{t('Incoming orders','వచ్చిన ఆర్డర్లు')}</h2><button className="business-refresh" aria-label="Refresh dashboard" disabled={ordersLoading} onClick={()=>setFeedRetry(n=>n+1)}><RefreshCw size={14}/>{t('Refresh','తాజాకరించండి')}</button></div>

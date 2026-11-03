@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/jakarta-400.ttf')}
 @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500;font-display:swap;src:url('/fonts/jakarta-500.ttf')}
 @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:600;font-display:swap;src:url('/fonts/jakarta-600.ttf')}
@@ -89,6 +89,169 @@
 .discovery-cart { display:grid; place-items:center; position:relative; flex-shrink:0; width:44px; height:44px; padding:0; border:0; border-radius:14px; background:#FFFFFF; color:#B74700; }
 .discovery-cart>svg { transform:translateY(1px); }
 .discovery-cart>span { position:absolute; right:-5px; top:-5px; background:#A23D00; color:#FFFFFF; border:2px solid #FFFFFF; border-radius:12px; min-width:20px; padding:1px 4px; font-size:10px; }
+.discovery-nearby-panel { padding: 10px 20px 4px; }
+.discovery-nearby-sub { margin: 2px 0 0; font-size: 11.5px; color: #786454; line-height: 16px; }
+
+.nearby-food-deck {
+  display: flex;
+  gap: 12px;
+  margin: 12px -8px 0;
+  padding: 4px 8px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #E2D9D2 transparent;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.nearby-food-deck::-webkit-scrollbar {
+  height: 4px;
+}
+.nearby-food-deck::-webkit-scrollbar-thumb {
+  background: #E2D9D2;
+  border-radius: 4px;
+}
+
+.nearby-food-card {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 240px;
+  min-width: 240px;
+  background: #FFFFFF;
+  border: 1.5px solid #EDE4DC;
+  border-radius: 20px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  scroll-snap-align: start;
+  box-shadow: 0 4px 16px rgba(45, 25, 10, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  isolation: isolate;
+}
+.nearby-food-card:hover {
+  transform: translateY(-2px);
+  border-color: #F06A05;
+  box-shadow: 0 8px 24px rgba(240, 106, 5, 0.12);
+}
+.nearby-food-card.is-selected {
+  border-color: #F06A05;
+  background: #FFFBF7;
+  box-shadow: 0 0 0 2px #F06A05, 0 8px 24px rgba(240, 106, 5, 0.15);
+}
+
+.nearby-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.nearby-photo-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #F4ECE6;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.nearby-photo-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.nearby-card-check {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #F06A05;
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.nearby-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.nearby-tag-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9A4108;
+  background: #FFF0E3;
+  padding: 2px 7px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.nearby-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #78350F;
+  background: #FEF3C7;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.nearby-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.nearby-card-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1F140A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+.nearby-card-cuisine {
+  margin: 0;
+  font-size: 11.5px;
+  color: #6E5A4D;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nearby-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #EDE4DC;
+  font-size: 11px;
+}
+.nearby-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.nearby-price {
+  color: #047857;
+}
+.nearby-walk {
+  color: #EA580C;
+}
+
 .discovery-canteen-panel { padding:8px 20px 2px; }
 .discovery-shops-heading { display:flex; justify-content:space-between; align-items:center; min-height:32px; }
 .discovery-shops-heading h2 { margin:0; font-size:18px; line-height:24px; font-weight:700; letter-spacing:-.35px; }
@@ -564,6 +727,176 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 .canteen-map-destination svg{flex-shrink:0;margin-top:2px}
 .canteen-map-note{font-size:12px;line-height:1.6;color:#8b6c52;margin:12px 0;user-select:text}
 .canteen-map-directions{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;background:linear-gradient(120deg,#dc5900,#f58218);color:white;border-radius:15px;margin-top:18px;font-size:13px;font-weight:700;text-decoration:none}
+/* Custom Hotel Pins with Logo */
+.hotel-leaflet-marker { background: transparent !important; border: none !important; }
+.hotel-custom-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hotel-custom-pin:hover, .hotel-custom-pin.is-selected {
+  transform: scale(1.12) translateY(-4px);
+  z-index: 999 !important;
+}
+.pin-badge {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 25, 14, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hotel-custom-pin.is-selected .pin-badge {
+  border-color: #f06a05;
+  box-shadow: 0 0 0 3px #ffffff, 0 8px 24px rgba(240, 106, 5, 0.45);
+}
+.pin-badge img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.pin-pointer {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  z-index: -1;
+}
+.hotel-custom-pin.is-selected .pin-pointer {
+  background: #f06a05;
+}
+.pin-card-tag {
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  white-space: nowrap;
+  border: 1px solid rgba(234, 222, 212, 0.8);
+}
+.hotel-custom-pin:not(.is-selected) .pin-card-tag {
+  opacity: 0.9;
+}
+.hotel-custom-pin:not(.is-selected):not(:hover) .pin-sub {
+  display: none;
+}
+.pin-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f140a;
+}
+.pin-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f06a05;
+}
+
+/* User Location Pin with Animated Ripple */
+.user-map-marker { background: transparent !important; border: none !important; }
+.user-map-pin {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.user-map-core {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+  z-index: 2;
+}
+.user-map-pulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.25);
+  animation: user-pulse 2s infinite ease-out;
+  z-index: 1;
+}
+@keyframes user-pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.user-map-tag {
+  position: absolute;
+  bottom: -16px;
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Route Path Badges */
+.route-badge-marker { background: transparent !important; border: none !important; }
+.route-badge-pill {
+  background: #1f140a;
+  color: #ffffff;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  border: 1.5px solid #f06a05;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Map Floating Controls */
+.map-floating-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.map-control-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e8ded4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: grid;
+  place-items: center;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.map-control-btn:hover {
+  background: #fff7ed;
+  color: #f06a05;
+  border-color: #f06a05;
+  transform: translateY(-1px);
+}
 .vendor-location-card{padding:18px;margin-bottom:20px;background:#fffbf6;border:1px solid #eadbca;border-radius:20px}
 .vendor-location-heading{display:flex;gap:10px;align-items:flex-start;color:#9f4b14}
 .vendor-location-heading>div{flex:1;min-width:0}

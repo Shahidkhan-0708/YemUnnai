@@ -37,6 +37,20 @@ export function trackPageView(pageTitle: string, pagePath?: string): void {
 }
 
 /**
+ * Track user viewing / clicking a specific restaurant (Google Analytics & Realtime Traffic)
+ */
+export function trackViewRestaurant(restaurant: { id: string; name: string }): void {
+  trackEvent('view_item_list', {
+    item_list_id: restaurant.id,
+    item_list_name: restaurant.name,
+    restaurant_id: restaurant.id,
+    restaurant_name: restaurant.name,
+  });
+  trackPageView(`${restaurant.name} | YEMUNNAI`, `/?restaurant=${restaurant.id}`);
+  void recordPortalEvent('page', { route: `/?restaurant=${restaurant.id}`, vendorId: restaurant.id });
+}
+
+/**
  * Track user viewing an item's details modal
  */
 export function trackViewItem(item: {

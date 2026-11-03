@@ -65,9 +65,19 @@ export async function googleAnalytics(env,input,fetcher=fetch){
       try{const result=await call('batchRunReports',{requests:batch.map(request)});if(result.reports?.length!==batch.length)throw Error('unavailable');batch.forEach((name,i)=>{reports[name]=table(result.reports[i]);});}
       catch(error){if(error.message!=='report')throw error;for(const name of batch){try{reports[name]=table(await call('runReport',request(name)));}catch(cause){if(cause.message!=='report')throw cause;reports[name]={dimensions:[],metrics:[],rows:[],rowCount:0,error:'This report is not available for this property.'};}}}
     }));
-    let realtime=null,realtimeError=null;
-    if(!input.report){try{realtime=table(await call('runRealtimeReport',{metrics:[{name:'activeUsers'},{name:'eventCount'},{name:'screenPageViews'}]}));}catch{realtimeError='Live visitor counts are temporarily unavailable.';}}
-    const data={state:'connected',propertyId:env.gaPropertyId,startDate:input.startDate,endDate:input.endDate,previousRange:previous,updatedAt:new Date().toISOString(),reports,realtime,realtimeError};
+    let realtime=null,realtimeError=null,realtimeRestaurants=null;
+    if(!input.report){
+      try{
+        realtime=table(await call('runRealtimeReport',{metrics:[{name:'activeUsers'},{name:'eventCount'},{name:'screenPageViews'}]}));
+        try{
+          realtimeRestaurants=table(await call('runRealtimeReport',{dimensions:[{name:'unifiedPagePathScreen'}],metrics:[{name:'activeUsers'},{name:'screenPageViews'}]}));
+        }catch{
+          try{realtimeRestaurants=table(await call('runRealtimeReport',{dimensions:[{name:'pageTitle'}],metrics:[{name:'activeUsers'},{name:'screenPageViews'}]}));}
+          catch{realtimeRestaurants=null;}
+        }
+      }catch{realtimeError='Live visitor counts are temporarily unavailable.';}
+    }
+    const data={state:'connected',propertyId:env.gaPropertyId,startDate:input.startDate,endDate:input.endDate,previousRange:previous,updatedAt:new Date().toISOString(),reports,realtime,realtimeRestaurants,realtimeError};
     if(cache.size>=20)cache.delete(cache.keys().next().value);cache.set(cacheKey,{data,expires:Date.now()+60000});
     return data;
   }catch(error){const messages={access:'Give the Google service account Viewer access to your GA4 property and enable the Analytics Data API.',credentials:'Google Analytics credentials are invalid or expired. Reconnect the service account.',quota:'Google Analytics is busy. Please retry in a few minutes.',unavailable:'Google Analytics could not be reached. Please try again.'};return {state:'unavailable',message:messages[error.message]??messages.unavailable};}

@@ -295,7 +295,7 @@ export async function fetchMyReactions(): Promise<Record<string, ReactionValue>>
 export async function fetchItemReactionCounts(itemId: string): Promise<{ likes: number; dislikes: number } | null> {
   if (!supabase) {
     const item = inMemoryFoodItems.find(i => i.id === itemId);
-    return item ? { likes: item.likes, dislikes: item.dislikes } : null;
+    return item ? { likes: item.likes ?? 0, dislikes: item.dislikes ?? 0 } : null;
   }
   try {
     const { data, error } = await supabase
@@ -626,8 +626,9 @@ export async function fetchVendorStats(vendorId: string): Promise<VendorStats> {
 
   const midnight = new Date();
   midnight.setHours(0, 0, 0, 0);
+  const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
 
-  const [ordersRes, likesRes, ratingRes] = await Promise.all([
+  const [ordersRes, likesRes, ratingRes, trafficRes] = await Promise.all([
     supabase
       .from('orders')
       .select('id', { count: 'exact', head: true })
@@ -640,7 +641,12 @@ export async function fetchVendorStats(vendorId: string): Promise<VendorStats> {
     supabase
       .from('reviews')
       .select('rating, food_items!inner(vendor_id)')
-      .eq('food_items.vendor_id', vendorId)
+      .eq('food_items.vendor_id', vendorId),
+    supabase
+      .from('portal_events')
+      .select('session_id, created_at')
+      .eq('vendor_id', vendorId)
+      .gte('created_at', midnight.toISOString())
   ]);
 
   if (ordersRes.error || likesRes.error || ratingRes.error) throw new Error('Unable to load cafe statistics.');
@@ -653,11 +659,64 @@ export async function fetchVendorStats(vendorId: string): Promise<VendorStats> {
     ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
     : null;
 
+  const recentSessions = new Set<string>();
+  let viewsToday = 0;
+  for (const ev of (trafficRes.data ?? []) as Array<{ session_id: string; created_at: string }>) {
+    viewsToday++;
+    if (ev.created_at >= thirtyMinAgo) recentSessions.add(ev.session_id);
+  }
+
   return {
     ordersToday: ordersRes.count ?? 0,
     totalLikes: likes,
-    avgRating
+    avgRating,
+    liveVisitors: recentSessions.size,
+    viewsToday
   };
+}
+
+export interface RestaurantTrafficSummary {
+  vendorId: string;
+  vendorName: string;
+  activeVisitors: number;
+  viewsToday: number;
+  isOnline: boolean;
+}
+
+export async function fetchAllRestaurantsTraffic(): Promise<RestaurantTrafficSummary[]> {
+  if (!supabase) return [];
+  const midnight = new Date();
+  midnight.setHours(0, 0, 0, 0);
+  const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+
+  const [vendorsRes, trafficRes] = await Promise.all([
+    supabase.from('vendors').select('id, name, is_online').eq('is_active', true),
+    supabase.from('portal_events').select('session_id, vendor_id, created_at').gte('created_at', midnight.toISOString())
+  ]);
+
+  if (vendorsRes.error) return [];
+  const vendors = vendorsRes.data ?? [];
+  const map: Record<string, { active: Set<string>; views: number }> = {};
+  for (const v of vendors) {
+    map[v.id] = { active: new Set(), views: 0 };
+  }
+
+  for (const ev of (trafficRes.data ?? []) as Array<{ session_id: string; vendor_id: string | null; created_at: string }>) {
+    if (ev.vendor_id && map[ev.vendor_id]) {
+      map[ev.vendor_id].views++;
+      if (ev.created_at >= thirtyMinAgo) {
+        map[ev.vendor_id].active.add(ev.session_id);
+      }
+    }
+  }
+
+  return vendors.map(v => ({
+    vendorId: v.id,
+    vendorName: v.name,
+    activeVisitors: map[v.id]?.active.size ?? 0,
+    viewsToday: map[v.id]?.views ?? 0,
+    isOnline: v.is_online
+  }));
 }
 
 export { isBackendConfigured };
