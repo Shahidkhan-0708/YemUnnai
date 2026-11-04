@@ -332,7 +332,7 @@ export function DiscoveryHeader({
                 <X size={14} />
               </button>
               <button className="discovery-clear-shop" type="button" onClick={() => onShop('All')}>
-                {t('View all nearby', 'అన్నీ చూడండి')}
+                {t('Clear filter', 'తొలగించండి')}
               </button>
             </>
           )}

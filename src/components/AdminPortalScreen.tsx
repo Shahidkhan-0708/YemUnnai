@@ -6,7 +6,7 @@ import type { VendorRow, FoodItemRow } from '../lib/types';
 import { useModalA11y } from '../lib/useModalA11y';
 import './AdminPortalScreen.css';
 import { GoogleAnalyticsPanel } from './GoogleAnalyticsPanel';
-import { PREDEFINED_MENU_CATEGORIES, generateAiFoodPhoto } from '../lib/aiPhotoGenerator';
+import { PREDEFINED_MENU_CATEGORIES, generateAiFoodPhoto, getOpenRouterApiKey, setOpenRouterApiKey } from '../lib/aiPhotoGenerator';
 
 type Tab = 'Overview' | 'Google Analytics' | 'Businesses' | 'Menus' | 'Errors' | 'Orders & help';
 const tabs = [{ name:'Overview',icon:BarChart3 },{ name:'Google Analytics',icon:BarChart3 },{ name:'Businesses',icon:Store },{ name:'Menus',icon:Utensils },{ name:'Errors',icon:CircleAlert },{ name:'Orders & help',icon:ClipboardList }] as const;
@@ -28,6 +28,7 @@ export function AdminPortalScreen() {
   const [gaRefresh,setGaRefresh]=useState(0);
   const [aiGenerating,setAiGenerating]=useState(false);
   const [customCategory,setCustomCategory]=useState('');
+  const [openRouterKey,setOpenRouterKey]=useState(()=>getOpenRouterApiKey());
   const lock=useRef(false), revision=useRef(0);
 
   const load=async()=>{
@@ -86,7 +87,43 @@ export function AdminPortalScreen() {
     {error&&<p role="alert" className="admin-error">{error}</p>}{notice&&<p role="status" className="admin-notice">{notice}</p>}
     {tab==='Overview'&&<><div className="admin-metrics">{[
       ['Active businesses',data.vendors.filter(v=>v.is_active).length],['Menu items',data.foods.filter(f=>data.vendors.some(v=>v.id===f.vendor_id&&v.is_active)).length],['Orders today',data.stats.orders_today],['Unresolved errors',data.errors.filter(e=>!e.resolved_at).length],['Total likes',data.foods.reduce((n,f)=>n+f.likes_count,0)],['Confirmed collections',money(data.stats.collected_value)]
-    ].map(([label,value])=><article className="admin-card" key={label}><p>{label}</p><strong>{value}</strong></article>)}</div><section className="admin-card"><div className="admin-section-title"><div><h2>Discovery activity</h2><p>Daily page views · last 14 days</p></div><span>{data.traffic.reduce((n,t)=>n+t.item_views,0)} dish views in 30 days</span></div>{traffic.length?<div className="admin-chart" aria-label="Daily page views">{traffic.map(t=><div key={t.date} title={`${t.date}: ${t.views} page views, ${t.visitors} sessions`}><span>{t.views}</span><i style={{height:`${Math.max(2,t.views/maxViews*130)}px`}}/><small>{t.date.slice(5)}</small></div>)}</div>:<p className="admin-empty">Traffic reporting starts with the first real visit after this update. Test visits are excluded.</p>}<p className="admin-caption">{data.traffic_since?`Recording since ${date(data.traffic_since)}. Counts represent app sessions; see Google Analytics for website history.`:'No recorded visits yet.'}</p></section><section className="admin-card"><h2>Business performance</h2><div className="admin-table-wrap"><table><thead><tr><th>Business</th><th>Menu</th><th>Likes</th><th>Reviews</th><th>Status</th></tr></thead><tbody>{data.vendors.filter(v=>v.is_active).map(v=>{const menu=data.foods.filter(f=>f.vendor_id===v.id);return <tr key={v.id}><td><button onClick={()=>{setVendorFilter(v.id);setTab('Menus');}}>{v.name}</button></td><td>{menu.length}</td><td>{menu.reduce((n,f)=>n+f.likes_count,0)}</td><td>{menu.reduce((n,f)=>n+f.reviews_count,0)}</td><td><span className={`admin-badge ${v.is_online?'online':''}`}>{v.is_online?'Online':'Offline'}</span></td></tr>;})}</tbody></table></div></section><details className="admin-card"><summary>Recent admin changes</summary>{data.changes.length?data.changes.map((c,i)=><p className="admin-caption" key={i}>{c.action.replaceAll('_',' ')} · {date(c.created_at)}</p>):<p className="admin-empty">No changes yet.</p>}</details></>}
+    ].map(([label,value])=><article className="admin-card" key={label}><p>{label}</p><strong>{value}</strong></article>)}</div>
+    <section className="admin-card">
+      <div className="admin-section-title">
+        <div>
+          <h2>AI & OpenRouter Configuration</h2>
+          <p>Provider for 1-click AI photo generation & dish recommendations</p>
+        </div>
+        <span className={`admin-badge ${openRouterKey.trim()?'online':''}`}>{openRouterKey.trim()?'OpenRouter Connected':'Curated Fallback Active'}</span>
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:'10px',marginTop:'10px'}}>
+        <p style={{margin:0,fontSize:'13px',color:'#6F6258'}}>
+          Configure your OpenRouter API key to enable live AI photo generation. The app gracefully falls back to the built-in 111+ food asset library if no key is supplied.
+        </p>
+        <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+          <input
+            type="password"
+            placeholder="sk-or-v1-..."
+            value={openRouterKey}
+            onChange={e=>setOpenRouterKey(e.target.value)}
+            style={{flex:1,padding:'8px 12px',borderRadius:'8px',border:'1px solid #D6DEE4',fontSize:'13px'}}
+          />
+          <button
+            type="button"
+            className="admin-primary"
+            onClick={()=>{
+              setOpenRouterApiKey(openRouterKey);
+              setNotice('OpenRouter API key saved.');
+              setTimeout(()=>setNotice(''),3000);
+            }}
+            style={{padding:'8px 16px',whiteSpace:'nowrap'}}
+          >
+            Save Key
+          </button>
+        </div>
+      </div>
+    </section>
+    <section className="admin-card"><div className="admin-section-title"><div><h2>Discovery activity</h2><p>Daily page views · last 14 days</p></div><span>{data.traffic.reduce((n,t)=>n+t.item_views,0)} dish views in 30 days</span></div>{traffic.length?<div className="admin-chart" aria-label="Daily page views">{traffic.map(t=><div key={t.date} title={`${t.date}: ${t.views} page views, ${t.visitors} sessions`}><span>{t.views}</span><i style={{height:`${Math.max(2,t.views/maxViews*130)}px`}}/><small>{t.date.slice(5)}</small></div>)}</div>:<p className="admin-empty">Traffic reporting starts with the first real visit after this update. Test visits are excluded.</p>}<p className="admin-caption">{data.traffic_since?`Recording since ${date(data.traffic_since)}. Counts represent app sessions; see Google Analytics for website history.`:'No recorded visits yet.'}</p></section><section className="admin-card"><h2>Business performance</h2><div className="admin-table-wrap"><table><thead><tr><th>Business</th><th>Menu</th><th>Likes</th><th>Reviews</th><th>Status</th></tr></thead><tbody>{data.vendors.filter(v=>v.is_active).map(v=>{const menu=data.foods.filter(f=>f.vendor_id===v.id);return <tr key={v.id}><td><button onClick={()=>{setVendorFilter(v.id);setTab('Menus');}}>{v.name}</button></td><td>{menu.length}</td><td>{menu.reduce((n,f)=>n+f.likes_count,0)}</td><td>{menu.reduce((n,f)=>n+f.reviews_count,0)}</td><td><span className={`admin-badge ${v.is_online?'online':''}`}>{v.is_online?'Online':'Offline'}</span></td></tr>;})}</tbody></table></div></section><details className="admin-card"><summary>Recent admin changes</summary>{data.changes.length?data.changes.map((c,i)=><p className="admin-caption" key={i}>{c.action.replaceAll('_',' ')} · {date(c.created_at)}</p>):<p className="admin-empty">No changes yet.</p>}</details></>}
     {tab==='Google Analytics'&&<GoogleAnalyticsPanel refreshId={gaRefresh}/>}
     {tab==='Businesses'&&<><div className="admin-section-title"><span>{data.vendors.filter(v=>v.is_active).length} active businesses</span><button className="admin-primary" onClick={()=>editVendor()}><Plus size={17}/>Add business</button></div><div className="admin-business-grid">{data.vendors.map(v=><article key={v.id} className={`admin-card admin-business ${!v.is_active?'archived':''}`}><img src={v.image_url||'/images/NewLogo.svg'} alt=""/><h2>{v.name}</h2><p>{data.foods.filter(f=>f.vendor_id===v.id).length} menu items</p><span className={`admin-badge ${v.is_active&&v.is_online?'online':''}`}>{!v.is_active?'Deleted':v.is_online?'Online':'Offline'}</span><div className="admin-business-actions"><button onClick={()=>editVendor(v)} aria-label={`Edit ${v.name}`}><Pencil size={15}/>Edit</button><button onClick={()=>{setVendorFilter(v.id);setTab('Menus');}}>Menu</button>{v.is_active&&<button className="admin-danger" aria-label={`Delete ${v.name}`} onClick={()=>{setModalError('');setConfirm({title:`Delete ${v.name}?`,message:'This removes the business from discovery and disables seller access. Past orders and its menu are preserved. You can restore it using Edit.',action:'vendor_delete',input:{vendorId:v.id}});}}><Trash2 size={16}/></button>}</div></article>)}</div></>}
     {tab==='Menus'&&<>{filters}<div className="admin-section-title"><span>{foods.length} menu items</span><button className="admin-primary" onClick={()=>editFood()} disabled={!data.vendors.length}><Plus size={17}/>Add food item</button></div><div className="admin-table-wrap admin-card"><table><thead><tr><th>Food</th><th>Business / Category</th><th>Price</th><th>Availability & Diet</th><th>Actions</th></tr></thead><tbody>{foods.map(f=><tr key={f.id}><td><div className="admin-food-name"><img src={f.image_url||'/images/NewLogo.svg'} alt="" loading="lazy"/><span>{f.name}</span></div></td><td><strong>{vendorName(f.vendor_id)}</strong><small>{f.menu_category||'General'}</small></td><td>{f.price_variants?.length?f.price_variants.map(v=><small key={v.name}>{v.name}: {money(v.price)}</small>):f.price===null?'Price not provided':money(f.price)}</td><td><div style={{display:'flex',flexDirection:'column',gap:'5px'}}><small>{f.is_vegetarian===null?'Not specified':f.is_vegetarian?'Veg':'Non-veg'}</small><button type="button" className={`admin-stock-toggle-btn ${f.in_stock?'online':'offline'}`} title="Click to toggle stock" disabled={busy} onClick={()=>void run('food_save',{food:{...f,in_stock:!f.in_stock}})}>{f.in_stock?'🟢 In Stock':'⚪ Out of Stock'}</button></div></td><td><div className="admin-row-actions"><button aria-label={`Edit ${f.name}`} onClick={()=>editFood(f)}><Pencil size={16}/></button><button className="admin-danger" aria-label={`Delete ${f.name}`} onClick={()=>{setModalError('');setConfirm({title:`Delete ${f.name}?`,message:'This removes the food item from its menu. Past order receipts keep their original details. This cannot be undone.',action:'food_delete',input:{foodId:f.id}});}}><Trash2 size={16}/></button></div></td></tr>)}</tbody></table>{!foods.length&&<p className="admin-empty">No matching food items.</p>}</div></>}

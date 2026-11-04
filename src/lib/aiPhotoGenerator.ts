@@ -1,5 +1,5 @@
 /**
- * Intelligent AI Food Photo Generator & Recommender for YEMUNNAI.
+ * Intelligent AI Food Photo Generator & OpenRouter AI Provider for YEMUNNAI.
  * Enables non-tech canteen owners and admins to instantly generate
  * mouthwatering culinary photos for any menu item in 1 click.
  */
@@ -133,8 +133,71 @@ export const PREDEFINED_MENU_CATEGORIES = [
 ] as const;
 
 /**
+ * OpenRouter AI Provider Integration
+ */
+export function getOpenRouterApiKey(): string {
+  try {
+    return localStorage.getItem('openrouter_api_key') || (import.meta as any).env?.VITE_OPENROUTER_API_KEY || '';
+  } catch {
+    return '';
+  }
+}
+
+export function setOpenRouterApiKey(key: string): void {
+  try {
+    if (key.trim()) {
+      localStorage.setItem('openrouter_api_key', key.trim());
+    } else {
+      localStorage.removeItem('openrouter_api_key');
+    }
+  } catch {
+    // Ignore storage issues
+  }
+}
+
+/**
+ * Query OpenRouter AI for culinary keywords, culinary descriptions, or recommendations.
+ */
+export async function callOpenRouterAi(prompt: string, model = 'google/gemini-2.5-flash'): Promise<string | null> {
+  const apiKey = getOpenRouterApiKey();
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://yemunnai.me',
+        'X-Title': 'Yemunnai Food Discovery'
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert culinary food visualizer for a campus food directory. Keep responses concise and focused.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 150
+      })
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Generate an AI food image URL based on item name and category.
- * Returns a high-res, mouthwatering culinary image.
+ * Integrates OpenRouter when configured and gracefully matches curated library / high-res imagery.
  */
 export async function generateAiFoodPhoto(itemName: string, category?: string): Promise<string> {
   const query = `${itemName} ${category ?? ''}`.trim().toLowerCase();
@@ -146,7 +209,27 @@ export async function generateAiFoodPhoto(itemName: string, category?: string): 
     }
   }
 
-  // 2. High quality culinary Unsplash fallback
+  // 2. If OpenRouter is configured, try querying OpenRouter for relevant search terms
+  const apiKey = getOpenRouterApiKey();
+  if (apiKey) {
+    try {
+      const openRouterKeywords = await callOpenRouterAi(
+        `Given this Indian/campus food item "${itemName}" (category: "${category ?? ''}"), name the 1 most famous visually identical dish in English (e.g. for "Idli Sambar" return "idli", for "Badam Milk" return "badam milk"). Return ONLY the 1-2 words:`
+      );
+      if (openRouterKeywords) {
+        const enriched = openRouterKeywords.toLowerCase();
+        for (const match of CULINARY_LIBRARY) {
+          if (match.keywords.some(kw => enriched.includes(kw))) {
+            return match.url;
+          }
+        }
+      }
+    } catch {
+      // Graceful fallback
+    }
+  }
+
+  // 3. High quality culinary Unsplash fallback
   const cleanTerms = itemName
     .replace(/[^a-zA-Z0-9\s]/g, ' ')
     .trim()

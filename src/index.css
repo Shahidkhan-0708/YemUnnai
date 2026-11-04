@@ -969,3 +969,244 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 .catalog-image-crop { display:block; position:relative; overflow:hidden; width:100%; aspect-ratio:4/3; }
 .food-photo .catalog-image-crop { height:100%; aspect-ratio:auto; }
 img[data-extracted] { object-fit:contain; }
+
+/* ==========================================================================
+   Homepage Menu Organization & Quick Links Styles
+   ========================================================================== */
+
+.homepage-quick-links-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  background: rgba(250, 248, 245, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin: 0 -16px 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #EBE4DC;
+}
+
+.homepage-quick-links-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+.homepage-quick-links-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  border: 1px solid #E2D9CF;
+  background: #FFFFFF;
+  color: #382B21;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(31, 20, 10, 0.04);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.quick-link-pill:hover {
+  background: #FFF7EF;
+  border-color: #F8B383;
+  transform: translateY(-1px);
+}
+
+.quick-link-pill.is-active {
+  background: linear-gradient(135deg, #FF7A1A, #F06A05);
+  border-color: #E05F00;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(240, 106, 5, 0.32);
+}
+
+.quick-link-pill.is-active .quick-link-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.quick-link-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.quick-link-text {
+  line-height: 1.2;
+}
+
+.quick-link-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: #F4EFEA;
+  color: #726255;
+  line-height: 1;
+}
+
+.quick-link-badge {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.quick-link-badge.badge-top {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.quick-link-badge.badge-budget {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.quick-link-pill.is-active .quick-link-badge {
+  background: #FFFFFF;
+  color: #D45B00;
+}
+
+/* Homepage View Mode Toggle */
+.homepage-view-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 18px;
+  gap: 12px;
+}
+
+.homepage-feed-meta-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6F6258;
+}
+
+.homepage-view-toggle {
+  display: inline-flex;
+  background: #EBE4DC;
+  padding: 3px;
+  border-radius: 10px;
+  gap: 3px;
+}
+
+.homepage-view-toggle button {
+  padding: 5px 11px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  color: #726255;
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.homepage-view-toggle button.is-selected {
+  background: #FFFFFF;
+  color: #1F140A;
+  box-shadow: 0 1px 4px rgba(31, 20, 10, 0.08);
+}
+
+/* Active QuickLink Summary Chip */
+.active-quicklink-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFF7EF;
+  border: 1px solid #FFD9BC;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #8C3700;
+}
+
+.active-quicklink-banner strong {
+  color: #B84700;
+}
+
+.active-quicklink-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #8C3700;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.active-quicklink-clear:hover {
+  background: #FFE8D6;
+}
+
+/* Organized Menu Section Headers */
+.homepage-menu-group {
+  margin-bottom: 32px;
+}
+
+.homepage-group-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #F0EAE3;
+}
+
+.homepage-group-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.homepage-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1F140A;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.homepage-group-desc {
+  font-size: 12px;
+  color: #7A6658;
+  margin: 0;
+}
+
+.homepage-group-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  background: #F4EFEA;
+  color: #6F6258;
+  white-space: nowrap;
+}
+
+.homepage-group-badge.highlight {
+  background: #FEF3C7;
+  color: #B45309;
+}
