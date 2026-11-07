@@ -19,6 +19,7 @@ import { useModalA11y } from './lib/useModalA11y';
 import { Toaster, toast } from './components/ui/sonner';
 import { reportAppError } from './lib/telemetry';
 import { CartProvider } from './context/CartContext.tsx';
+import { FloatingCartBar } from './components/FloatingCartBar';
 
 // Lazy-loaded modal & non-critical routes for fast initial bundle & 300+ user scalability
 const FeedbackModal = lazy(() => import('./components/FeedbackModal').then(m => ({ default: m.FeedbackModal })));
@@ -270,6 +271,7 @@ export function App() {
                 )}
 
                 </TabsContent>
+                <FloatingCartBar />
                 <BuyerTabBar activeTab={buyerTab} />
                 {/* Quick Order Modal — sits stably on top of screen with synced quantity */}
                 {selectedOrderFood && <QuickOrderModal

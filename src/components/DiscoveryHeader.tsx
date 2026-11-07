@@ -7,6 +7,7 @@ import type { ShopEntry, Coordinates } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 import { trackViewRestaurant } from '../lib/analytics';
 import { VendorCardPremium, type VendorItem } from './VendorCardPremium';
+import { HeroPromoBannerCarousel } from './HeroPromoBannerCarousel';
 import { haversineDistance, formatWalkingTime, shopCoordinates } from '../lib/mapLocations';
 
 export interface NearbyFoodMeta {
@@ -324,6 +325,16 @@ export function DiscoveryHeader({
           </label>
         </div>
       </div>
+
+      {/* Hero Promotional Deal Banners (Swiggy / Zomato Carousel) */}
+      {!searchQuery.trim() && (
+        <HeroPromoBannerCarousel 
+          onSelectShop={(shopName) => {
+            const foundShop = displayedShops.find(s => s.name === shopName);
+            onShop(shopName, foundShop?.id);
+          }}
+        />
+      )}
 
       {/* Comprehensive Nearby Food Section */}
       <div className="discovery-nearby-panel">
