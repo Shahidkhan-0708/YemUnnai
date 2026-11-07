@@ -1,27 +1,22 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Search, X, Sparkles } from 'lucide-react';
-import { Button } from './ui/button';
-import { useFoodItems, useShops, useReactions, useGeolocation } from '../lib/hooks';
+import { useFoodItems, useShops, useGeolocation } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
 import { useLanguage } from '../lib/language';
 import { SavedSyncNotice } from './SavedSyncNotice';
-import { menuPrices } from '../lib/menuPricing.ts';
-import { ItemCard } from './ItemCard.tsx';
-import { FilterBarPremium, type FilterState } from './FilterBarPremium';
 import { DiscoveryHeader } from './DiscoveryHeader';
-import {
-  HOMEPAGE_MENU_SECTIONS,
-  getFoodItemCategory,
-  getCampusFavorites,
-  getBudgetBites
-} from '../lib/homepageMenu';
+import { CircularCategories } from './CircularCategories';
+import { TopSellingSlider } from './TopSellingSlider';
+import { RestaurantPage } from './RestaurantPage';
+import { ShopMenuItem } from './ShopMenuItem';
+import { getFoodItemCategory } from '../lib/homepageMenu';
 import { trackPageView } from '../lib/analytics';
 import type { FoodItem } from '../lib/types';
+import { Button } from './ui/button';
 
 export type { FoodItem } from '../lib/types';
 
-interface HomeDiscoveryScreenProps {
+export interface HomeDiscoveryScreenProps {
   savedOnly?: boolean;
   restaurantId?: string | null;
   onBack?: () => void;
@@ -40,30 +35,20 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   restaurantId,
   onBack,
   cartCount = 0,
-  onWalkIn: _onWalkIn,
   onSelectShop,
   onSelectItem,
-  onBusinessPortal
+  onBusinessPortal,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [menuCategory, setMenuCategory] = useState('All');
-  const [filterCategory, setFilterCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  React.useEffect(() => {
-    setMenuCategory('All');
-    setFilterCategory('all');
-  }, [restaurantId]);
-
-  const heading = React.useRef<HTMLHeadingElement>(null);
-  const { t, lang } = useLanguage();
-  const { location, getLocation, error: _geoError } = useGeolocation();
+  const { t } = useLanguage();
+  const { location, getLocation } = useGeolocation();
   const saved = useSaved();
-  const [maxPrice, setMaxPrice] = useState('');
-  const [availableOnly, setAvailableOnly] = useState(false);
-  const [vegOnly, setVegOnly] = useState(false);
   const { shops, loading: shopsLoading, error: shopsError, retry: retryShops } = useShops();
   const { items, loading, error, retry } = useFoodItems();
-  const restaurant = shops.find(shop => shop.id === restaurantId);
+
+  const restaurant = shops.find((shop) => shop.id === restaurantId);
   const restaurantUnavailable = !!restaurantId && !shopsLoading && !shopsError && !restaurant;
   const selectedShop = restaurantId ? restaurant?.name ?? '' : 'All';
 
@@ -72,435 +57,237 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     if (!restaurantId || !headline) return;
     const title = `${headline} | YEMUNNAI`;
     document.title = title;
-    heading.current?.focus({ preventScroll: true });
     trackPageView(title, window.location.pathname + window.location.search);
   }, [restaurantId, selectedShop, restaurantUnavailable]);
 
-  const { counts, toggleLike, toggleDislike, pending, error: reactionError } = useReactions(items);
-  // toggleLike, toggleDislike, pending are defined but not used in this component
-  void toggleLike; void toggleDislike; void pending;
-
-  // Filter by query + shop + basic filters
-  const baseItems = useMemo(() => {
+  // Top 10 campus hits across all active online vendors
+  const topSellingDishes = useMemo(() => {
     return items
-      .filter(item => {
-        if (restaurantUnavailable) return false;
-        const q = searchQuery.trim().toLowerCase();
-        const matchesQuery = !q || item.name.toLowerCase().includes(q) || item.vendor.toLowerCase().includes(q);
-        const matchesShop = !restaurantId || item.vendorId === restaurantId;
-
-        // Check if this item's shop is offline
-        const shopMeta = shops.find(s => s.id === item.vendorId);
+      .filter((item) => {
+        const shopMeta = shops.find((s) => s.id === item.vendorId);
         const isShopOffline = shopMeta ? shopMeta.isOnline === false : item.isShopOnline === false;
-
-        // When browsing 'All' canteens, do not display products from offline canteens
-        if (!savedOnly && !restaurantId && isShopOffline) {
-          return false;
-        }
-
-        return matchesQuery && matchesShop && (!savedOnly || saved.ids.has(item.id))
-          && (menuCategory === 'All' || item.menuCategory === menuCategory)
-          && (!maxPrice || menuPrices(item).some(price => price > 0 && price <= Number(maxPrice)))
-          && (!availableOnly || (item.inStock && !isShopOffline && (!!item.sourceItemId || (item.price ?? 0) > 0)))
-          && (!vegOnly || item.isVeg === true);
+        return item.inStock && !isShopOffline && (item.price ?? 0) > 0;
       })
-      .map(item => {
-        const c = counts[item.id];
-        const shopMeta = shops.find(s => s.id === item.vendorId);
+      .sort((a, b) => {
+        const scoreA = (a.rating ?? 4.2) * 10 + (a.likes ?? 0);
+        const scoreB = (b.rating ?? 4.2) * 10 + (b.likes ?? 0);
+        return scoreB - scoreA;
+      })
+      .slice(0, 10);
+  }, [items, shops]);
+
+  // Filtered top dishes when a circular category is selected
+  const filteredTopItems = useMemo(() => {
+    if (!selectedCategory || selectedCategory === 'all') {
+      return topSellingDishes;
+    }
+    return items
+      .filter((item) => {
+        const shopMeta = shops.find((s) => s.id === item.vendorId);
         const isShopOffline = shopMeta ? shopMeta.isOnline === false : item.isShopOnline === false;
-        return {
-          ...item,
-          likes: c ? c.likes : item.likes,
-          dislikes: c ? c.dislikes : item.dislikes,
-          isShopOnline: !isShopOffline
-        };
-      });
-  }, [items, restaurantUnavailable, searchQuery, restaurantId, shops, savedOnly, saved.ids, menuCategory, maxPrice, availableOnly, vegOnly, counts]);
+        if (!item.inStock || isShopOffline || (item.price ?? 0) <= 0) return false;
 
-  // Filter items if a Category / Pill is selected
-  const displayedItems = useMemo(() => {
-    if (restaurantId) {
-      if (filterCategory === 'all') return baseItems;
-      return baseItems.filter(i => 
-        i.menuCategory === filterCategory || 
-        getFoodItemCategory(i) === filterCategory ||
-        (i.menuCategory && i.menuCategory.toLowerCase().includes(filterCategory.toLowerCase()))
-      );
-    }
-    if (filterCategory === 'all') return baseItems;
-    if (filterCategory === 'hits') return getCampusFavorites(baseItems, 12);
-    if (filterCategory === 'tiffin') {
-      return baseItems.filter(i => getFoodItemCategory(i) === 'Tiffin' || i.menuCategory?.toLowerCase().includes('tiffin'));
-    }
-    if (filterCategory === 'beverages') {
-      return baseItems.filter(i => {
-        const cat = getFoodItemCategory(i);
-        return cat === 'Tea & Coffee' || cat === 'Drinks & Coolers' || i.menuCategory?.toLowerCase().includes('beverage') || i.menuCategory?.toLowerCase().includes('drink') || i.menuCategory?.toLowerCase().includes('tea') || i.menuCategory?.toLowerCase().includes('coffee');
-      });
-    }
-    if (filterCategory === 'meals') {
-      return baseItems.filter(i => {
-        const cat = getFoodItemCategory(i);
-        return cat === 'Meals & Biryani' || i.menuCategory?.toLowerCase().includes('meals') || i.menuCategory?.toLowerCase().includes('biryani') || i.menuCategory?.toLowerCase().includes('thali') || i.menuCategory?.toLowerCase().includes('lunch');
-      });
-    }
-    if (filterCategory === 'fast_food') {
-      return baseItems.filter(i => {
-        const cat = getFoodItemCategory(i);
-        return cat === 'Fast Food & Snacks' || cat === 'Pizza & Italian' || cat === 'Puffs & Bakery' || i.menuCategory?.toLowerCase().includes('fast food') || i.menuCategory?.toLowerCase().includes('snack');
-      });
-    }
-    return baseItems.filter(i => getFoodItemCategory(i) === filterCategory || i.menuCategory === filterCategory);
-  }, [baseItems, restaurantId, filterCategory]);
+        const cat = getFoodItemCategory(item);
+        const nameLower = item.name.toLowerCase();
+        if (selectedCategory === 'tiffin') {
+          return cat === 'Tiffin' || nameLower.includes('dosa') || nameLower.includes('idli') || nameLower.includes('poori');
+        }
+        if (selectedCategory === 'meals') {
+          return cat === 'Meals & Biryani' || nameLower.includes('meal') || nameLower.includes('thali') || nameLower.includes('curd rice');
+        }
+        if (selectedCategory === 'biryani') {
+          return nameLower.includes('biryani') || nameLower.includes('fried rice');
+        }
+        if (selectedCategory === 'beverages') {
+          return cat === 'Tea & Coffee' || cat === 'Drinks & Coolers' || nameLower.includes('tea') || nameLower.includes('chai') || nameLower.includes('coffee');
+        }
+        if (selectedCategory === 'fast_food') {
+          return cat === 'Fast Food & Snacks' || nameLower.includes('pizza') || nameLower.includes('burger') || nameLower.includes('fries') || nameLower.includes('sandwich');
+        }
+        if (selectedCategory === 'snacks') {
+          return cat === 'Puffs & Bakery' || nameLower.includes('samosa') || nameLower.includes('bajji') || nameLower.includes('manchurian');
+        }
+        if (selectedCategory === 'coolers') {
+          return nameLower.includes('juice') || nameLower.includes('shake') || nameLower.includes('cooler') || nameLower.includes('mojito');
+        }
+        if (selectedCategory === 'bakery') {
+          return nameLower.includes('puff') || nameLower.includes('biscuit') || nameLower.includes('cake');
+        }
+        return true;
+      })
+      .slice(0, 10);
+  }, [items, shops, selectedCategory, topSellingDishes]);
 
-  const restaurantEmpty = !!restaurantId && !loading && !restaurantUnavailable && displayedItems.length === 0;
+  // Global search results across all vendors if searching from homepage
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return items
+      .filter((item) => {
+        const shopMeta = shops.find((s) => s.id === item.vendorId);
+        const isShopOffline = shopMeta ? shopMeta.isOnline === false : item.isShopOnline === false;
+        if (isShopOffline) return false;
+        return item.name.toLowerCase().includes(q) || item.vendor.toLowerCase().includes(q);
+      })
+      .slice(0, 20);
+  }, [items, shops, searchQuery]);
 
-  // Interleave restaurants when viewing mixed feed
-  const feedItems = useMemo(() => {
-    if (restaurantId) return displayedItems;
-    const byRestaurant = new Map<string, FoodItem[]>();
-    for (const item of displayedItems) {
-      const key = item.vendorId || item.vendor;
-      if (!byRestaurant.has(key)) byRestaurant.set(key, []);
-      byRestaurant.get(key)!.push(item);
-    }
-    const mixed: FoodItem[] = [];
-    for (let position = 0; mixed.length < displayedItems.length; position++) {
-      for (const group of byRestaurant.values()) if (group[position]) mixed.push(group[position]);
-    }
-    return mixed;
-  }, [displayedItems, restaurantId]);
+  // Saved items list
+  const savedDishes = useMemo(() => {
+    if (!savedOnly) return [];
+    return items.filter((item) => saved.ids.has(item.id));
+  }, [savedOnly, items, saved.ids]);
 
-  // Categories when viewing a specific restaurant
-  const shopItems = restaurantId ? items.filter(item => item.vendorId === restaurantId) : items;
-  const menuCategories = restaurantId ? [...new Set(shopItems.filter(item => item.menuCategory).map(item => item.menuCategory!))] : [];
-  const restaurantGroups = restaurantId && menuCategories.length && filterCategory === 'all' ? [
-    ...menuCategories.map(category => ({ category, items: displayedItems.filter(item => item.menuCategory === category) })),
-    { category: 'More dishes', items: displayedItems.filter(item => !item.menuCategory) }
-  ].filter(group => group.items.length) : null;
-
-  // Organized sections on Homepage when All is selected
-  const campusFavorites = useMemo(() => getCampusFavorites(displayedItems, 6), [displayedItems]);
-  const budgetBites = useMemo(() => getBudgetBites(displayedItems, 50, 8), [displayedItems]);
-  const homepageMenuSections = useMemo(() => {
-    return HOMEPAGE_MENU_SECTIONS.map(section => {
-      const sectionDishes = displayedItems.filter(item => getFoodItemCategory(item) === section.key);
-      return {
-        ...section,
-        items: sectionDishes
-      };
-    }).filter(section => section.items.length > 0);
-  }, [displayedItems]);
-
-  const renderFoodCard = (item: FoodItem) => {
+  // -------------------------------------------------------------------------
+  // 1. DEDICATED RESTAURANT VIEW (ORDER / MENU LAYER)
+  // -------------------------------------------------------------------------
+  if (restaurantId) {
     return (
-      <ItemCard
-        key={item.id}
-        item={item}
-        onSelect={onSelectItem}
-      />
-    );
-  };
-
-  const isHomepageOrganized = !restaurantId && !savedOnly && filterCategory === 'all' && !searchQuery.trim() && !maxPrice;
-
-  const currentFilters: FilterState = {
-    category: filterCategory,
-    maxPrice: maxPrice ? Number(maxPrice) : null,
-    availableNow: availableOnly,
-    pureVeg: vegOnly,
-  };
-
-  const handleFilterChange = (updated: FilterState) => {
-    setMaxPrice(updated.maxPrice !== null ? String(updated.maxPrice) : '');
-    setAvailableOnly(updated.availableNow);
-    setVegOnly(updated.pureVeg);
-    setFilterCategory(updated.category || 'all');
-  };
-
-  return (
-    <SvgScreenFrame screen={null}>
-      <section className="discovery-screen screen-enter">
-        {restaurantId ? (
-          <header className="bg-white">
-            {/* Sleek Navigation Header */}
-            <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-              <button 
-                type="button" 
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-700 active:scale-95 transition-transform cursor-pointer"
-                aria-label="Back to Discover"
-                onClick={onBack}
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <h1 ref={heading} tabIndex={-1} className="text-xl font-black text-gray-950 tracking-tight">
-                {selectedShop || (restaurantUnavailable ? 'Restaurant unavailable' : 'Restaurant menu')}
-              </h1>
-            </div>
-
-            {/* Unified Premium Info Card (Swiggy / Zomato Style) */}
-            {restaurant && (
-              <div className="px-4 pb-3">
-                <div className="w-full bg-white border border-gray-100 rounded-2xl p-4 shadow-sm mt-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-black tracking-widest text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                      {restaurant.tag || 'Food Court'}
-                    </span>
-                    <div className="flex items-center gap-1 bg-green-600 text-white font-black text-xs px-2 py-0.5 rounded-lg shadow-xs">
-                      <span>★</span> 4.4
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold mt-2">
-                    <span>📍 {restaurant.locationLandmark || 'Campus Food Court'}</span>
-                    <span>·</span>
-                    <span>{restaurant.isOnCampus ? 'Inside MITS' : 'Ground Floor'}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Sticky Search Bar Container */}
-            <div className="p-4 bg-white border-t border-gray-50">
-              <div className="relative flex items-center">
-                <Search size={16} className="absolute left-3.5 text-gray-400" />
-                <input
-                  type="search"
-                  aria-label="Search food or shops"
-                  placeholder="Search for dishes, snacks, drinks..."
-                  value={searchQuery}
-                  onChange={event => setSearchQuery(event.target.value)}
-                  className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium placeholder-gray-400 focus:outline-hidden focus:border-orange-400 focus:bg-white transition-all shadow-inner"
-                />
-                {searchQuery && (
-                  <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')} className="absolute right-3 text-gray-400 hover:text-gray-600 cursor-pointer">
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-          </header>
-        ) : (
-          <DiscoveryHeader
+      <SvgScreenFrame screen={null}>
+        <section className="discovery-screen screen-enter">
+          <RestaurantPage
+            restaurantId={restaurantId}
             shops={shops}
-            loading={shopsLoading}
-            selectedShop={selectedShop}
-            searchQuery={searchQuery}
-            cartCount={cartCount}
-            onSearch={setSearchQuery}
-            onShop={onSelectShop ?? (() => {})}
-            onBusinessPortal={onBusinessPortal}
-            userLocation={location}
-            onLocationRequest={getLocation}
+            items={items}
+            loading={loading || shopsLoading}
+            onBack={onBack ?? (() => {})}
+            onSelectItem={onSelectItem}
           />
-        )}
+        </section>
+      </SvgScreenFrame>
+    );
+  }
 
-        {/* Subtle Background Gray Divider Block */}
-        {!restaurantId && !savedOnly && (
-          <div className="app-section-divider" aria-hidden="true" />
-        )}
+  // -------------------------------------------------------------------------
+  // 2. SAVED DISHES VIEW
+  // -------------------------------------------------------------------------
+  if (savedOnly) {
+    return (
+      <SvgScreenFrame screen={null}>
+        <section className="discovery-screen screen-enter bg-white min-h-screen pb-28">
+          <div className="px-4 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h1 className="text-xl font-black text-gray-950 tracking-tight">
+              {t('Saved items', 'భద్రపరచిన వంటకాలు')}
+            </h1>
+            <span className="text-xs font-bold text-gray-400">
+              {savedDishes.length} {savedDishes.length === 1 ? 'dish' : 'dishes'}
+            </span>
+          </div>
 
-        <div className="discovery-content">
-          {loading && items.length > 0 && (
-            <p className="menu-refresh-status" role="status">
-              {t('Updating prices and availability…', 'ధరలు మరియు లభ్యత నవీకరిస్తున్నాం…')}
-            </p>
-          )}
-          {!loading && vegOnly && !displayedItems.length && (
-            <p className="menu-refresh-status" role="status">
-              {t(
-                'Only seller-confirmed veg dishes appear in Pure veg. Items without a food label stay hidden.',
-                'శాకాహారంగా విక్రేత నిర్ధారించిన వంటకాలు మాత్రమే కనిపిస్తాయి. ఆహార రకం పేర్కొనని వంటకాలు కనిపించవు.'
-              )}
-            </p>
-          )}
-          {reactionError && <p className="pickup-error" role="alert">{reactionError}</p>}
-          {(error || shopsError) && (
-            <div role="alert" className="pickup-error">
-              {t('Unable to load the menu.', 'మెనూ లోడ్ కాలేదు')}
-              <Button variant="outline" onClick={() => { retry(); retryShops(); }}>Retry</Button>
-            </div>
-          )}
-          {(savedOnly || saved.error === 'storage_unavailable') && (
+          {(saved.error === 'storage_unavailable') && (
             <SavedSyncNotice error={saved.error} syncing={saved.syncing} retry={saved.retry} />
           )}
-          {savedOnly && <h1 className="saved-heading">{t('Saved items', 'భద్రపరచిన వంటకాలు')}</h1>}
 
-          {/* Integrated Section Header Group (Step 1 & 2: Header + Metadata Sub-label) */}
-          {!restaurantId && !savedOnly && (
-            <div className="connected-header-group">
-              <div className="connected-title-row">
-                <h2 className="connected-section-title">
-                  <span>🔥</span>
-                  {t('Campus Favorites & Top Rated', 'క్యాంపస్ పాపులర్ వంటకాలు')}
-                </h2>
-                <span className="connected-top-badge">
-                  <Sparkles size={11} style={{ display: 'inline', marginRight: '3px' }} />
-                  {t('Top Rated', 'టాప్')}
-                </span>
-              </div>
-              <p className="connected-subtitle">
-                {displayedItems.length} {t('delicious options available nearby', 'రుచికరమైన ఎంపికలు అందుబాటులో ఉన్నాయి')}
+          {savedDishes.length === 0 ? (
+            <div className="p-12 text-center text-gray-500">
+              <p className="text-base font-black text-gray-800">No saved dishes yet</p>
+              <p className="text-xs text-gray-400 mt-1">
+                Tap the bookmark on any dish to save your campus favorites here.
               </p>
-            </div>
-          )}
-
-          {/* Contextually Connected Minimalist Filter Track (Step 3: Directly below Header) */}
-          <FilterBarPremium
-            filters={currentFilters}
-            onFilterChange={handleFilterChange}
-            totalCount={displayedItems.length}
-            hideHeaderCounter={!restaurantId && !savedOnly}
-          />
-
-          {/* Restaurant-specific Category Dropdown Filter */}
-          {menuCategories.length > 0 && (
-            <label className="restaurant-category-filter">
-              Menu category
-              <select
-                className="pickup-input"
-                aria-label="Restaurant menu category"
-                value={menuCategory}
-                onChange={e => setMenuCategory(e.target.value)}
-              >
-                <option value="All">All categories</option>
-                {menuCategories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </label>
-          )}
-
-          {/* Skeletons while Loading */}
-          {loading && !items.length ? (
-            <div className="food-grid discovery-loading" role="status" aria-label="Loading menu">
-              {[0, 1, 2, 3].map(i => (
-                <div className="food-card food-skeleton" key={i}>
-                  <div /><span /><span />
-                </div>
-              ))}
-            </div>
-          ) : restaurantGroups ? (
-            /* Restaurant Detail Mode with Categories */
-            <div>
-              {restaurantGroups.map(group => (
-                <section className="restaurant-menu-group" key={group.category}>
-                  <div className="flex items-center justify-between px-3.5 py-2.5 bg-gray-50/90 rounded-xl mb-3 border-l-4 border-orange-500 shadow-2xs">
-                    <h2 className="text-sm font-black text-gray-900 tracking-tight">{group.category}</h2>
-                    <span className="text-[11px] font-bold text-gray-400">{group.items.length} items</span>
-                  </div>
-                  <div className="food-grid">{group.items.map(renderFoodCard)}</div>
-                </section>
-              ))}
-            </div>
-          ) : isHomepageOrganized ? (
-            /* =================================================================
-               HOMEPAGE MENU ORGANIZATION: Structured, Curated Categories
-               ================================================================= */
-            <div>
-              {/* 1. Campus Hits & Favorites - Streamlined seamlessly under filters */}
-              {campusFavorites.length > 0 && (
-                <section className="homepage-menu-group" style={{ marginTop: '4px' }}>
-                  <div className="food-grid">
-                    {campusFavorites.map(renderFoodCard)}
-                  </div>
-                </section>
-              )}
-
-              {/* 2. Budget Student Bites Under ₹50 */}
-              {budgetBites.length > 0 && (
-                <section className="homepage-menu-group">
-                  <header className="homepage-group-header">
-                    <div className="homepage-group-title-wrap">
-                      <h2 className="homepage-group-title">
-                        <span>⚡</span>
-                        {t('Student Budget Bites · Under ₹50', 'పాకెట్ ఫ్రెండ్లీ · ₹50 లోపు')}
-                      </h2>
-                      <p className="homepage-group-desc">
-                        {t('Quick affordable snacks, chai, and breakfast on a student budget', 'తక్కువ ధరలో తక్షణ స్నాక్స్ మరియు టీ')}
-                      </p>
-                    </div>
-                    <span className="homepage-group-badge">
-                      {budgetBites.length} {t('dishes', 'వంటకాలు')}
-                    </span>
-                  </header>
-                  <div className="food-grid">
-                    {budgetBites.map(renderFoodCard)}
-                  </div>
-                </section>
-              )}
-
-              {/* 3. Categorized Menu Sections */}
-              {homepageMenuSections.map(section => (
-                <section className="homepage-menu-group" key={section.key} id={`menu-sec-${section.key.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
-                  <header className="homepage-group-header">
-                    <div className="homepage-group-title-wrap">
-                      <h2 className="homepage-group-title">
-                        <span>{section.icon}</span>
-                        {lang === 'te' ? section.titleTe : section.title}
-                      </h2>
-                      <p className="homepage-group-desc">{section.desc}</p>
-                    </div>
-                    <span className="homepage-group-badge">
-                      {section.items.length} {t('dishes', 'వంటకాలు')}
-                    </span>
-                  </header>
-                  <div className="food-grid">
-                    {section.items.map(renderFoodCard)}
-                  </div>
-                </section>
-              ))}
             </div>
           ) : (
-            /* Mixed Interleaved Feed or Active QuickLink Filter Grid */
-            <div className="food-grid discovery-loading">
-              {feedItems.map(renderFoodCard)}
+            <div className="divide-y divide-gray-100">
+              {savedDishes.map((item) => (
+                <ShopMenuItem
+                  key={item.id}
+                  item={item}
+                  onSelect={onSelectItem}
+                />
+              ))}
             </div>
           )}
+        </section>
+      </SvgScreenFrame>
+    );
+  }
 
-          {/* Empty State */}
-          {!loading && !error && !displayedItems.length && (
-            <div className="pickup-card empty-menu">
-              <h2>
-                {restaurantUnavailable
-                  ? 'Restaurant unavailable'
-                  : restaurantEmpty
-                  ? 'Menu coming soon'
-                  : savedOnly
-                  ? saved.ids.size
-                    ? 'No saved dishes match'
-                    : 'No saved dishes yet'
-                  : 'No dishes found'}
+  // -------------------------------------------------------------------------
+  // 3. CLEAN HOMEPAGE (DISCOVERY LAYER)
+  // Banned loose vertical food listing entirely; strictly high-level discovery widgets!
+  // -------------------------------------------------------------------------
+  return (
+    <SvgScreenFrame screen={null}>
+      <section className="discovery-screen screen-enter bg-gray-50 pb-28 font-sans space-y-0">
+        {/* Error notifications */}
+        {(error || shopsError) && (
+          <div role="alert" className="pickup-error m-4">
+            {t('Unable to load the menu.', 'మెనూ లోడ్ కాలేదు')}
+            <Button
+              variant="outline"
+              onClick={() => {
+                retry();
+                retryShops();
+              }}
+              className="ml-2"
+            >
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {/* Modular Widget 1: Search & Location Header with Hero Promo Carousel & Nearby Canteens Slider */}
+        <DiscoveryHeader
+          shops={shops}
+          loading={shopsLoading}
+          selectedShop="All"
+          searchQuery={searchQuery}
+          cartCount={cartCount}
+          onSearch={setSearchQuery}
+          onShop={onSelectShop ?? (() => {})}
+          onBusinessPortal={onBusinessPortal}
+          userLocation={location}
+          onLocationRequest={getLocation}
+        />
+
+        {/* Contextual Global Search Query Handling */}
+        {searchQuery.trim() ? (
+          <div className="w-full bg-white py-4 px-4 border-b-8 border-gray-50">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-black text-gray-900 tracking-tight">
+                Search Results for &ldquo;{searchQuery}&rdquo; ({searchResults.length})
               </h2>
-              <p>
-                {restaurantUnavailable
-                  ? 'Return to Discover to choose another restaurant.'
-                  : restaurantEmpty
-                  ? 'Food items will appear here when the restaurant adds its menu.'
-                  : savedOnly
-                  ? saved.ids.size
-                    ? 'Try clearing your filters or switching food categories.'
-                    : 'Tap the bookmark on a dish to keep it here.'
-                  : 'Try clearing your search or filters.'}
-              </p>
-              {!restaurantUnavailable && !restaurantEmpty && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setMaxPrice('');
-                    setMenuCategory('All');
-                    setFilterCategory('all');
-                    setVegOnly(false);
-                    setAvailableOnly(false);
-                  }}
-                >
-                  Clear filters
-                </Button>
-              )}
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="text-xs font-bold text-orange-600 hover:text-orange-700 cursor-pointer"
+              >
+                Clear
+              </button>
             </div>
-          )}
-        </div>
+            {searchResults.length === 0 ? (
+              <p className="text-xs text-gray-400 py-8 text-center font-medium">
+                No campus dishes or canteens found matching &ldquo;{searchQuery}&rdquo;
+              </p>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {searchResults.map((item) => (
+                  <ShopMenuItem
+                    key={item.id}
+                    item={item}
+                    onSelect={onSelectItem}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Modular Widget 2: Horizontal Circular Dish Categories */}
+            <CircularCategories
+              selectedCategoryId={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+
+            {/* Modular Widget 3: Top-Selling Dishes Horizontal Slider (Strictly max 10 items total) */}
+            <TopSellingSlider
+              items={filteredTopItems}
+              onSelectItem={onSelectItem}
+            />
+          </>
+        )}
       </section>
     </SvgScreenFrame>
   );
 };
+
+export default HomeDiscoveryScreen;
