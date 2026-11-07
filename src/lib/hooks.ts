@@ -16,6 +16,104 @@ import {
 import type { FoodCategory, FoodItem, ShopEntry, DashboardOrder, VendorStats } from './types';
 import { supabase } from './supabase';
 import { cachedFoods, cachedShops, saveFoodSnapshot, saveShopSnapshot } from './catalogSnapshot';
+import { shopCoordinates } from './mapLocations';
+
+/**
+ * Geolocation state management hook.
+ * Provides the user's current position with permission handling and error recovery.
+ */
+export function useGeolocation() {
+  const [location, setLocation] = useState<[number, number] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+
+  const getLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser');
+      setPermissionDenied(true);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const timeoutId = setTimeout(() => {
+      setError('Location request timed out. Please try again.');
+      setLoading(false);
+    }, 10000);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        clearTimeout(timeoutId);
+        const coords: [number, number] = [
+          position.coords.latitude,
+          position.coords.longitude
+        ];
+        setLocation(coords);
+        setPermissionDenied(false);
+        setLoading(false);
+      },
+      (err) => {
+        clearTimeout(timeoutId);
+        if (err.code === err.PERMISSION_DENIED) {
+          setPermissionDenied(true);
+          setError('Location access denied. You can select a location manually.');
+        } else if (err.code === err.TIMEOUT) {
+          setError('Location request timed out. Please try again.');
+        } else {
+          setError('Unable to retrieve your location. Please try again.');
+        }
+        setLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5 * 60 * 1000 // 5 minutes cache
+      }
+    );
+  }, []);
+
+  const watchPosition = useCallback((callback: (coords: [number, number]) => void) => {
+    if (!navigator.geolocation) return undefined;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const coords: [number, number] = [
+          position.coords.latitude,
+          position.coords.longitude
+        ];
+        callback(coords);
+      },
+      (err) => {
+        console.error('[useGeolocation] Watch error:', err);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60 * 1000 // 1 minute cache for watch
+      }
+    );
+
+    return watchId;
+  }, []);
+
+  const clearWatch = useCallback((watchId: number) => {
+    if (watchId !== undefined && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchId);
+    }
+  }, []);
+
+  return {
+    location,
+    error,
+    loading,
+    permissionDenied,
+    getLocation,
+    watchPosition,
+    clearWatch
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Consumer discovery
@@ -250,9 +348,7 @@ export function useVendorSession(): {
       }).data.subscription;
     }
     void refresh(++sessionRevision);
-    const unsubscribeCatalog = subscribeCatalogUpdates(() => { void refresh(++sessionRevision); });
     return () => {
-      unsubscribeCatalog();
       vendorListeners.delete(listener);
       if (vendorListeners.size === 0) {
         vendorAuthSubscription?.unsubscribe();
@@ -322,11 +418,11 @@ export function useVendorStats(vendorId: string | null, retry = 0): VendorStats 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<VendorStats>(
-    { ordersToday: 0, totalLikes: 0, avgRating: null }
+    { ordersToday: 0, totalLikes: 0, avgRating: null, liveVisitors: 0, viewsToday: 0 }
   );
 
   useEffect(() => {
-    setStats({ ordersToday: 0, totalLikes: 0, avgRating: null });
+    setStats({ ordersToday: 0, totalLikes: 0, avgRating: null, liveVisitors: 0, viewsToday: 0 });
     setError(null);
     if (!vendorId) { setLoading(false); return; }
     setLoading(true);

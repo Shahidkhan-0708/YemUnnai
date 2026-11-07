@@ -113,11 +113,7 @@ export interface FoodItem {
   likes?: number;
   dislikes?: number;
   reviews?: number;
-  rating?: number | null;
-  freshnessTag?: string;
   stockLeft?: number;
-  walkTime?: string;
-  actionType: ActionType;
   inStock: boolean;
   isVeg?: boolean;
   latitude?: number;
@@ -160,6 +156,8 @@ export interface VendorStats {
   liveVisitors?: number;
   viewsToday?: number;
 }
+
+export type Coordinates = [number, number];
 
 export interface NewFoodItemInput {
   name: string;

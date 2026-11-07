@@ -1,8 +1,8 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { ThumbsUp, MessageSquare, ChevronRight, Star, ArrowLeft, Search, X, Sparkles, LayoutGrid, Layers } from 'lucide-react';
+import { ChevronRight, ArrowLeft, Search, X, Sparkles, LayoutGrid, Layers } from 'lucide-react';
 import { Button } from './ui/button';
-import { useFoodItems, useShops, useReactions } from '../lib/hooks';
+import { useFoodItems, useShops, useReactions, useGeolocation } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
 import { useLanguage } from '../lib/language';
 import { SaveToggle } from './SaveToggle';
@@ -66,6 +66,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 
   const heading = React.useRef<HTMLHeadingElement>(null);
   const { t, lang } = useLanguage();
+  const { location, getLocation, error: geoError } = useGeolocation();
   const saved = useSaved();
   const [maxPrice, setMaxPrice] = useState('');
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -201,9 +202,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   }, [restaurantGroups, feedItems]);
 
   const renderFoodCard = (item: FoodItem) => {
-    const isLiked = myReactions[item.id] === 'like';
     const unavailable = loading || !!error || !item.inStock || (!item.sourceItemId && (item.price ?? 0) <= 0) || item.isShopOnline === false;
-    const hasRating = typeof item.rating === 'number' && Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 5;
 
     return (
       <article className="food-card" data-imported={!!item.sourceItemId} key={item.id}>
@@ -244,36 +243,10 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
           >
             <MenuPrice item={item} />
           </span>
-          <span
-            className="food-rating"
-            data-rated={hasRating}
-            aria-label={hasRating ? `${t('Rating', 'రేటింగ్')}: ${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet', 'ఇంకా రేటింగ్ లేదు')}
-            title={hasRating ? `${Number(item.rating).toFixed(1)} / 5` : t('Not rated yet', 'ఇంకా రేటింగ్ లేదు')}
-          >
-            <Star size={11} aria-hidden="true" fill={hasRating ? 'currentColor' : 'none'} />
-            {hasRating ? Number(item.rating).toFixed(1) : '—'}
-          </span>
-        </div>
+          </div>
         <p className="food-availability" aria-hidden={unavailable || undefined}>
           {!unavailable ? t('Available', 'అందుబాటులో ఉంది') : null}
         </p>
-        <div className="food-social">
-          <button
-            type="button"
-            aria-label={`Like ${item.name}`}
-            aria-pressed={isLiked}
-            disabled={pendingReactions.has(item.id)}
-            className={isLiked ? 'is-liked' : ''}
-            onClick={() => void toggleLike(item.id)}
-          >
-            <ThumbsUp size={13} strokeWidth={1.4} fill={isLiked ? 'currentColor' : 'none'} />
-            {item.likes}
-          </button>
-          <button type="button" aria-label={`Review ${item.name}`} onClick={() => onReview?.(item)}>
-            <MessageSquare size={13} strokeWidth={1.4} />
-            {item.reviews}
-          </button>
-        </div>
         <Button
           className="food-action"
           variant="walkin"
@@ -329,6 +302,8 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
             onShop={onSelectShop ?? (() => {})}
             onCart={onCartClick}
             onBusinessPortal={onBusinessPortal}
+            userLocation={location}
+            onLocationRequest={getLocation}
           />
         )}
 
@@ -409,6 +384,61 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
               />
               <span className="diet-mark"><i /></span>
               {t('Pure veg', 'శాకాహారం')}
+            </label>
+          </fieldset>
+
+          {/* Category Filter Pills */}
+          <fieldset className="discovery-filters">
+            <legend className="sr-only">Filter by category</legend>
+            <label className="beverage-filter">
+              <input
+                type="radio"
+                name="category-filter"
+                value="Beverages"
+                checked={menuCategory === 'Beverages'}
+                onChange={e => setMenuCategory(e.target.value)}
+              />
+              <span>Beverages</span>
+            </label>
+            <label className="drink-filter">
+              <input
+                type="radio"
+                name="category-filter"
+                value="Drinks"
+                checked={menuCategory === 'Drinks'}
+                onChange={e => setMenuCategory(e.target.value)}
+              />
+              <span>Drinks</span>
+            </label>
+            <label className="tiffin-filter">
+              <input
+                type="radio"
+                name="category-filter"
+                value="Tiffin"
+                checked={menuCategory === 'Tiffin'}
+                onChange={e => setMenuCategory(e.target.value)}
+              />
+              <span>Tiffin</span>
+            </label>
+            <label className="lunch-filter">
+              <input
+                type="radio"
+                name="category-filter"
+                value="Lunch"
+                checked={menuCategory === 'Lunch'}
+                onChange={e => setMenuCategory(e.target.value)}
+              />
+              <span>Lunch</span>
+            </label>
+            <label className="fast-food-filter">
+              <input
+                type="radio"
+                name="category-filter"
+                value="Fast Food"
+                checked={menuCategory === 'Fast Food'}
+                onChange={e => setMenuCategory(e.target.value)}
+              />
+              <span>Fast Food</span>
             </label>
           </fieldset>
 

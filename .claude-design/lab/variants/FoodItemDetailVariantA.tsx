@@ -2,8 +2,8 @@
 // Clear visual hierarchy with prominent photo, key info above fold, progressive disclosure
 // Swiggy-style: hero photo, sticky action bar, organized sections
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS, type FoodItem, type Vendor } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0]; // Chicken Biryani
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
@@ -157,7 +157,7 @@ export function FoodItemDetailVariantA() {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="#C87809">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
-                {vendor.rating.toFixed(1)} ({vendor.reviewCount} reviews)
+                {vendor.rating.toFixed(1)} ({vendor.rating} rating)
               </span>
             </div>
           </div>
@@ -177,14 +177,14 @@ export function FoodItemDetailVariantA() {
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
               <span style={{ fontSize: '15px', fontWeight: '600', color: '#1F140A' }}>{item.rating.toFixed(1)}</span>
-              <span style={{ fontSize: '13px', color: '#7A6658' }}>({item.reviewCount} reviews)</span>
+              <span style={{ fontSize: '13px', color: '#7A6658' }}>({item.reviews} reviews)</span>
             </div>
             <span style={{ color: '#D6DCE2' }}>•</span>
             <span style={{ fontSize: '13px', color: '#7A6658', display: 'flex', alignItems: 'center', gap: '3px' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
-              {item.prepTime}
+              {'10-15 min'}
             </span>
           </div>
         </div>
@@ -192,7 +192,7 @@ export function FoodItemDetailVariantA() {
         {/* Description - Expandable */}
         <div style={{ marginBottom: '20px' }}>
           <p style={{ margin: '0 0 8px', fontSize: '14px', lineHeight: '22px', color: '#1F140A', display: showFullDescription ? 'block' : '-webkit-box', WebkitLineClamp: showFullDescription ? 'unset' : 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-            {item.description}
+            {'Delicious food prepared with fresh ingredients'}
           </p>
           <button
             onClick={() => setShowFullDescription(!showFullDescription)}
@@ -207,7 +207,7 @@ export function FoodItemDetailVariantA() {
           <div style={{ marginBottom: '20px' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: '600', color: '#1F140A' }}>Select portion</h4>
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-              {item.portionSizes.map((portion: string, idx: number) => (
+              {item.portionSizes?.map((portion: { name: string; price: number }) => (
                 <button
                   key={portion}
                   onClick={() => setSelectedPortion(portion)}
@@ -216,18 +216,18 @@ export function FoodItemDetailVariantA() {
                     minWidth: '90px',
                     padding: '10px 16px',
                     borderRadius: '12px',
-                    background: selectedPortion === portion ? '#FFF0E3' : 'white',
-                    border: selectedPortion === portion ? '2px solid #F06A05' : '1px solid #F0E8E0',
-                    color: selectedPortion === portion ? '#A23D00' : '#1F140A',
+                    background: selectedPortion?.name === portion.name ? '#FFF0E3' : 'white',
+                    border: selectedPortion?.name === portion.name ? '2px solid #F06A05' : '1px solid #F0E8E0',
+                    color: selectedPortion?.name === portion.name ? '#A23D00' : '#1F140A',
                     fontSize: '13px',
-                    fontWeight: selectedPortion === portion ? '600' : '500',
+                    fontWeight: selectedPortion?.name === portion.name ? '600' : '500',
                     cursor: 'pointer',
                     transition: 'all 150ms ease',
                     whiteSpace: 'nowrap'
                   }}
-                  aria-pressed={selectedPortion === portion}
+                  aria-pressed={selectedPortion?.name === portion.name}
                 >
-                  {portion}
+                  {portion.name}
                 </button>
               ))}
             </div>
@@ -297,7 +297,7 @@ export function FoodItemDetailVariantA() {
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: '600', color: '#7A6658', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Highlights</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {item.tags.map((tag: string) => (
+            {['Healthy', 'Popular', 'Fast Delivery'].map((tag: string) => (
               <span key={tag} style={{
                 fontSize: '11px',
                 fontWeight: '500',

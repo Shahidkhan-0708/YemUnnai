@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Walking Route</title>
+  <meta name="description" site="Minimalist pastel site analysis map for walking directions">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #FAF8F5;
+      color: #1F140A;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 20px auto;
+      background: #FAF8F5;
+      border-radius: 24px;
+      box-shadow: 0 24px 48px rgba(25, 20, 10, 0.25);
+      overflow: hidden;
+      border: 1px solid #E8ECEF;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid #E8ECEF;
+      background: #FFFFFF;
+    }
+
+    .btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid #D6DCE2;
+      background: #FFFFFF;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #F06A05;
+      color: #FFFFFF;
+      border-color: #F06A05;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .distance {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: #6E5A4D;
+      font-weight: 500;
+    }
+
+    .map-section {
+      position: relative;
+      height: 200px;
+      margin: 16px 0;
+      background: #FAF8F5;
+    }
+
+    .site-map {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .route-path {
+      fill: none;
+      stroke: url(#routePattern);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: background-color 0.12s ease;
+      margin: 0 4px;
+      border-radius: 12px;
+    }
+
+    .step-item:hover { background: rgba(240, 106, 5, 0.04); }
+
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #C1D5C7;
+    }
+
+    .step-dot.active { background: #F06A05; }
+
+    .step-line {
+      width: 2px;
+      height: 24px;
+      background: #C1D5C7;
+    }
+
+    .step-line.active { background: #F06A05; }
+
+    .step-content { flex: 1; }
+    .step-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .step-landmark {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: #7A6658;
+    }
+    .step-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .step-distance, .step-time {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6E5A4D;
+    }
+    .step-time { color: #7A6658; }
+
+    .steps {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      width: 100%;
+      height: 48px;
+      margin: 0 16px 16px;
+      border-radius: 14px;
+      background: #F06A05;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.15s ease;
+      border: none;
+    }
+
+    .action-btn:hover {
+      background: #D85800;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(240, 106, 5, 0.3);
+    }
+
+    .pin {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .pin-ring {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <button class="btn" aria-label="Back to start">
+        ←
+      </button>
+      <div>
+        <h1 class="title">Walking Route</h1>
+        <p class="distance">450m · 6 min total</p>
+      </div>
+      <button class="btn" aria-label="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- Minimalist Site Analysis Map -->
+    <div class="map-section">
+      <svg viewBox="0 0 320 200" class="site-map" aria-hidden="true">
+        <!-- Background - Pale Cream -->
+        <rect width="320" height="200" fill="#FAF8F5" />
+
+        <!-- Major Roads - Muted Soft Sage Green Ribbons -->
+        <path
+          d="M40 40 L280 40 L280 160 L40 160 Z"
+          fill="none"
+          stroke="#C1D5C7"
+          strokeWidth="12"
+          strokeOpacity="0.6"
+        />
+
+        <path
+          d="M80 80 L240 80 L240 120 L80 120 Z"
+          fill="none"
+          stroke="#B5C7B5"
+          strokeWidth="8"
+          strokeOpacity="0.5"
+        />
+
+        <!-- Route Path - Thin Dark Dashed Line -->
+        <defs>
+          <pattern id="routePattern" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+            <path d="M0 0 L6 6 M6 0 L0 6" stroke="#333333" strokeWidth="1.5" />
+          </pattern>
+        </defs>
+
+        <polyline
+          points="120,80 160,100 200,60 240,110"
+          class="route-path"
+        />
+
+        <!-- Connection dots -->
+        <circle cx="120" cy="80" r="2" fill="#333333" />
+        <circle cx="160" cy="100" r="2" fill="#333333" />
+        <circle cx="200" cy="60" r="2" fill="#333333" />
+        <circle cx="240" cy="110" r="2" fill="#333333" />
+      </svg>
+
+      <!-- Map Pins -->
+      <div class="pin" style="top: 40px; left: 40px;">
+        <div class="pin-ring" style="background: #F06A05;">📍</div>
+      </div>
+      <div class="pin" style="top: 50%; left: 50%; transform: translate(-50%, -100%);">
+        <div class="pin-ring" style="background: #EA580C;">📍</div>
+      </div>
+    </div>
+
+    <!-- Route Steps -->
+    <div class="steps" aria-label="Route directions">
+      <button class="step-item">
+        <div class="step-indicator">
+          <div class="step-dot active"></div>
+          <div class="step-line active"></div>
+        </div>
+        <div class="step-content">
+          <h3 class="step-name">MITS Canteen</h3>
+          <p class="step-landmark">Main building, ground floor</p>
+        </div>
+        <div class="step-meta">
+          <span class="step-distance">120m</span>
+          <span class="step-time">2 min</span>
+        </div>
+      </button>
+
+      <button class="step-item">
+        <div class="step-indicator">
+          <div class="step-dot"></div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <h3 class="step-name">MITS Cafe</h3>
+          <p class="step-landmark">Near library entrance</p>
+        </div>
+        <div class="step-meta">
+          <span class="step-distance">280m</span>
+          <span class="step-time">4 min</span>
+        </div>
+      </button>
+
+      <button class="step-item">
+        <div class="step-indicator">
+          <div class="step-dot"></div>
+        </div>
+        <div class="step-content">
+          <h3 class="step-name">MITS Hub</h3>
+          <p class="step-landmark">Food court area</p>
+        </div>
+        <div class="step-meta">
+          <span class="step-distance">450m</span>
+          <span class="step-time">6 min</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Action Button -->
+    <a href="https://www.google.com/maps/dir/?api=1&travelmode=walking"
+       target="_blank" rel="noopener noreferrer"
+       class="action-btn"
+       aria-label="Open full navigation in Google Maps">
+      🗺️ Full walking directions
+    </a>
+  </div>
+</body>
+</html>

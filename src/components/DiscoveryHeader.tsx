@@ -1,83 +1,65 @@
-import { useId } from 'react';
-import { X, Star, Footprints, Banknote, UtensilsCrossed } from 'lucide-react';
+import { useId, useState, useMemo } from 'react';
+import { X, Banknote, UtensilsCrossed, Map as MapIcon, Layers, MapPin, Clock } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
+import { CanteenMap } from './CanteenMap';
 import { useLanguage } from '../lib/language';
-import type { ShopEntry } from '../lib/types';
+import type { ShopEntry, Coordinates } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 import { trackViewRestaurant } from '../lib/analytics';
+import { haversineDistance, formatDistance, formatWalkingTime, shopCoordinates } from '../lib/mapLocations';
 
 export interface NearbyFoodMeta {
   cuisine: string;
   priceRange: string;
-  walkDistance: string;
-  walkMinutes: number;
-  rating: number;
   tag: string;
+}
+
+export interface NearbyShop extends ShopEntry {
+  distance?: number;
+  walkingTime?: string;
+  userLat?: number;
+  userLng?: number;
 }
 
 export const NEARBY_FOOD_METADATA: Record<string, NearbyFoodMeta> = {
   'MITS Canteen': {
     cuisine: 'South Indian Tiffin & Meals',
     priceRange: '₹10–₹70',
-    walkDistance: '120m',
-    walkMinutes: 2,
-    rating: 4.6,
     tag: 'Campus Canteen',
   },
   'MITS Cafe': {
     cuisine: 'Coffee, Tea & Sandwiches',
     priceRange: '₹15–₹100',
-    walkDistance: '180m',
-    walkMinutes: 3,
-    rating: 4.7,
     tag: 'Campus Cafe',
   },
   'MITS Hub': {
     cuisine: 'Pizzas, Burgers & Quick Bites',
     priceRange: '₹30–₹150',
-    walkDistance: '240m',
-    walkMinutes: 4,
-    rating: 4.5,
     tag: 'Food Court',
   },
   'Happy Tea': {
     cuisine: 'Special Chai, Mojitos & Fries',
     priceRange: '₹10–₹90',
-    walkDistance: '80m',
-    walkMinutes: 1,
-    rating: 4.8,
     tag: 'Chai & Snacks',
   },
   'ACS Cafe': {
     cuisine: 'Juices, Shakes & Maggi',
     priceRange: '₹20–₹120',
-    walkDistance: '200m',
-    walkMinutes: 3,
-    rating: 4.7,
     tag: 'Juices & Cafe',
   },
   'Pizza And Pasta (P2)': {
     cuisine: 'Woodfired Pizza & Pasta',
     priceRange: '₹80–₹260',
-    walkDistance: '350m',
-    walkMinutes: 5,
-    rating: 4.9,
     tag: 'Italian & Bakery',
   },
   'Paradise': {
     cuisine: 'Hyderabadi Biryani & Starters',
     priceRange: '₹90–₹220',
-    walkDistance: '420m',
-    walkMinutes: 6,
-    rating: 4.8,
     tag: 'Biryani & Non-Veg',
   },
   'Mallikarjuna Mess': {
     cuisine: 'Authentic Andhra Meals & Thali',
     priceRange: '₹40–₹120',
-    walkDistance: '500m',
-    walkMinutes: 7,
-    rating: 4.6,
     tag: 'Andhra Mess',
   },
 };
@@ -99,10 +81,6 @@ const DEFAULT_NEARBY_DIRECTORY = VENDOR_OUTLETS.map(shop => ({
   meta: NEARBY_FOOD_METADATA[shop.name] || {
     cuisine: 'Diverse Cuisines & Snacks',
     priceRange: '₹20–₹150',
-    walkDistance: '250m',
-    walkMinutes: 4,
-    rating: 4.6,
-    tag: 'Local Dining',
   },
 }));
 
@@ -116,6 +94,38 @@ interface Props {
   onShop: (name: string, id?: string) => void;
   onCart?: () => void;
   onBusinessPortal?: () => void;
+  userLocation?: Coordinates | null;
+  onLocationRequest?: () => void;
+}
+
+/** Filter and sort shops by proximity to user location */
+function filterShopsByLocation(
+  shops: NearbyShop[],
+  userLocation: Coordinates | null,
+  maxDistanceKm: number = 5
+): NearbyShop[] {
+  if (!userLocation) {
+    return shops.map(s => ({ ...s, distance: undefined, walkingTime: undefined }));
+  }
+
+  return shops
+    .map(shop => {
+      const shopCoords = shopCoordinates(shop);
+      if (!shopCoords) {
+        return { ...shop, distance: undefined, walkingTime: undefined };
+      }
+
+      const distance = haversineDistance(userLocation, shopCoords);
+      return {
+        ...shop,
+        distance,
+        walkingTime: formatWalkingTime(distance),
+        userLat: userLocation[0],
+        userLng: userLocation[1]
+      };
+    })
+    .filter(shop => shop.distance === undefined || shop.distance <= maxDistanceKm * 1000)
+    .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
 }
 
 export function DiscoveryHeader({
@@ -126,25 +136,48 @@ export function DiscoveryHeader({
   onSearch,
   onShop,
   onBusinessPortal,
+  userLocation,
+  onLocationRequest,
 }: Props) {
+  const [viewMode, setViewMode] = useState<'deck' | 'map'>('deck');
   const { t } = useLanguage();
-  const displayedShops = shops.length
-    ? shops.map(s => ({
-        ...s,
-        image: s.image || RESTAURANT_PHOTOS[s.name] || '/images/shop_happy_tea_uploaded.jpg',
-        meta: NEARBY_FOOD_METADATA[s.name] || {
-          cuisine: 'Local Cafe & Kitchen',
-          priceRange: '₹30–₹150',
-          walkDistance: '250m',
-          walkMinutes: 4,
-          rating: 4.6,
-          tag: 'Nearby Dining',
-        },
-      }))
-    : loading
-    ? DEFAULT_NEARBY_DIRECTORY
-    : [];
 
+  const baseShops: NearbyShop[] = useMemo(() => {
+    return shops.length
+      ? shops.map(s => ({
+          ...s,
+          image: s.image || RESTAURANT_PHOTOS[s.name] || '/images/shop_happy_tea_uploaded.jpg',
+          meta: NEARBY_FOOD_METADATA[s.name] || {
+            cuisine: 'Local Cafe & Kitchen',
+            priceRange: '₹30–₹150',
+            tag: 'Nearby Dining',
+          } as NearbyFoodMeta,
+        }))
+      : loading
+      ? DEFAULT_NEARBY_DIRECTORY.map(s => ({ ...s }))
+      : [];
+  }, [shops, loading]);
+
+  const displayedShops = useMemo(() => {
+    if (!userLocation) return baseShops;
+    return filterShopsByLocation(baseShops, userLocation, 5);
+  }, [baseShops, userLocation]);
+
+  // Build shop entries for the interactive map
+  const mapShops = useMemo(() => {
+    return displayedShops.map(shop => ({
+      id: shop.id,
+      name: shop.name,
+      image: shop.image,
+      isActive: true,
+      latitude: shop.latitude ?? null,
+      longitude: shop.longitude ?? null,
+      locationLandmark: shop.locationLandmark,
+      isOnCampus: shop.isOnCampus,
+    }));
+  }, [displayedShops]);
+
+  const activeShopId = selectedShop === 'All' ? null : displayedShops.find(s => s.name === selectedShop)?.id;
   const id = useId().replace(/:/g, '');
 
   return (
@@ -244,72 +277,114 @@ export function DiscoveryHeader({
               )}
             </p>
           </div>
+          <button
+            type="button"
+            className={`discovery-view-toggle ${viewMode === 'map' ? 'is-selected' : ''}`}
+            onClick={() => setViewMode(v => v === 'deck' ? 'map' : 'deck')}
+            aria-label={viewMode === 'deck' ? 'Switch to map view' : 'Switch to deck view'}
+            title={viewMode === 'deck' ? 'Map view' : 'Deck view'}
+          >
+            {viewMode === 'deck' ? (
+              <>
+                <MapIcon size={16} />
+                <Layers size={16} />
+              </>
+            ) : (
+              <>
+                <MapPin size={16} />
+                <Clock size={14} />
+              </>
+            )}
+          </button>
         </div>
 
-        <div className="nearby-food-deck" aria-label={t('Explore nearby food spots', 'సమీప ఆహార కేంద్రాలు చూడండి')}>
-          {displayedShops.map(shop => {
-            const isSelected = selectedShop === shop.name;
-            const meta = (shop as any).meta as NearbyFoodMeta;
-            return (
-              <button
-                key={shop.id}
-                className={`nearby-food-card ${isSelected ? 'is-selected' : ''}`}
-                data-restaurant-id={shop.id}
-                type="button"
-                disabled={loading && !shops.length}
-                aria-label={shop.name}
-                aria-pressed={isSelected}
-                onClick={() => {
-                  if (selectedShop !== shop.name) {
-                    trackViewRestaurant({ id: shop.id, name: shop.name });
-                  }
-                  onShop(selectedShop === shop.name ? 'All' : shop.name, shop.id);
-                }}
-              >
-                <div className="nearby-card-top">
-                  <div className="nearby-photo-wrapper">
-                    <CatalogImage src={shop.image} alt={shop.name} loading="eager" />
-                    {isSelected && (
-                      <span className="nearby-card-check">
-                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="m2 6 3 3 5-6" />
-                        </svg>
+        {/* Interactive Map View */}
+        {viewMode === 'map' && (
+          <div className="nearby-interactive-map">
+            <CanteenMap
+              shops={mapShops}
+              selectedId={activeShopId}
+              onSelect={(id) => {
+                const shop = displayedShops.find(s => s.id === id);
+                if (shop) onShop(shop.name, shop.id);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Deck View - Shop Cards */}
+        {viewMode === 'deck' && (
+          <div className="nearby-food-deck" aria-label={t('Explore nearby food spots', 'సమీప ఆహార కేంద్రాలు చూడండి')}>
+            {displayedShops.map(shop => {
+              const isSelected = selectedShop === shop.name;
+              const meta = (shop as any).meta as NearbyFoodMeta;
+              const hasDistance = shop.distance !== undefined && shop.distance > 0 && userLocation !== null;
+
+              return (
+                <button
+                  key={shop.id}
+                  className={`nearby-food-card ${isSelected ? 'is-selected' : ''}`}
+                  data-restaurant-id={shop.id}
+                  type="button"
+                  disabled={loading && !shops.length}
+                  aria-label={shop.name}
+                  aria-pressed={isSelected}
+                  onClick={() => {
+                    if (selectedShop !== shop.name) {
+                      trackViewRestaurant({ id: shop.id, name: shop.name });
+                    }
+                    onShop(selectedShop === shop.name ? 'All' : shop.name, shop.id);
+                  }}
+                >
+                  <div className="nearby-card-top">
+                    <div className="nearby-photo-wrapper">
+                      <CatalogImage src={shop.image} alt={shop.name} loading="eager" />
+                      {isSelected && (
+                        <span className="nearby-card-check">
+                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="m2 6 3 3 5-6" />
+                          </svg>
+                        </span>
+                      )}
+                    </div>
+                    <div className="nearby-badges">
+                      <span className="nearby-tag-badge">{meta?.tag}</span>
+                      {hasDistance && shop.distance !== undefined && (
+                        <span className="nearby-distance-badge" title="Distance from your location">
+                          <MapPin size={10} className="shrink-0" />
+                          <span>{formatDistance(shop.distance)}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="nearby-card-body">
+                    <h3 className="nearby-card-name" title={shop.name}>
+                      {shop.name}
+                    </h3>
+                    <p className="nearby-card-cuisine" title={meta?.cuisine}>
+                      <UtensilsCrossed size={11} className="shrink-0" />
+                      <span>{meta?.cuisine}</span>
+                    </p>
+
+                    <div className="nearby-card-meta">
+                      <span className="nearby-meta-item nearby-price" title="Price range">
+                        <Banknote size={11} className="shrink-0" />
+                        {meta?.priceRange}
                       </span>
-                    )}
+                      {hasDistance && shop.walkingTime && (
+                        <span className="nearby-meta-item nearby-time" title="Walking time">
+                          <Clock size={11} className="shrink-0" />
+                          <span>{shop.walkingTime}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="nearby-badges">
-                    <span className="nearby-tag-badge">{meta?.tag}</span>
-                    <span className="nearby-rating-badge">
-                      <Star size={10} fill="#f59e0b" color="#f59e0b" />
-                      {meta?.rating.toFixed(1)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="nearby-card-body">
-                  <h3 className="nearby-card-name" title={shop.name}>
-                    {shop.name}
-                  </h3>
-                  <p className="nearby-card-cuisine" title={meta?.cuisine}>
-                    <UtensilsCrossed size={11} className="shrink-0" />
-                    <span>{meta?.cuisine}</span>
-                  </p>
-
-                  <div className="nearby-card-meta">
-                    <span className="nearby-meta-item nearby-price" title="Price range">
-                      <Banknote size={11} className="shrink-0" />
-                      {meta?.priceRange}
-                    </span>
-                    <span className="nearby-meta-item nearby-walk" title="Walking distance">
-                      <Footprints size={11} className="shrink-0" />
-                      {meta?.walkMinutes} min ({meta?.walkDistance})
-                    </span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="discovery-shop-summary">
           {selectedShop === 'All' ? (

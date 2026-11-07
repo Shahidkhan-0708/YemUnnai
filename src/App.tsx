@@ -39,6 +39,7 @@ const Popover6 = lazy(() => import('./components/Popover6'));
 const RunActionButtonDemo = lazy(() => import('./components/RunActionButtonDemo'));
 const FamilyReceiveComponentDemo = lazy(() => import('./components/FamilyReceiveComponentDemo'));
 const MorphingButtonDemo = lazy(() => import('./components/MorphingButtonDemo'));
+const LabPage = lazy(() => import('../.claude-design/lab/page'));
 
 function ScreenFallback() {
   return (
@@ -83,10 +84,10 @@ const DEFAULT_ORDER_ITEM: FoodItem = {
 export function App() {
   const { vendor } = useVendorSession();
   const [buyerTab, setBuyerTab] = useState<BuyerTab>('discover');
-  const [activePortal, setActivePortal] = useState<'consumer' | 'business' | 'admin' | 'artifacts' | 'gallery' | 'components' | '404'>(() => {
+  const [activePortal, setActivePortal] = useState<'consumer' | 'business' | 'admin' | 'artifacts' | 'gallery' | 'components' | 'design_lab' | '404'>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('portal');
-      if (p === 'business' || p === 'admin' || p === 'gallery' || p === 'artifacts' || p === 'components' || p === '404') return p;
+      if (p === 'business' || p === 'admin' || p === 'gallery' || p === 'artifacts' || p === 'components' || p === '404' || p === 'design_lab') return p;
     }
     return 'consumer';
   });
@@ -116,6 +117,16 @@ export function App() {
     };
     window.addEventListener('popstate', restoreRestaurant);
     return () => window.removeEventListener('popstate', restoreRestaurant);
+  }, []);
+
+  // Check for design_lab query param on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('design_lab') === 'true') {
+        setActivePortal('design_lab');
+      }
+    }
   }, []);
   const openRestaurant = (id: string | null) => {
     setSelectedDetailFood(null);
@@ -696,6 +707,17 @@ export function App() {
                 <span className="text-[9px] text-slate-500">Integrated in: ErrorBoundary & /?portal=404</span>
               </div>
             </div>
+          </div>
+        )}
+
+        )
+
+        {/* 5. DESIGN LAB — Premium redesign variants */}
+        {activePortal === 'design_lab' && (
+          <div className="w-full max-w-7xl mx-auto">
+            <Suspense fallback={<ScreenFallback />}>
+              <LabPage />
+            </Suspense>
           </div>
         )}
 
