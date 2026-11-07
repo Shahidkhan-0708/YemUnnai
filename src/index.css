@@ -786,148 +786,82 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 .canteen-map-destination svg{flex-shrink:0;margin-top:2px}
 .canteen-map-note{font-size:12px;line-height:1.6;color:#8b6c52;margin:12px 0;user-select:text}
 .canteen-map-directions{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;background:linear-gradient(120deg,#dc5900,#f58218);color:white;border-radius:15px;margin-top:18px;font-size:13px;font-weight:700;text-decoration:none}
-/* Custom Hotel Pins with Logo */
-.hotel-leaflet-marker { background: transparent !important; border: none !important; }
-.hotel-custom-pin {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.hotel-custom-pin:hover, .hotel-custom-pin.is-selected {
-  transform: scale(1.12) translateY(-4px);
-  z-index: 999 !important;
-}
-.pin-badge {
+/* ==========================================================================
+   Swiggy & Blinkit Professional Food Map System
+   ========================================================================== */
+
+.modern-swiggy-theme {
   position: relative;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 3px solid #ffffff;
-  box-shadow: 0 6px 16px rgba(37, 25, 14, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f8fafc;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.9);
 }
-.hotel-custom-pin.is-selected .pin-badge {
-  border-color: #f06a05;
-  box-shadow: 0 0 0 3px #ffffff, 0 8px 24px rgba(240, 106, 5, 0.45);
-}
-.pin-badge img {
+
+.modern-swiggy-theme .canteen-real-map {
+  height: clamp(340px, 52dvh, 480px);
   width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+  background: #f8fafc;
 }
-.pin-pointer {
+
+/* Floating Live Count Badge (Top-Left) */
+.map-floating-header {
   position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  width: 12px;
-  height: 12px;
-  background: #ffffff;
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  z-index: -1;
-}
-.hotel-custom-pin.is-selected .pin-pointer {
-  background: #f06a05;
-}
-.pin-card-tag {
-  margin-top: 8px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  padding: 4px 8px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  top: 14px;
+  left: 14px;
+  z-index: 500;
   pointer-events: none;
-  white-space: nowrap;
-  border: 1px solid rgba(234, 222, 212, 0.8);
 }
-.hotel-custom-pin:not(.is-selected) .pin-card-tag {
-  opacity: 0.9;
-}
-.hotel-custom-pin:not(.is-selected):not(:hover) .pin-sub {
-  display: none;
-}
-.pin-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #1f140a;
-}
-.pin-sub {
-  font-size: 10px;
-  font-weight: 600;
-  color: #f06a05;
-}
-
-/* User Location Pin with Animated Ripple */
-.user-map-marker { background: transparent !important; border: none !important; }
-.user-map-pin {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: flex;
+.map-live-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-}
-.user-map-core {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #2563eb;
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
-  z-index: 2;
-}
-.user-map-pulse {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(37, 99, 235, 0.25);
-  animation: user-pulse 2s infinite ease-out;
-  z-index: 1;
-}
-@keyframes user-pulse {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-.user-map-tag {
-  position: absolute;
-  bottom: -16px;
-  background: #1e293b;
-  color: #ffffff;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 4px;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/* Route Path Badges */
-.route-badge-marker { background: transparent !important; border: none !important; }
-.route-badge-pill {
-  background: #1f140a;
-  color: #ffffff;
-  padding: 3px 9px;
-  border-radius: 99px;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
   font-size: 11px;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  border: 1.5px solid #f06a05;
-  white-space: nowrap;
-  text-align: center;
+  color: #0f172a;
+  letter-spacing: -0.2px;
 }
 
-/* Map Floating Controls */
+/* Floating Recenter Pill Button (Center Top) */
+.map-recenter-floating {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 550;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(234, 88, 12, 0.4);
+  color: #ea580c;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: swiggy-sheet-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.map-recenter-floating:hover {
+  background: #fff7ed;
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.25);
+  transform: translateX(-50%) translateY(-1px);
+}
+.map-recenter-floating:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* Modern Floating Controls (Top-Right) */
 .map-floating-controls {
   position: absolute;
   top: 14px;
@@ -937,24 +871,464 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
   flex-direction: column;
   gap: 8px;
 }
-.map-control-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+.map-zoom-group {
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
-  border: 1px solid #e8ded4;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  overflow: hidden;
+}
+.map-control-btn {
+  width: 38px;
+  height: 38px;
+  background: #ffffff;
+  border: none;
   display: grid;
   place-items: center;
   color: #334155;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.map-floating-controls > .map-control-btn {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 .map-control-btn:hover {
   background: #fff7ed;
-  color: #f06a05;
-  border-color: #f06a05;
+  color: #ea580c;
+}
+.map-control-btn:active {
+  transform: scale(0.92);
+}
+.btn-zoom-in {
+  border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+}
+
+/* Swiggy/Blinkit Food Spot Map Pins */
+.swiggy-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.swiggy-spot-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transform-origin: bottom center;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.swiggy-spot-pin:hover {
+  transform: scale(1.08) translateY(-3px);
+  z-index: 900 !important;
+}
+
+.swiggy-spot-pin.is-selected {
+  transform: scale(1.15) translateY(-5px);
+  z-index: 1000 !important;
+}
+
+/* Capsule Pill Body */
+.swiggy-pin-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  padding: 3px 8px 3px 4px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1.5px solid #e2e8f0;
+  transition: all 0.25s ease;
+  max-width: 130px;
+}
+
+.swiggy-spot-pin:hover .swiggy-pin-capsule {
+  border-color: #f97316;
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.25);
+}
+
+.swiggy-spot-pin.is-selected .swiggy-pin-capsule {
+  background: linear-gradient(135deg, #ff5200 0%, #ea580c 100%);
+  border-color: #ffffff;
+  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.45), 0 0 0 3px rgba(255, 255, 255, 0.9);
+}
+
+/* Thumbnail */
+.swiggy-pin-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f1f5f9;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.swiggy-pin-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Text */
+.swiggy-pin-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 65px;
+}
+.swiggy-spot-pin.is-selected .swiggy-pin-name {
+  color: #ffffff;
+}
+
+.swiggy-pin-eta {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ea580c;
+  background: #fff7ed;
+  padding: 1px 4px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.swiggy-spot-pin.is-selected .swiggy-pin-eta {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Pointer Needle */
+.swiggy-pin-needle {
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  transform: rotate(45deg);
+  margin-top: -4px;
+  border-right: 1.5px solid #e2e8f0;
+  border-bottom: 1.5px solid #e2e8f0;
+  z-index: 1;
+}
+.swiggy-spot-pin.is-selected .swiggy-pin-needle {
+  background: #ea580c;
+  border-color: #ea580c;
+}
+
+/* Active Floating Bubble */
+.swiggy-pin-bubble {
+  position: absolute;
+  top: -24px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: swiggy-pop-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.swiggy-pin-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(234, 88, 12, 0.25);
+  animation: swiggy-halo-pulse 2s infinite ease-out;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes swiggy-pop-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes swiggy-halo-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+/* GPS User Location Beacon (Blue Radar) */
+.swiggy-gps-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.swiggy-gps-beacon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swiggy-gps-core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+  z-index: 2;
+}
+.swiggy-gps-pulse {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.28);
+  animation: swiggy-radar-pulse 2s infinite ease-out;
+  z-index: 1;
+}
+.swiggy-gps-tag {
+  position: absolute;
+  bottom: -13px;
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+@keyframes swiggy-radar-pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Route Midpoint Badge */
+.swiggy-route-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.swiggy-route-pill {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid #ff5200;
+  white-space: nowrap;
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+
+/* ==========================================================================
+   Swiggy / Blinkit Floating Bottom Restaurant Card
+   ========================================================================== */
+
+.swiggy-map-card-container {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 600;
+  pointer-events: auto;
+  animation: swiggy-sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes swiggy-sheet-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.swiggy-bottom-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.swiggy-bottom-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.swiggy-thumb-wrapper {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.swiggy-bottom-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.swiggy-status-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.swiggy-bottom-info {
+  flex: 1;
+  min-width: 0;
+}
+.swiggy-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.swiggy-bottom-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.swiggy-category-pill {
+  font-size: 9px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+
+.swiggy-landmark-row {
+  font-size: 11px;
+  color: #64748b;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.swiggy-campus-tag {
+  color: #059669;
+  font-weight: 600;
+}
+
+.swiggy-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.swiggy-eta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ea580c;
+  background: #fff7ed;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid rgba(254, 215, 170, 0.8);
+}
+
+.swiggy-view-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ff5200 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.swiggy-view-menu-btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.45);
+}
+.swiggy-view-menu-btn:active {
+  transform: scale(0.96);
+}
+
+/* Quick Jump Horizontal Rail of Nearby Spots */
+.swiggy-spots-rail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px 2px 2px 0;
+  scrollbar-width: none;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+}
+.swiggy-spots-rail::-webkit-scrollbar {
+  display: none;
+}
+.swiggy-rail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.swiggy-rail-btn .rail-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: background 0.2s ease;
+}
+.swiggy-rail-btn:hover {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+.swiggy-rail-btn.is-active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+}
+.swiggy-rail-btn.is-active .rail-dot {
+  background: #ff5200;
 }
 .vendor-location-card{padding:18px;margin-bottom:20px;background:#fffbf6;border:1px solid #eadbca;border-radius:20px}
 .vendor-location-heading{display:flex;gap:10px;align-items:flex-start;color:#9f4b14}
