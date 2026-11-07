@@ -2861,3 +2861,338 @@ img[data-extracted] { object-fit:contain; }
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
+/* ==========================================================================
+   Immersive Bottom Sheet Styles (ItemDetailSheet)
+   ========================================================================== */
+
+/* Full Sheet Backdrop */
+.premium-detail-sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(28, 30, 41, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  backdrop-filter: blur(4px);
+}
+
+/* Premium Surface Layout Base */
+.premium-detail-sheet-surface {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+  animation: detailsSheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.sheet-drag-handle {
+  width: 40px;
+  height: 4px;
+  background: #e2e2e7;
+  border-radius: 2px;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+/* Hero Media Layout */
+.sheet-hero-image-frame {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: #f4f6fb;
+}
+
+.sheet-hero-actual-photo, .sheet-hero-photo-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sheet-hero-photo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 800;
+  color: #a4b2cc;
+}
+
+.sheet-dismiss-pill-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  font-size: 18px;
+  font-weight: 400;
+  color: #282c3f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 12;
+}
+
+/* Content Flow Sub-Grid */
+.sheet-body-content-scroll {
+  padding: 20px 20px 100px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-title-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.sheet-title-hierarchy {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet-badge-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* Regulatory Diet Indicator Overhauls */
+.sheet-diet-regulatory-box {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid #0f8a45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.sheet-diet-regulatory-box.is-nonveg {
+  border-color: #a02828;
+}
+
+.sheet-diet-internal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #0f8a45;
+}
+
+.sheet-diet-regulatory-box.is-nonveg .sheet-diet-internal-dot {
+  background-color: #a02828;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  border-radius: 0;
+}
+
+.sheet-cuisine-tag {
+  font-size: 13px;
+  font-weight: 500;
+  color: #686b78;
+}
+
+.sheet-main-dish-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin: 0;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.sheet-main-dish-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1c1c1c;
+  white-space: nowrap;
+}
+
+.sheet-divider-line {
+  height: 1px;
+  background: #f1f3f6;
+  margin: 20px 0;
+}
+
+/* Typography Headings Structure */
+.sheet-info-section h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #282c3f;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.sheet-body-description-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #535665;
+  margin: 0;
+}
+
+/* Uniform Gray Layout Groups */
+.gray-bg-card {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid #f1f3f5;
+}
+
+.logistic-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logistic-icon {
+  font-size: 18px;
+  background: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+}
+
+.logistic-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.logistic-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #93959f;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.logistic-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3d4152;
+}
+
+/* Sticky Balanced Execution Bar */
+.sheet-sticky-action-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-top: 1px solid #f1f3f6;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  z-index: 50;
+}
+
+.sheet-secondary-navigate-btn {
+  flex: 1;
+  height: 48px;
+  border: 1.5px solid #fc8019;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #fc8019;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.sheet-secondary-navigate-btn:active {
+  background: #fff8f5;
+  transform: scale(0.98);
+}
+
+.sheet-primary-stepper-container {
+  flex: 1.3;
+  height: 48px;
+}
+
+.sheet-primary-add-trigger-btn, .sheet-primary-stepper-active-row {
+  width: 100%;
+  height: 100%;
+  background: #60b246;
+  border: 1px solid #60b246;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(96, 178, 70, 0.25);
+  letter-spacing: 0.4px;
+  transition: all 0.1s ease;
+}
+
+.sheet-primary-add-trigger-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(96, 178, 70, 0.2);
+}
+
+.sheet-primary-stepper-active-row {
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.sheet-footer-step-mod {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 500;
+  width: 36px;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-footer-step-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@keyframes detailsSheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
