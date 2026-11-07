@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { X, ArrowLeft, MapPin, Clock, ChevronRight } from 'lucide-react';
 
-interface RoutePoint {
+export interface RoutePoint {
   id: string;
   name: string;
   landmark?: string;
