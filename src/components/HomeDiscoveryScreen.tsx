@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Search, X, Sparkles, LayoutGrid, Layers } from 'lucide-react';
+import { ArrowLeft, Search, X, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { useFoodItems, useShops, useReactions, useGeolocation } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
@@ -8,16 +8,13 @@ import { useLanguage } from '../lib/language';
 import { SavedSyncNotice } from './SavedSyncNotice';
 import { menuPrices } from '../lib/menuPricing.ts';
 import { ItemCard } from './ItemCard.tsx';
-import { FilterBar, type FilterState } from './FilterBar.tsx';
+import { FilterBarPremium, type FilterState } from './FilterBarPremium';
 import { DiscoveryHeader } from './DiscoveryHeader';
-import { HomepageQuickLinks } from './HomepageQuickLinks';
 import {
-  HOMEPAGE_QUICK_LINKS,
   HOMEPAGE_MENU_SECTIONS,
   getFoodItemCategory,
   getCampusFavorites,
-  getBudgetBites,
-  type QuickLink
+  getBudgetBites
 } from '../lib/homepageMenu';
 import { trackPageView } from '../lib/analytics';
 import type { FoodItem } from '../lib/types';
@@ -50,12 +47,11 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuCategory, setMenuCategory] = useState('All');
-  const [activeQuickLink, setActiveQuickLink] = useState('all');
-  const [homeViewMode, setHomeViewMode] = useState<'organized' | 'mixed'>('organized');
+  const [filterCategory, setFilterCategory] = useState('all');
 
   React.useEffect(() => {
     setMenuCategory('All');
-    setActiveQuickLink('all');
+    setFilterCategory('all');
   }, [restaurantId]);
 
   const heading = React.useRef<HTMLHeadingElement>(null);
@@ -121,35 +117,33 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       });
   }, [items, restaurantUnavailable, searchQuery, restaurantId, shops, savedOnly, saved.ids, menuCategory, maxPrice, availableOnly, vegOnly, counts]);
 
-  // Counts for each homepage Quick Link pill
-  const quickLinkCounts = useMemo(() => {
-    const countsMap: Record<string, number> = {
-      all: baseItems.length,
-      popular: Math.min(6, baseItems.length),
-      under50: baseItems.filter(i => (i.price ?? 0) > 0 && (i.price ?? 0) <= 50).length,
-      pure_veg: baseItems.filter(i => i.isVeg).length
-    };
-    for (const ql of HOMEPAGE_QUICK_LINKS) {
-      if (ql.type === 'category' && ql.categoryValue) {
-        countsMap[ql.id] = baseItems.filter(i => getFoodItemCategory(i) === ql.categoryValue).length;
-      }
-    }
-    return countsMap;
-  }, [baseItems]);
-
-  // Filter items if a Quick Link is selected (homepage mode)
+  // Filter items if a Category / Pill is selected
   const displayedItems = useMemo(() => {
-    if (restaurantId || activeQuickLink === 'all') return baseItems;
-    const targetLink = HOMEPAGE_QUICK_LINKS.find(ql => ql.id === activeQuickLink);
-    if (!targetLink) return baseItems;
-    if (targetLink.type === 'popular') return getCampusFavorites(baseItems, 12);
-    if (targetLink.type === 'under50') return baseItems.filter(i => (i.price ?? 0) > 0 && (i.price ?? 0) <= 50);
-    if (targetLink.type === 'veg') return baseItems.filter(i => i.isVeg);
-    if (targetLink.type === 'category' && targetLink.categoryValue) {
-      return baseItems.filter(i => getFoodItemCategory(i) === targetLink.categoryValue);
+    if (restaurantId || filterCategory === 'all') return baseItems;
+    if (filterCategory === 'hits') return getCampusFavorites(baseItems, 12);
+    if (filterCategory === 'tiffin') {
+      return baseItems.filter(i => getFoodItemCategory(i) === 'Tiffin' || i.menuCategory?.toLowerCase().includes('tiffin'));
     }
-    return baseItems;
-  }, [baseItems, restaurantId, activeQuickLink]);
+    if (filterCategory === 'beverages') {
+      return baseItems.filter(i => {
+        const cat = getFoodItemCategory(i);
+        return cat === 'Tea & Coffee' || cat === 'Drinks & Coolers' || i.menuCategory?.toLowerCase().includes('beverage') || i.menuCategory?.toLowerCase().includes('drink') || i.menuCategory?.toLowerCase().includes('tea') || i.menuCategory?.toLowerCase().includes('coffee');
+      });
+    }
+    if (filterCategory === 'meals') {
+      return baseItems.filter(i => {
+        const cat = getFoodItemCategory(i);
+        return cat === 'Meals & Biryani' || i.menuCategory?.toLowerCase().includes('meals') || i.menuCategory?.toLowerCase().includes('biryani') || i.menuCategory?.toLowerCase().includes('thali') || i.menuCategory?.toLowerCase().includes('lunch');
+      });
+    }
+    if (filterCategory === 'fast_food') {
+      return baseItems.filter(i => {
+        const cat = getFoodItemCategory(i);
+        return cat === 'Fast Food & Snacks' || cat === 'Pizza & Italian' || cat === 'Puffs & Bakery' || i.menuCategory?.toLowerCase().includes('fast food') || i.menuCategory?.toLowerCase().includes('snack');
+      });
+    }
+    return baseItems.filter(i => getFoodItemCategory(i) === filterCategory || i.menuCategory === filterCategory);
+  }, [baseItems, restaurantId, filterCategory]);
 
   const restaurantEmpty = !!restaurantId && !loading && !restaurantUnavailable && displayedItems.length === 0;
 
@@ -200,22 +194,20 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     );
   };
 
-  const activeLinkMeta = HOMEPAGE_QUICK_LINKS.find(ql => ql.id === activeQuickLink);
-  const isHomepageOrganized = !restaurantId && !savedOnly && activeQuickLink === 'all' && !searchQuery.trim() && !maxPrice && homeViewMode === 'organized';
+  const isHomepageOrganized = !restaurantId && !savedOnly && filterCategory === 'all' && !searchQuery.trim() && !maxPrice;
 
   const currentFilters: FilterState = {
-    sortBy: 'all',
+    category: filterCategory,
     maxPrice: maxPrice ? Number(maxPrice) : null,
     availableNow: availableOnly,
     pureVeg: vegOnly,
-    category: menuCategory === 'All' ? null : menuCategory,
   };
 
   const handleFilterChange = (updated: FilterState) => {
     setMaxPrice(updated.maxPrice !== null ? String(updated.maxPrice) : '');
     setAvailableOnly(updated.availableNow);
     setVegOnly(updated.pureVeg);
-    setMenuCategory(updated.category || 'All');
+    setFilterCategory(updated.category || 'all');
   };
 
   return (
@@ -302,78 +294,12 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
           )}
           {savedOnly && <h1 className="saved-heading">{t('Saved items', 'భద్రపరచిన వంటకాలు')}</h1>}
 
-          {/* Homepage Quick Links Navigation Bar */}
-          {!restaurantId && !savedOnly && (
-            <HomepageQuickLinks
-              activeQuickLinkId={activeQuickLink}
-              onSelectQuickLink={(link: QuickLink) => {
-                setActiveQuickLink(link.id);
-                if (link.type === 'under50') {
-                  setMaxPrice('50');
-                } else if (maxPrice === '50') {
-                  setMaxPrice('');
-                }
-                if (link.type === 'veg') {
-                  setVegOnly(true);
-                }
-              }}
-              itemCounts={quickLinkCounts}
-            />
-          )}
-
-          {/* High-Fidelity Interactive Filter Ribbon & Budget Drawer */}
-          <FilterBar
+          {/* Swiggy / Zomato Minimalist Filter Track */}
+          <FilterBarPremium
             filters={currentFilters}
             onFilterChange={handleFilterChange}
             totalCount={displayedItems.length}
           />
-
-          {/* Active Quick Link Filter Banner */}
-          {!restaurantId && activeQuickLink !== 'all' && activeLinkMeta && (
-            <div className="active-quicklink-banner">
-              <span>
-                {activeLinkMeta.icon}{' '}
-                {t('Showing dishes for', 'వంటకాలు చూపుతున్నాం:')} <strong>{lang === 'te' ? activeLinkMeta.nameTe : activeLinkMeta.name}</strong> ({displayedItems.length})
-              </span>
-              <button
-                type="button"
-                className="active-quicklink-clear"
-                onClick={() => {
-                  setActiveQuickLink('all');
-                  if (maxPrice === '50') setMaxPrice('');
-                }}
-              >
-                <X size={14} /> {t('Show All', 'అన్నీ చూపించు')}
-              </button>
-            </div>
-          )}
-
-          {/* View Mode Toggle when browsing All on Homepage */}
-          {!restaurantId && !savedOnly && activeQuickLink === 'all' && !searchQuery.trim() && !maxPrice && (
-            <div className="homepage-view-toggle-row">
-              <span className="homepage-feed-meta-count">
-                {displayedItems.length} {t('dishes available nearby', 'సమీప వంటకాలు అందుబాటులో ఉన్నాయి')}
-              </span>
-              <div className="homepage-view-toggle" role="group" aria-label="Menu display mode">
-                <button
-                  type="button"
-                  className={homeViewMode === 'organized' ? 'is-selected' : ''}
-                  onClick={() => setHomeViewMode('organized')}
-                >
-                  <Layers size={13} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
-                  {t('Organized', 'విభాగాలు')}
-                </button>
-                <button
-                  type="button"
-                  className={homeViewMode === 'mixed' ? 'is-selected' : ''}
-                  onClick={() => setHomeViewMode('mixed')}
-                >
-                  <LayoutGrid size={13} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
-                  {t('Mixed Feed', 'మిశ్రమ మెనూ')}
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Restaurant-specific Category Dropdown Filter */}
           {menuCategories.length > 0 && (
@@ -524,7 +450,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
                     setSearchQuery('');
                     setMaxPrice('');
                     setMenuCategory('All');
-                    setActiveQuickLink('all');
+                    setFilterCategory('all');
                     setVegOnly(false);
                     setAvailableOnly(false);
                   }}

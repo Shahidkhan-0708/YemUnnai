@@ -3196,3 +3196,242 @@ img[data-extracted] { object-fit:contain; }
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
+
+/* ==========================================================================
+   Premium Minimalist Filter Bar (Swiggy / Zomato standard)
+   ========================================================================== */
+
+/* Premium Filter Row Wrapper */
+.premium-filter-container {
+  background: #ffffff;
+  padding: 12px 0 6px 0;
+  border-bottom: 1px solid #f2f4f6;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Horizontal Scroll Pipeline with Invisible Scrollbars */
+.premium-filter-scroll-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 16px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.premium-filter-scroll-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* The Minimalist White Pill Engine */
+.premium-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e2e7;
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #282c3f;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+}
+
+.premium-filter-pill:hover {
+  border-color: #c7c7cf;
+}
+
+/* Selected Active States */
+.premium-filter-pill.is-active {
+  background: #f4f5f7;
+  border-color: #a3a3a9;
+  font-weight: 500;
+  color: #000000;
+}
+
+/* Exact Green Match for the Active Price Pill from Layout 2 */
+.premium-filter-pill.is-active.price-pill {
+  background: #f2f9f3;
+  border-color: #60b246;
+  color: #1c1c1c;
+}
+
+/* Exact Match for the Active Veg Filter */
+.premium-filter-pill.is-active.veg-pill {
+  border-color: #0f8a45;
+  background: #edf7ed;
+  color: #0f8a45;
+}
+
+.premium-veg-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f8a45;
+  display: inline-block;
+}
+
+.premium-pill-chevron::after {
+  content: '';
+  display: inline-block;
+  margin-left: 4px;
+  width: 4px;
+  height: 4px;
+  border-right: 1px solid #686b78;
+  border-bottom: 1px solid #686b78;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.premium-filter-pill.is-active.price-pill .premium-pill-chevron::after {
+  border-right-color: #1c1c1c;
+  border-bottom-color: #1c1c1c;
+}
+
+/* Premium Typography Counter Label */
+.premium-filter-results-counter {
+  padding: 0 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #686b78;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+
+/* ==========================================================================
+   Big Image Story Vendor Cards (Swiggy Standard)
+   ========================================================================== */
+
+/* Image Story Deck Element */
+.premium-vendor-story-card {
+  width: 260px;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: transparent;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none;
+}
+
+.premium-vendor-story-card:active {
+  transform: scale(0.97);
+}
+
+.vendor-dimmed {
+  opacity: 0.7;
+}
+
+/* 70% Visual Container Window */
+.vendor-story-hero-wrapper {
+  position: relative;
+  width: 100%;
+  height: 156px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  background: #f4f6fb;
+}
+
+.vendor-story-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.premium-vendor-story-card:hover .vendor-story-image {
+  transform: scale(1.03);
+}
+
+/* Elegant Bottom Gradient Scrim Overlay */
+.vendor-story-gradient-scrim {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
+  pointer-events: none;
+}
+
+/* Low-Profile Closed Label */
+.vendor-closed-overlay-pill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(28, 30, 41, 0.9);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Minimalist Lower Typography Grid */
+.vendor-story-details {
+  padding: 10px 4px 4px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vendor-story-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #282c3f;
+  margin: 0;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Direct Formula Clean Meta Text Line */
+.vendor-story-metadata-row {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #686b78;
+}
+
+.vendor-rating-indicator {
+  color: #ffffff;
+  background: #257e3b;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-icon-mini {
+  font-size: 10px;
+}
+
+.metadata-bullet-separator {
+  margin: 0 6px;
+  color: #cbd0d6;
+}
+
+.vendor-time-pill, .vendor-cost-pill {
+  color: #3d4152;
+}
+
+.premium-vendor-story-card.vendor-selected .vendor-story-hero-wrapper {
+  outline: 3px solid #60b246;
+  outline-offset: 2px;
+}

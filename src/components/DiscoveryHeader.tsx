@@ -1,12 +1,13 @@
 import { useId, useState, useMemo } from 'react';
-import { X, Banknote, UtensilsCrossed, Map as MapIcon, Layers, MapPin, Clock } from 'lucide-react';
+import { X, Map as MapIcon, Layers, MapPin, Clock } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
 import { useLanguage } from '../lib/language';
 import type { ShopEntry, Coordinates } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 import { trackViewRestaurant } from '../lib/analytics';
-import { haversineDistance, formatDistance, formatWalkingTime, shopCoordinates } from '../lib/mapLocations';
+import { VendorCardPremium, type VendorItem } from './VendorCardPremium';
+import { haversineDistance, formatWalkingTime, shopCoordinates } from '../lib/mapLocations';
 
 export interface NearbyFoodMeta {
   cuisine: string;
@@ -19,6 +20,7 @@ export interface NearbyShop extends ShopEntry {
   walkingTime?: string;
   userLat?: number;
   userLng?: number;
+  meta?: NearbyFoodMeta;
 }
 
 export const NEARBY_FOOD_METADATA: Record<string, NearbyFoodMeta> = {
@@ -82,6 +84,8 @@ const DEFAULT_NEARBY_DIRECTORY = VENDOR_OUTLETS.map(shop => ({
     cuisine: 'Diverse Cuisines & Snacks',
     priceRange: '₹20–₹150',
   },
+  isActive: true,
+  isOnline: true,
 }));
 
 interface Props {
@@ -128,6 +132,40 @@ function filterShopsByLocation(
     .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
 }
 
+
+function getShopVendorItem(shop: NearbyShop, meta?: NearbyFoodMeta): VendorItem {
+  let walkingMins = 10;
+  if (typeof shop.walkingTime === 'string') {
+    const match = shop.walkingTime.match(/\d+/);
+    walkingMins = match ? parseInt(match[0], 10) : (shop.isOnCampus ? 2 : 12);
+  } else if (shop.isOnCampus) {
+    walkingMins = 2;
+  } else if (shop.distance) {
+    walkingMins = Math.max(1, Math.round(shop.distance * 15));
+  }
+
+  let rating = 4.4;
+  let cost = 120;
+  if (shop.name.includes('Canteen')) { rating = 4.4; cost = 100; }
+  else if (shop.name.includes('Cafe') || shop.name.includes('ACS')) { rating = 4.3; cost = 120; }
+  else if (shop.name.includes('Happy')) { rating = 4.6; cost = 90; }
+  else if (shop.name.includes('Paradise') || shop.name.includes('Biryani')) { rating = 4.5; cost = 280; }
+  else if (shop.name.includes('Pizza') || shop.name.includes('Pasta')) { rating = 4.2; cost = 220; }
+  else if (shop.name.includes('Mess') || shop.name.includes('Meals')) { rating = 4.3; cost = 140; }
+  else if (shop.name.includes('Hub')) { rating = 4.5; cost = 150; }
+
+  return {
+    id: shop.id,
+    name: shop.name,
+    imageUrl: shop.image || RESTAURANT_PHOTOS[shop.name] || '/images/shop_happy_tea_uploaded.jpg',
+    rating,
+    durationMins: walkingMins,
+    costForTwo: cost,
+    cuisineTag: meta?.tag || meta?.cuisine,
+    isClosed: shop.isOnline === false || shop.isActive === false,
+  };
+}
+
 export function DiscoveryHeader({
   shops,
   loading,
@@ -137,7 +175,6 @@ export function DiscoveryHeader({
   onShop,
   onBusinessPortal,
   userLocation,
-  onLocationRequest,
 }: Props) {
   const [viewMode, setViewMode] = useState<'deck' | 'map'>('deck');
   const { t } = useLanguage();
@@ -164,20 +201,21 @@ export function DiscoveryHeader({
   }, [baseShops, userLocation]);
 
   // Build shop entries for the interactive map
-  const mapShops = useMemo(() => {
+  const mapShops = useMemo((): ShopEntry[] => {
     return displayedShops.map(shop => ({
       id: shop.id,
       name: shop.name,
       image: shop.image,
-      isActive: true,
-      latitude: shop.latitude ?? null,
-      longitude: shop.longitude ?? null,
-      locationLandmark: shop.locationLandmark,
+      isActive: shop.isActive ?? true,
+      isOnline: shop.isOnline ?? true,
+      latitude: shop.latitude ?? undefined,
+      longitude: shop.longitude ?? undefined,
+      locationLandmark: typeof shop.locationLandmark === 'string' ? shop.locationLandmark : undefined,
       isOnCampus: shop.isOnCampus,
     }));
   }, [displayedShops]);
 
-  const activeShopId = selectedShop === 'All' ? null : displayedShops.find(s => s.name === selectedShop)?.id;
+  const activeShopId = selectedShop === 'All' ? undefined : displayedShops.find(s => s.name === selectedShop)?.id;
   const id = useId().replace(/:/g, '');
 
   return (
@@ -312,75 +350,26 @@ export function DiscoveryHeader({
           </div>
         )}
 
-        {/* Deck View - Shop Cards */}
+        {/* Deck View - Swiggy Style "Big Image Story" Vendor Cards */}
         {viewMode === 'deck' && (
           <div className="nearby-food-deck" aria-label={t('Explore nearby food spots', 'సమీప ఆహార కేంద్రాలు చూడండి')}>
             {displayedShops.map(shop => {
               const isSelected = selectedShop === shop.name;
               const meta = (shop as any).meta as NearbyFoodMeta;
-              const hasDistance = shop.distance !== undefined && shop.distance > 0 && userLocation !== null;
+              const vendorItem = getShopVendorItem(shop, meta);
 
               return (
-                <button
+                <VendorCardPremium
                   key={shop.id}
-                  className={`nearby-food-card ${isSelected ? 'is-selected' : ''}`}
-                  data-restaurant-id={shop.id}
-                  type="button"
-                  disabled={loading && !shops.length}
-                  aria-label={shop.name}
-                  aria-pressed={isSelected}
+                  vendor={vendorItem}
+                  isSelected={isSelected}
                   onClick={() => {
                     if (selectedShop !== shop.name) {
                       trackViewRestaurant({ id: shop.id, name: shop.name });
                     }
                     onShop(selectedShop === shop.name ? 'All' : shop.name, shop.id);
                   }}
-                >
-                  <div className="nearby-card-top">
-                    <div className="nearby-photo-wrapper">
-                      <CatalogImage src={shop.image} alt={shop.name} loading="eager" />
-                      {isSelected && (
-                        <span className="nearby-card-check">
-                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="m2 6 3 3 5-6" />
-                          </svg>
-                        </span>
-                      )}
-                    </div>
-                    <div className="nearby-badges">
-                      <span className="nearby-tag-badge">{meta?.tag}</span>
-                      {hasDistance && shop.distance !== undefined && (
-                        <span className="nearby-distance-badge" title="Distance from your location">
-                          <MapPin size={10} className="shrink-0" />
-                          <span>{formatDistance(shop.distance)}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="nearby-card-body">
-                    <h3 className="nearby-card-name" title={shop.name}>
-                      {shop.name}
-                    </h3>
-                    <p className="nearby-card-cuisine" title={meta?.cuisine}>
-                      <UtensilsCrossed size={11} className="shrink-0" />
-                      <span>{meta?.cuisine}</span>
-                    </p>
-
-                    <div className="nearby-card-meta">
-                      <span className="nearby-meta-item nearby-price" title="Price range">
-                        <Banknote size={11} className="shrink-0" />
-                        {meta?.priceRange}
-                      </span>
-                      {hasDistance && shop.walkingTime && (
-                        <span className="nearby-meta-item nearby-time" title="Walking time">
-                          <Clock size={11} className="shrink-0" />
-                          <span>{shop.walkingTime}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
+                />
               );
             })}
           </div>
