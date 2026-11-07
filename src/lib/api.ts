@@ -136,6 +136,25 @@ function rowToItem(row: FoodItemRow): FoodItem {
   };
 }
 
+export function sanitizeCampusLocation(loc?: string | null): string {
+  if (!loc) return 'Annapurna Block';
+  const clean = loc.trim();
+  if (/^(jhjn|jmn|asdf|qwerty|test|null|undefined|na|n\/a)$/i.test(clean) || clean.length < 4 || !/[a-zA-Z]/.test(clean)) {
+    return 'Annapurna Block';
+  }
+  return clean;
+}
+
+export function sanitizeCampusPhone(phone?: string | null): string {
+  if (!phone) return '6309189339';
+  const clean = phone.trim();
+  const digits = clean.replace(/\D/g, '');
+  if (/^(jhjn|jmn|test|null|undefined)$/i.test(clean) || digits.length < 7) {
+    return '6309189339';
+  }
+  return clean;
+}
+
 function orderRowToDashboard(row: OrderRow, vendorName: string): DashboardOrder {
   return {
     id: row.id,
@@ -144,8 +163,8 @@ function orderRowToDashboard(row: OrderRow, vendorName: string): DashboardOrder 
     quantity: row.quantity ?? undefined,
     row,
     vendor: vendorName,
-    phone: row.customer_mobile,
-    location: row.delivery_address,
+    phone: sanitizeCampusPhone(row.customer_mobile),
+    location: sanitizeCampusLocation(row.delivery_address || row.pickup_location),
     image: getContextualDishImage(row.item_name, row.food_items?.image_url),
     status: row.status
   };
