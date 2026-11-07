@@ -75,7 +75,7 @@ export const CanteenSwipeSlider: React.FC<CanteenSwipeSliderProps> = ({
               </div>
 
               {/* Minimal floating time badge */}
-              <div className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+              <div className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
                 <span>{spot.walkingTime}</span>
               </div>
             </div>
@@ -93,11 +93,11 @@ export const CanteenSwipeSlider: React.FC<CanteenSwipeSliderProps> = ({
                   </div>
                 </div>
                 
-                <p className="text-[11px] text-gray-400 font-medium mt-0.5 truncate">
+                <p className="text-[11px] text-gray-400 font-normal mt-0.5 truncate">
                   {spot.locationDetails}
                 </p>
                 
-                <p className="text-[11px] font-bold text-gray-600 mt-1">
+                <p className="text-[11px] font-semibold text-gray-600 mt-1">
                   {spot.priceRange} <span className="text-gray-300 font-normal">· Cost for one</span>
                 </p>
               </div>

@@ -93,7 +93,7 @@ export const TopSellingSlider: React.FC<TopSellingSliderProps> = ({
                 </div>
 
                 {/* Vendor tag and dish name */}
-                <span className="text-[9px] font-bold text-orange-600 uppercase tracking-wide block truncate">
+                <span className="text-[9px] font-semibold text-orange-600 uppercase tracking-wide block truncate">
                   {dish.vendor}
                 </span>
                 <h3 className="text-xs font-black text-gray-950 truncate mt-0.5 leading-tight">
@@ -128,7 +128,7 @@ export const TopSellingSlider: React.FC<TopSellingSliderProps> = ({
                     <button
                       type="button"
                       onClick={() => removeItem(dish.id)}
-                      className="w-4 h-4 flex items-center justify-center font-bold text-xs hover:bg-green-700 rounded-xs cursor-pointer"
+                      className="w-4 h-4 flex items-center justify-center font-semibold text-xs hover:bg-green-700 rounded-xs cursor-pointer"
                       aria-label={`Decrease ${dish.name}`}
                     >
                       −
@@ -137,7 +137,7 @@ export const TopSellingSlider: React.FC<TopSellingSliderProps> = ({
                     <button
                       type="button"
                       onClick={() => addItem(normalizedMenuItem)}
-                      className="w-4 h-4 flex items-center justify-center font-bold text-xs hover:bg-green-700 rounded-xs cursor-pointer"
+                      className="w-4 h-4 flex items-center justify-center font-semibold text-xs hover:bg-green-700 rounded-xs cursor-pointer"
                       aria-label={`Increase ${dish.name}`}
                     >
                       +

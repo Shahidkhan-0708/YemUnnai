@@ -8,6 +8,10 @@ import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
 import { MinimalistWalkingRoute, type RoutePoint } from './MinimalistWalkingRoute';
 
+interface RoutePointWithDistance extends RoutePoint {
+  _distanceMeters: number;
+}
+
 interface Props { isOpen: boolean; item: FoodItem | null; onClose: () => void; }
 
 export function WalkInMapModal({ isOpen, item, onClose }: Props) {
@@ -27,9 +31,6 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
   const copy = async () => { setCopyError(''); try { await navigator.clipboard.writeText(address); setCopied(true); } catch { setCopied(false); setCopyError('Could not copy. Select the address below to copy it.'); } };
 
   // Build route points from selected shop and nearby entries
-  interface RoutePointWithDistance extends RoutePoint {
-    _distanceMeters: number;
-  }
   const routePoints = useMemo<RoutePointWithDistance[]>(() => {
     if (!selected || !point) return [];
     const baseLat = point[0];

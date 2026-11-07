@@ -83,7 +83,7 @@ export const CircularCategories: React.FC<CircularCategoriesProps> = ({
           <button
             type="button"
             onClick={() => onSelectCategory('all')}
-            className="text-xs font-bold text-orange-600 hover:text-orange-700 cursor-pointer"
+            className="text-xs font-semibold text-orange-600 hover:text-orange-700 cursor-pointer"
           >
             Reset
           </button>
@@ -123,8 +123,8 @@ export const CircularCategories: React.FC<CircularCategoriesProps> = ({
 
               {/* Clean Plain Text Category Label */}
               <span
-                className={`mt-1.5 text-[11px] font-bold tracking-tight text-center transition-colors line-clamp-1 max-w-[80px] ${
-                  isSelected ? 'text-orange-600 font-black' : 'text-gray-600 group-hover:text-gray-900'
+                className={`mt-1.5 text-[11px] tracking-tight text-center transition-colors line-clamp-1 max-w-[80px] ${
+                  isSelected ? 'text-orange-600 font-black' : 'text-gray-600 font-semibold group-hover:text-gray-900'
                 }`}
               >
                 {cat.name}

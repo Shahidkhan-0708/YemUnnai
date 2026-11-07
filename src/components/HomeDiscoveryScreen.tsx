@@ -187,7 +187,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
             <h1 className="text-xl font-black text-gray-950 tracking-tight">
               {t('Saved items', 'భద్రపరచిన వంటకాలు')}
             </h1>
-            <span className="text-xs font-bold text-gray-400">
+            <span className="text-xs font-semibold text-gray-400">
               {savedDishes.length} {savedDishes.length === 1 ? 'dish' : 'dishes'}
             </span>
           </div>
@@ -267,7 +267,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="text-xs font-bold text-orange-600 hover:text-orange-700 cursor-pointer"
+                className="text-xs font-semibold text-orange-600 hover:text-orange-700 cursor-pointer"
               >
                 Clear
               </button>

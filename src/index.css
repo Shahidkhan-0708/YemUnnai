@@ -2684,13 +2684,13 @@ img[data-extracted] { object-fit:contain; }
   height: 100%;
   background: #ffffff;
   border: 1px solid #d4d5d9;
-  border-radius: 6px;
+  border-radius: 10px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   color: #60b246;
   cursor: pointer;
   letter-spacing: 0.4px;

@@ -353,7 +353,7 @@ export function DiscoveryHeader({
       {selectedShop !== 'All' && (
         <div className="px-4 py-2 bg-white flex items-center justify-between border-b border-gray-100">
           <button
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-200/60"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold border border-orange-200/60"
             type="button"
             onClick={() => onShop('All')}
             aria-label={`Clear filter: ${selectedShop}`}
@@ -361,7 +361,7 @@ export function DiscoveryHeader({
             <span>Filtered: <strong>{selectedShop}</strong></span>
             <X size={13} />
           </button>
-          <button className="text-xs font-bold text-gray-500 hover:text-orange-600" type="button" onClick={() => onShop('All')}>
+          <button className="text-xs font-semibold text-gray-500 hover:text-orange-600" type="button" onClick={() => onShop('All')}>
             {t('Clear filter', 'తొలగించండి')}
           </button>
         </div>
@@ -406,13 +406,13 @@ export function DiscoveryHeader({
 
             <div className="discovery-map-sheet-footer">
               <div>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">A* Pedestrian Engine</p>
-                <p className="text-xs font-extrabold text-gray-800">Tap any canteen to route walking trail</p>
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">A* Pedestrian Engine</p>
+                <p className="text-xs font-black text-gray-800">Tap any canteen to route walking trail</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsRouteSheetOpen(false)}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-black text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer"
               >
                 Done
               </button>

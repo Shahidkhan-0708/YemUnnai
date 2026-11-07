@@ -74,7 +74,7 @@ export const ShopProfileHeader: React.FC<ShopProfileHeaderProps> = ({
               <span>Avg prep: <strong>5-10 mins</strong></span>
             </span>
             <span>•</span>
-            <span className="text-emerald-700 font-bold">Pay-on-Pickup Verified</span>
+            <span className="text-emerald-700 font-semibold">Pay-on-Pickup Verified</span>
           </div>
         </div>
       </div>

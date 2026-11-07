@@ -58,7 +58,7 @@ export const CategoryFilterChips: React.FC<CategoryFilterChipsProps> = ({
             >
               <span>{cat.label}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
                   isSelected ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-gray-500'
                 }`}
               >
