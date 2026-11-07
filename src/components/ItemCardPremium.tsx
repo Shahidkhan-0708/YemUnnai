@@ -2,6 +2,7 @@ import React from 'react';
 import type { MenuItem } from '../types/menu.ts';
 import type { FoodItem } from '../lib/types.ts';
 import { useCart } from '../context/useCart.ts';
+import { getDishDescription } from '../lib/culinaryDescriptions.ts';
 
 export interface ItemCardPremiumProps {
   item: MenuItem | FoodItem;
@@ -23,6 +24,10 @@ export const ItemCardPremium: React.FC<ItemCardPremiumProps> = ({ item, onSelect
     ? item.isAvailable
     : (item.inStock && item.isShopOnline !== false && price > 0);
 
+  const categoryName = 'category' in item && typeof item.category === 'string' ? item.category : undefined;
+  const rawDescription = 'description' in item && typeof item.description === 'string' ? item.description.trim() : '';
+  const description = rawDescription || getDishDescription(item.name, categoryName, isVegetarian);
+
   const normalizedMenuItem: MenuItem = {
     id: item.id,
     name: item.name,
@@ -32,6 +37,7 @@ export const ItemCardPremium: React.FC<ItemCardPremiumProps> = ({ item, onSelect
     vendorId: ('vendorId' in item ? item.vendorId : (item as FoodItem).vendorId) || '',
     vendorName: vendorName || '',
     isAvailable,
+    description,
   };
 
   const handleDetailsClick = () => {
@@ -53,6 +59,7 @@ export const ItemCardPremium: React.FC<ItemCardPremiumProps> = ({ item, onSelect
         
         <h3 className="dish-primary-title">{item.name}</h3>
         <p className="dish-primary-price">₹{price}</p>
+        <p className="dish-desc-text">{description}</p>
       </div>
 
       {/* Right Column: Anchored Square Photo + Overlay Controls */}

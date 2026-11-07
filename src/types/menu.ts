@@ -7,6 +7,7 @@ export interface MenuItem {
   vendorId: string;
   vendorName: string;
   isAvailable: boolean;
+  description?: string;
 }
 
 export interface CartItem {

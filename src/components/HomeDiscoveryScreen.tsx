@@ -215,6 +215,20 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
                 {selectedShop || (restaurantUnavailable ? 'Restaurant unavailable' : 'Restaurant menu')}
               </h1>
             </div>
+
+            {restaurant && (
+              <div className="restaurant-swiggy-card">
+                <div className="restaurant-swiggy-badge-row">
+                  <span className="restaurant-swiggy-type">{restaurant.tag || 'Campus Canteen'}</span>
+                  {restaurant.isOnCampus && <span className="restaurant-swiggy-campus">Inside MITS</span>}
+                  <span className="restaurant-swiggy-rating">★ 4.4</span>
+                </div>
+                <p className="restaurant-swiggy-location">
+                  📍 {restaurant.locationLandmark || 'Campus Food Court'}
+                  {restaurant.isOnCampus ? ' · 1 min walk' : ''}
+                </p>
+              </div>
+            )}
             <label className="discovery-search">
               <Search size={19} />
               <input
