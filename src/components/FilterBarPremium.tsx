@@ -7,18 +7,22 @@ export interface FilterState {
   availableNow: boolean;
 }
 
-interface FilterBarPremiumProps {
+export interface FilterBarPremiumProps {
   filters: FilterState;
   onFilterChange: (updatedFilters: FilterState) => void;
   totalCount: number;
   hideHeaderCounter?: boolean;
+  counterText?: string;
+  customCategories?: string[];
 }
 
 export const FilterBarPremium: React.FC<FilterBarPremiumProps> = ({ 
   filters, 
   onFilterChange, 
   totalCount,
-  hideHeaderCounter = false
+  hideHeaderCounter = false,
+  counterText,
+  customCategories
 }) => {
   
   const handleCategoryClick = (cat: string) => {
@@ -54,7 +58,7 @@ export const FilterBarPremium: React.FC<FilterBarPremiumProps> = ({
           aria-label={filters.maxPrice ? `Filtered by less than ₹${filters.maxPrice}` : 'Filter by budget'}
         >
           <span>{filters.maxPrice ? `Less than ₹${filters.maxPrice}` : 'Budget'}</span>
-          <span className="premium-pill-chevron"></span>
+          <span className="premium-pill-chevron">▾</span>
         </button>
 
         {/* Pure Veg Standard Regulatory Pill */}
@@ -80,68 +84,84 @@ export const FilterBarPremium: React.FC<FilterBarPremiumProps> = ({
           <span>Available Now</span>
         </button>
 
-        {/* Beverages Pill */}
-        <button 
-          type="button"
-          className={`premium-filter-pill ${filters.category === 'beverages' ? 'is-active' : ''}`}
-          onClick={() => handleCategoryClick('beverages')}
-          aria-pressed={filters.category === 'beverages'}
-          aria-label="Filter beverages"
-        >
-          <span>Beverages</span>
-        </button>
+        {/* Custom or Default Category Pills */}
+        {customCategories && customCategories.length > 0 ? (
+          customCategories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`premium-filter-pill ${filters.category === cat ? 'is-active' : ''}`}
+              onClick={() => handleCategoryClick(cat)}
+              aria-pressed={filters.category === cat}
+              aria-label={`Filter ${cat}`}
+            >
+              <span>{cat}</span>
+            </button>
+          ))
+        ) : (
+          <>
+            {/* Default Homepage Category Pills */}
+            <button 
+              type="button"
+              className={`premium-filter-pill ${filters.category === 'beverages' ? 'is-active' : ''}`}
+              onClick={() => handleCategoryClick('beverages')}
+              aria-pressed={filters.category === 'beverages'}
+              aria-label="Filter beverages"
+            >
+              <span>Beverages</span>
+            </button>
 
-        {/* Campus Hits Pill */}
-        <button 
-          type="button"
-          className={`premium-filter-pill ${filters.category === 'hits' ? 'is-active' : ''}`}
-          onClick={() => handleCategoryClick('hits')}
-          aria-pressed={filters.category === 'hits'}
-          aria-label="Filter campus hits"
-        >
-          <span>Campus Hits</span>
-        </button>
+            <button 
+              type="button"
+              className={`premium-filter-pill ${filters.category === 'hits' ? 'is-active' : ''}`}
+              onClick={() => handleCategoryClick('hits')}
+              aria-pressed={filters.category === 'hits'}
+              aria-label="Filter campus hits"
+            >
+              <span>Campus Hits</span>
+            </button>
 
-        {/* Tiffin Pill */}
-        <button 
-          type="button"
-          className={`premium-filter-pill ${filters.category === 'tiffin' ? 'is-active' : ''}`}
-          onClick={() => handleCategoryClick('tiffin')}
-          aria-pressed={filters.category === 'tiffin'}
-          aria-label="Filter tiffin"
-        >
-          <span>Tiffin</span>
-        </button>
+            <button 
+              type="button"
+              className={`premium-filter-pill ${filters.category === 'tiffin' ? 'is-active' : ''}`}
+              onClick={() => handleCategoryClick('tiffin')}
+              aria-pressed={filters.category === 'tiffin'}
+              aria-label="Filter tiffin"
+            >
+              <span>Tiffin</span>
+            </button>
 
-        {/* Meals Pill */}
-        <button 
-          type="button"
-          className={`premium-filter-pill ${filters.category === 'meals' ? 'is-active' : ''}`}
-          onClick={() => handleCategoryClick('meals')}
-          aria-pressed={filters.category === 'meals'}
-          aria-label="Filter meals"
-        >
-          <span>Meals</span>
-        </button>
+            <button 
+              type="button"
+              className={`premium-filter-pill ${filters.category === 'meals' ? 'is-active' : ''}`}
+              onClick={() => handleCategoryClick('meals')}
+              aria-pressed={filters.category === 'meals'}
+              aria-label="Filter meals"
+            >
+              <span>Meals</span>
+            </button>
 
-        {/* Fast Food Pill */}
-        <button 
-          type="button"
-          className={`premium-filter-pill ${filters.category === 'fast_food' ? 'is-active' : ''}`}
-          onClick={() => handleCategoryClick('fast_food')}
-          aria-pressed={filters.category === 'fast_food'}
-          aria-label="Filter fast food"
-        >
-          <span>Fast Food</span>
-        </button>
+            <button 
+              type="button"
+              className={`premium-filter-pill ${filters.category === 'fast_food' ? 'is-active' : ''}`}
+              onClick={() => handleCategoryClick('fast_food')}
+              aria-pressed={filters.category === 'fast_food'}
+              aria-label="Filter fast food"
+            >
+              <span>Fast Food</span>
+            </button>
+          </>
+        )}
       </div>
 
       {/* High-Contrast Metadata Sub-label */}
       {!hideHeaderCounter && (
         <div className="premium-filter-results-counter">
-          {totalCount} ITEMS AVAILABLE NEARBY
+          {counterText ? counterText : `${totalCount} ITEMS AVAILABLE NEARBY`}
         </div>
       )}
     </div>
   );
 };
+
+export default FilterBarPremium;

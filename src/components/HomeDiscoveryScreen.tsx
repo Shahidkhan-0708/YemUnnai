@@ -119,7 +119,15 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 
   // Filter items if a Category / Pill is selected
   const displayedItems = useMemo(() => {
-    if (restaurantId || filterCategory === 'all') return baseItems;
+    if (restaurantId) {
+      if (filterCategory === 'all') return baseItems;
+      return baseItems.filter(i => 
+        i.menuCategory === filterCategory || 
+        getFoodItemCategory(i) === filterCategory ||
+        (i.menuCategory && i.menuCategory.toLowerCase().includes(filterCategory.toLowerCase()))
+      );
+    }
+    if (filterCategory === 'all') return baseItems;
     if (filterCategory === 'hits') return getCampusFavorites(baseItems, 12);
     if (filterCategory === 'tiffin') {
       return baseItems.filter(i => getFoodItemCategory(i) === 'Tiffin' || i.menuCategory?.toLowerCase().includes('tiffin'));
@@ -166,7 +174,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   // Categories when viewing a specific restaurant
   const shopItems = restaurantId ? items.filter(item => item.vendorId === restaurantId) : items;
   const menuCategories = restaurantId ? [...new Set(shopItems.filter(item => item.menuCategory).map(item => item.menuCategory!))] : [];
-  const restaurantGroups = restaurantId && menuCategories.length ? [
+  const restaurantGroups = restaurantId && menuCategories.length && filterCategory === 'all' ? [
     ...menuCategories.map(category => ({ category, items: displayedItems.filter(item => item.menuCategory === category) })),
     { category: 'More dishes', items: displayedItems.filter(item => !item.menuCategory) }
   ].filter(group => group.items.length) : null;
@@ -214,44 +222,62 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     <SvgScreenFrame screen={null}>
       <section className="discovery-screen screen-enter">
         {restaurantId ? (
-          <header className="restaurant-header">
-            <div className="restaurant-heading-row">
-              <button className="restaurant-back" type="button" aria-label="Back to Discover" onClick={onBack}>
-                <ArrowLeft size={20} />
+          <header className="bg-white">
+            {/* Sleek Navigation Header */}
+            <div className="px-4 pt-4 pb-2 flex items-center gap-3">
+              <button 
+                type="button" 
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-700 active:scale-95 transition-transform cursor-pointer"
+                aria-label="Back to Discover"
+                onClick={onBack}
+              >
+                <ArrowLeft size={18} />
               </button>
-              <h1 ref={heading} tabIndex={-1}>
+              <h1 ref={heading} tabIndex={-1} className="text-xl font-black text-gray-950 tracking-tight">
                 {selectedShop || (restaurantUnavailable ? 'Restaurant unavailable' : 'Restaurant menu')}
               </h1>
             </div>
 
+            {/* Unified Premium Info Card (Swiggy / Zomato Style) */}
             {restaurant && (
-              <div className="restaurant-swiggy-card">
-                <div className="restaurant-swiggy-badge-row">
-                  <span className="restaurant-swiggy-type">{restaurant.tag || 'Campus Canteen'}</span>
-                  {restaurant.isOnCampus && <span className="restaurant-swiggy-campus">Inside MITS</span>}
-                  <span className="restaurant-swiggy-rating">★ 4.4</span>
+              <div className="px-4 pb-3">
+                <div className="w-full bg-white border border-gray-100 rounded-2xl p-4 shadow-sm mt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-black tracking-widest text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                      {restaurant.tag || 'Food Court'}
+                    </span>
+                    <div className="flex items-center gap-1 bg-green-600 text-white font-black text-xs px-2 py-0.5 rounded-lg shadow-xs">
+                      <span>★</span> 4.4
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold mt-2">
+                    <span>📍 {restaurant.locationLandmark || 'Campus Food Court'}</span>
+                    <span>·</span>
+                    <span>{restaurant.isOnCampus ? 'Inside MITS' : 'Ground Floor'}</span>
+                  </div>
                 </div>
-                <p className="restaurant-swiggy-location">
-                  📍 {restaurant.locationLandmark || 'Campus Food Court'}
-                  {restaurant.isOnCampus ? ' · 1 min walk' : ''}
-                </p>
               </div>
             )}
-            <label className="discovery-search">
-              <Search size={19} />
-              <input
-                type="search"
-                aria-label="Search food or shops"
-                placeholder="Search this menu"
-                value={searchQuery}
-                onChange={event => setSearchQuery(event.target.value)}
-              />
-              {searchQuery && (
-                <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')}>
-                  <X size={16} />
-                </button>
-              )}
-            </label>
+
+            {/* Sticky Search Bar Container */}
+            <div className="p-4 bg-white border-t border-gray-50">
+              <div className="relative flex items-center">
+                <Search size={16} className="absolute left-3.5 text-gray-400" />
+                <input
+                  type="search"
+                  aria-label="Search food or shops"
+                  placeholder="Search for dishes, snacks, drinks..."
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
+                  className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium placeholder-gray-400 focus:outline-hidden focus:border-orange-400 focus:bg-white transition-all shadow-inner"
+                />
+                {searchQuery && (
+                  <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')} className="absolute right-3 text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
           </header>
         ) : (
           <DiscoveryHeader
@@ -358,7 +384,10 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
             <div>
               {restaurantGroups.map(group => (
                 <section className="restaurant-menu-group" key={group.category}>
-                  <h2>{group.category}</h2>
+                  <div className="flex items-center justify-between px-3.5 py-2.5 bg-gray-50/90 rounded-xl mb-3 border-l-4 border-orange-500 shadow-2xs">
+                    <h2 className="text-sm font-black text-gray-900 tracking-tight">{group.category}</h2>
+                    <span className="text-[11px] font-bold text-gray-400">{group.items.length} items</span>
+                  </div>
                   <div className="food-grid">{group.items.map(renderFoodCard)}</div>
                 </section>
               ))}

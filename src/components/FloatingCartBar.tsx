@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingBag, ArrowRight, X, Plus, Minus, CheckCircle, Sparkles } from 'lucide-react';
+import { ArrowRight, X, Plus, Minus, Bell, Clock } from 'lucide-react';
 import { useCart } from '../context/useCart.ts';
 import { placeOrder } from '../lib/pickup.ts';
 import { playSuccessChime, fireOrderConfetti } from '../lib/celebration.ts';
+import { OrderStatusTracker } from './OrderStatusTracker';
 
 export const FloatingCartBar: React.FC = () => {
   const { cart, getTotalItems, getTotalPrice, addItem, removeItem, clearCart } = useCart();
@@ -12,7 +13,8 @@ export const FloatingCartBar: React.FC = () => {
   const [isBouncing, setIsBouncing] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+  const [showStatusTracker, setShowStatusTracker] = useState(false);
+  const [arrivalTime, setArrivalTime] = useState('5 mins');
 
   const prevCountRef = useRef(totalItems);
 
@@ -27,13 +29,15 @@ export const FloatingCartBar: React.FC = () => {
     prevCountRef.current = totalItems;
   }, [totalItems]);
 
-  if (totalItems === 0 && !orderSuccess) {
+  if (totalItems === 0 && !showStatusTracker) {
     return null;
   }
 
   const itemsList = Object.values(cart.items);
+  const firstVendorName = itemsList[0]?.menuItem.vendorName || 'MITS Canteen';
+  const initialMinutesNum = parseInt(arrivalTime, 10) || 5;
 
-  const handleCheckout = async () => {
+  const handleSendOrder = async () => {
     if (itemsList.length === 0 || isCheckingOut) return;
     setIsCheckingOut(true);
 
@@ -59,36 +63,30 @@ export const FloatingCartBar: React.FC = () => {
 
       playSuccessChime();
       fireOrderConfetti();
-      setOrderSuccess(`Order placed successfully! Pickup token generated.`);
-      clearCart();
-
-      setTimeout(() => {
-        setOrderSuccess(null);
-        setIsDrawerOpen(false);
-      }, 2500);
+      setShowStatusTracker(true);
     } catch {
-      // Graceful fallback: still notify user
+      // Graceful fallback
       playSuccessChime();
       fireOrderConfetti();
-      setOrderSuccess(`Order confirmed! Ready for pickup at campus food court.`);
-      clearCart();
-
-      setTimeout(() => {
-        setOrderSuccess(null);
-        setIsDrawerOpen(false);
-      }, 2500);
+      setShowStatusTracker(true);
     } finally {
       setIsCheckingOut(false);
     }
   };
 
+  const handleFinishOrderFlow = () => {
+    clearCart();
+    setShowStatusTracker(false);
+    setIsDrawerOpen(false);
+  };
+
   return (
     <>
-      {/* Floating Bottom Sticky Bar */}
-      {totalItems > 0 && (
-        <div className="floating-cart-bar-wrapper">
+      {/* 1. Floating Bottom Sticky Action Bar (Clean Elevation, Docked Comfortably Above Bottom Nav) */}
+      {totalItems > 0 && !showStatusTracker && (
+        <div className="fixed bottom-20 left-0 right-0 px-4 z-40 pointer-events-none">
           <div 
-            className="floating-cart-bar" 
+            className="w-full max-w-md mx-auto bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-xl hover:shadow-2xl p-3 px-4 flex items-center justify-between pointer-events-auto transform transition-all active:scale-[0.99] cursor-pointer"
             onClick={() => setIsDrawerOpen(true)}
             role="button"
             tabIndex={0}
@@ -101,144 +99,179 @@ export const FloatingCartBar: React.FC = () => {
             }}
           >
             {/* Left Column: Count badge + Subtotal */}
-            <div className="floating-cart-left">
-              <div className="floating-cart-count-row">
-                <span className={`floating-cart-count-badge ${isBouncing ? 'is-bouncing' : ''}`}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`bg-white/20 backdrop-blur-xs px-2.5 py-1 rounded-lg text-center ${isBouncing ? 'animate-bounce' : ''}`}>
+                <span className="text-xs font-black block leading-none tracking-wide">
                   {totalItems} {totalItems === 1 ? 'ITEM' : 'ITEMS'}
                 </span>
-                <span className="floating-cart-price">₹{totalPrice}</span>
               </div>
-              <span className="floating-cart-subtext">Campus Pickup · Free Delivery</span>
+              <div className="min-w-0">
+                <p className="text-sm font-extrabold tracking-tight">₹{totalPrice}</p>
+                <p className="text-[10px] text-emerald-100 font-medium leading-none mt-0.5 truncate">
+                  Campus Pickup · Pay at Counter
+                </p>
+              </div>
             </div>
 
             {/* Right Column: View Cart CTA */}
-            <div className="floating-cart-right">
+            <button 
+              type="button"
+              className="flex items-center gap-1.5 font-black text-xs tracking-wider uppercase bg-white/15 hover:bg-white/25 px-3.5 py-2 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
+            >
               <span>View Cart</span>
-              <div className="floating-cart-arrow-circle">
-                <ArrowRight size={15} color="#ffffff" />
-              </div>
-            </div>
+              <ArrowRight size={14} />
+            </button>
           </div>
         </div>
       )}
 
-      {/* Cart Review Drawer Bottom Sheet */}
+      {/* 2. Campus Pre-Order Drawer Bottom Sheet */}
       {isDrawerOpen && (
         <div 
-          className="cart-drawer-backdrop" 
+          className="cart-drawer-backdrop fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-end justify-center p-0 sm:p-4" 
           onClick={() => !isCheckingOut && setIsDrawerOpen(false)}
           role="presentation"
         >
           <div 
-            className="cart-drawer-sheet" 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden font-sans max-h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()} 
             role="dialog" 
             aria-modal="true" 
             aria-label="Your Food Cart"
           >
-            {/* Drawer Header */}
-            <div className="cart-drawer-header">
-              <div className="cart-drawer-header-left">
-                <h3>Your Campus Order</h3>
-                <p>{totalItems} {totalItems === 1 ? 'dish' : 'dishes'} selected</p>
-              </div>
-              <button 
-                type="button" 
-                className="cart-drawer-close-btn" 
-                onClick={() => setIsDrawerOpen(false)}
-                aria-label="Close cart"
-                disabled={isCheckingOut}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Order Success State */}
-            {orderSuccess ? (
-              <div className="p-8 flex flex-col items-center justify-center text-center gap-3">
-                <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                  <CheckCircle size={36} />
-                </div>
-                <h4 className="text-lg font-extrabold text-gray-900">Order Confirmed!</h4>
-                <p className="text-xs font-semibold text-gray-600 max-w-xs">{orderSuccess}</p>
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 mt-2">
-                  <Sparkles size={14} /> Showing in your Orders tab
-                </span>
-              </div>
+            {showStatusTracker ? (
+              <OrderStatusTracker
+                canteenName={firstVendorName}
+                totalPrice={totalPrice}
+                initialMinutes={initialMinutesNum}
+                itemsCount={totalItems}
+                onClose={handleFinishOrderFlow}
+                onCancel={handleFinishOrderFlow}
+              />
             ) : (
               <>
-                {/* Cart Items List */}
-                <div className="cart-drawer-items-list">
+                {/* Drawer Header */}
+                <div className="flex justify-between items-center p-4 pb-3 border-b border-gray-100 flex-shrink-0">
+                  <div>
+                    <h3 className="text-base font-extrabold text-gray-950">Your Campus Order</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {totalItems} {totalItems === 1 ? 'dish' : 'dishes'} selected · {firstVendorName}
+                    </p>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 font-bold transition-colors cursor-pointer" 
+                    onClick={() => setIsDrawerOpen(false)}
+                    aria-label="Close cart"
+                    disabled={isCheckingOut}
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Scrollable Item Rows */}
+                <div className="overflow-y-auto p-4 space-y-3 flex-grow">
                   {itemsList.map(({ menuItem, quantity }) => (
-                    <div key={menuItem.id} className="cart-drawer-item-row">
-                      <div className="cart-drawer-item-info">
-                        <span className={menuItem.isVegetarian ? 'swiggy-veg-icon' : 'swiggy-nonveg-icon'}>
-                          <span className={menuItem.isVegetarian ? 'swiggy-veg-dot' : 'swiggy-nonveg-triangle'} />
+                    <div key={menuItem.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-none">
+                      <div className="flex items-center gap-2.5 min-w-0 pr-3">
+                        <span className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center flex-shrink-0 ${
+                          menuItem.isVegetarian ? 'border-green-600' : 'border-red-600'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${menuItem.isVegetarian ? 'bg-green-600' : 'bg-red-600'}`} />
                         </span>
                         <div className="min-w-0">
-                          <h4 className="cart-drawer-item-title">{menuItem.name}</h4>
-                          <span className="cart-drawer-item-price">₹{menuItem.price * quantity}</span>
+                          <h4 className="text-sm font-extrabold text-gray-900 truncate">{menuItem.name}</h4>
+                          <span className="text-xs font-bold text-gray-500">₹{menuItem.price * quantity}</span>
                         </div>
                       </div>
 
                       {/* Real-Time Stepper */}
-                      <div className="cart-drawer-stepper">
+                      <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-2 py-1 bg-gray-50 flex-shrink-0">
                         <button
                           type="button"
-                          className="cart-drawer-step-btn"
+                          className="text-gray-500 hover:text-gray-800 font-bold px-1 transition-colors cursor-pointer"
                           onClick={() => removeItem(menuItem.id)}
                           aria-label={`Decrease ${menuItem.name}`}
                         >
-                          <Minus size={13} />
+                          <Minus size={12} />
                         </button>
-                        <span className="cart-drawer-step-qty">{quantity}</span>
+                        <span className="text-xs font-black text-gray-900 w-4 text-center">{quantity}</span>
                         <button
                           type="button"
-                          className="cart-drawer-step-btn"
+                          className="text-orange-600 hover:text-orange-700 font-bold px-1 transition-colors cursor-pointer"
                           onClick={() => addItem(menuItem)}
                           aria-label={`Increase ${menuItem.name}`}
                         >
-                          <Plus size={13} />
+                          <Plus size={12} />
                         </button>
                       </div>
                     </div>
                   ))}
+
+                  {/* Dynamic Arrival Time Selector (Gives kitchen advance context) */}
+                  <div className="bg-orange-50/70 p-3.5 rounded-2xl border border-orange-200/60 mt-3">
+                    <label className="text-[11px] font-black text-orange-900 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
+                      <Clock size={13} className="text-orange-600" />
+                      <span>When will you reach the shop?</span>
+                    </label>
+                    <div className="flex gap-2">
+                      {['5 mins', '10 mins', '15 mins'].map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => setArrivalTime(time)}
+                          className={`flex-1 text-xs font-bold py-2 rounded-xl border transition-all cursor-pointer ${
+                            arrivalTime === time
+                              ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
+                              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bill Breakdown Summary Card */}
+                  <div className="bg-gray-50 rounded-2xl p-3.5 border border-gray-100 space-y-2 mt-3">
+                    <div className="flex justify-between text-xs text-gray-500 font-medium">
+                      <span>Item Total</span>
+                      <span>₹{totalPrice}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-green-600 font-bold">
+                      <span>Campus Walk-In</span>
+                      <span>FREE</span>
+                    </div>
+                    <div className="h-px bg-gray-200 my-1"></div>
+                    <div className="flex justify-between text-sm font-black text-gray-950">
+                      <span>Total Bill Value</span>
+                      <span>₹{totalPrice}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200/50 mt-1">
+                      <span className="font-semibold">Payment</span>
+                      <span className="font-black">Pay at Counter (Cash / UPI)</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Bill Breakdown Summary Card */}
-                <div className="cart-drawer-bill-card">
-                  <div className="cart-drawer-bill-row">
-                    <span>Item Total</span>
-                    <span>₹{totalPrice}</span>
-                  </div>
-                  <div className="cart-drawer-bill-row">
-                    <span>Campus Walk-In / Delivery</span>
-                    <span className="text-green-600 font-bold">FREE</span>
-                  </div>
-                  <div className="cart-drawer-bill-row total-row">
-                    <span>To Pay</span>
-                    <span>₹{totalPrice}</span>
-                  </div>
-                </div>
-
-                {/* Drawer Footer Actions */}
-                <div className="cart-drawer-footer">
-                  <button
+                {/* Action Button Strip */}
+                <div className="p-4 pt-3 border-t border-gray-100 flex gap-2.5 flex-shrink-0 bg-white">
+                  <button 
                     type="button"
-                    className="cart-drawer-clear-btn"
                     onClick={clearCart}
                     disabled={isCheckingOut}
+                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
                   >
                     Clear
                   </button>
-                  <button
+                  <button 
                     type="button"
-                    className="cart-drawer-checkout-btn"
-                    onClick={handleCheckout}
+                    onClick={handleSendOrder}
                     disabled={isCheckingOut || totalItems === 0}
+                    className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
-                    <ShoppingBag size={17} />
-                    <span>{isCheckingOut ? 'Placing Order…' : `Proceed to Pay ₹${totalPrice}`}</span>
+                    <Bell size={15} />
+                    <span>{isCheckingOut ? 'Alerting Canteen…' : 'Send Order & Alert Owner'}</span>
                   </button>
                 </div>
               </>

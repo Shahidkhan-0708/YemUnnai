@@ -1,13 +1,14 @@
-import { useId, useState, useMemo, useRef } from 'react';
-import { X, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useId, useState, useMemo } from 'react';
+import { X, MapPin } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
 import { useLanguage } from '../lib/language';
 import type { ShopEntry, Coordinates } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 import { trackViewRestaurant } from '../lib/analytics';
-import { VendorCardPremium, type VendorItem } from './VendorCardPremium';
+import type { VendorItem } from './VendorCardPremium';
 import { HeroPromoBannerCarousel } from './HeroPromoBannerCarousel';
+import { CanteenSwipeSlider, type CanteenData } from './CanteenSwipeSlider';
 import { haversineDistance, formatWalkingTime, shopCoordinates } from '../lib/mapLocations';
 
 export interface NearbyFoodMeta {
@@ -178,29 +179,9 @@ export function DiscoveryHeader({
   userLocation,
 }: Props) {
   const [isRouteSheetOpen, setIsRouteSheetOpen] = useState(false);
+  const [selectedRouteShopId, setSelectedRouteShopId] = useState<string | undefined>(undefined);
   const { t } = useLanguage();
 
-  const deckRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const handleDeckScroll = () => {
-    if (!deckRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = deckRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    if (maxScroll > 0) {
-      setScrollProgress(Math.min(1, Math.max(0, scrollLeft / maxScroll)));
-      setCanScrollLeft(scrollLeft > 8);
-      setCanScrollRight(scrollLeft < maxScroll - 8);
-    }
-  };
-
-  const scrollDeck = (direction: 'left' | 'right') => {
-    if (!deckRef.current) return;
-    const offset = direction === 'left' ? -276 : 276;
-    deckRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-  };
 
   const baseShops: NearbyShop[] = useMemo(() => {
     return shops.length
@@ -236,6 +217,24 @@ export function DiscoveryHeader({
       locationLandmark: typeof shop.locationLandmark === 'string' ? shop.locationLandmark : undefined,
       isOnCampus: shop.isOnCampus,
     }));
+  }, [displayedShops]);
+
+
+  const canteenDataList: CanteenData[] = useMemo(() => {
+    return displayedShops.map(shop => {
+      const meta = (shop as any).meta as NearbyFoodMeta;
+      const v = getShopVendorItem(shop, meta);
+      return {
+        id: shop.id,
+        name: shop.name,
+        isOpen: !v.isClosed,
+        locationDetails: typeof shop.locationLandmark === 'string' ? shop.locationLandmark : 'MITS Campus, Angallu',
+        rating: v.rating,
+        priceRange: meta?.priceRange || `₹${v.costForTwo} for two`,
+        walkingTime: `${v.durationMins} mins`,
+        imageUrl: v.imageUrl,
+      };
+    });
   }, [displayedShops]);
 
   const activeShopId = selectedShop === 'All' ? undefined : displayedShops.find(s => s.name === selectedShop)?.id;
@@ -360,69 +359,19 @@ export function DiscoveryHeader({
           </button>
         </div>
 
-        {/* Deck View - Swiggy Style "Big Image Story" Multi-Item Slider (Clean Visual Feed) */}
-        <div className="nearby-deck-slider-container">
-          <div 
-            ref={deckRef}
-            className="nearby-food-deck" 
-            onScroll={handleDeckScroll}
-            aria-label={t('Explore nearby food spots', 'సమీప ఆహార కేంద్రాలు చూడండి')}
-          >
-            {displayedShops.map(shop => {
-              const isSelected = selectedShop === shop.name;
-              const meta = (shop as any).meta as NearbyFoodMeta;
-              const vendorItem = getShopVendorItem(shop, meta);
-
-              return (
-                <VendorCardPremium
-                  key={shop.id}
-                  vendor={vendorItem}
-                  isSelected={isSelected}
-                  onClick={() => {
-                    if (selectedShop !== shop.name) {
-                      trackViewRestaurant({ id: shop.id, name: shop.name });
-                    }
-                    onShop(selectedShop === shop.name ? 'All' : shop.name, shop.id);
-                  }}
-                />
-              );
-            })}
-          </div>
-
-          {/* Interactive Scroll Tracker & Navigation Controls */}
-          {displayedShops.length > 1 && (
-            <div className="nearby-deck-progress-bar-wrapper">
-              <button
-                type="button"
-                className={`nearby-deck-nav-btn prev-btn ${!canScrollLeft ? 'is-disabled' : ''}`}
-                onClick={() => scrollDeck('left')}
-                disabled={!canScrollLeft}
-                aria-label="Scroll left"
-              >
-                <ChevronLeft size={13} />
-              </button>
-
-              <div className="nearby-deck-progress-track">
-                <div 
-                  className="nearby-deck-progress-thumb" 
-                  style={{ 
-                    transform: `translateX(${scrollProgress * 32}px)` 
-                  }}
-                />
-              </div>
-
-              <button
-                type="button"
-                className={`nearby-deck-nav-btn next-btn ${!canScrollRight ? 'is-disabled' : ''}`}
-                onClick={() => scrollDeck('right')}
-                disabled={!canScrollRight}
-                aria-label="Scroll right"
-              >
-                <ChevronRight size={13} />
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Canteen Swipe Slider with Integrated Actions */}
+        <CanteenSwipeSlider
+          canteens={canteenDataList}
+          onViewMenu={(id, name) => {
+            const shopName = name || displayedShops.find(s => s.id === id)?.name || 'All';
+            trackViewRestaurant({ id, name: shopName });
+            onShop(selectedShop === shopName ? 'All' : shopName, id);
+          }}
+          onTrackRoute={(canteen) => {
+            setSelectedRouteShopId(canteen.id);
+            setIsRouteSheetOpen(true);
+          }}
+        />
 
         {/* Dedicated Full-Bleed Campus Pedestrian Navigator Sheet / Drawer */}
         {isRouteSheetOpen && (
@@ -453,7 +402,7 @@ export function DiscoveryHeader({
               <div className="nearby-interactive-map" style={{ height: '52vh', minHeight: '340px' }}>
                 <CanteenMap
                   shops={mapShops}
-                  selectedId={activeShopId}
+                  selectedId={selectedRouteShopId || activeShopId}
                   onSelect={(id) => {
                     const shop = displayedShops.find(s => s.id === id);
                     if (shop) onShop(shop.name, shop.id);
