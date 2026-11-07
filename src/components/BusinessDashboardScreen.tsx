@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, MapPin, LogIn, LogOut, RefreshCw, CloudOff, Phone, Zap, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, LogIn, LogOut, RefreshCw, CloudOff, Phone, Zap, Check, Bell, CheckCircle2 } from 'lucide-react';
 import { FamilyReceiveComponent } from './FamilyReceiveComponent';
 import { useVendorSession, useVendorOrders, useVendorStats } from '../lib/hooks';
 import { setOrderStatus, setVendorOnline, pickupRequest } from '../lib/api';
@@ -242,12 +242,12 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
         {/* 3. Section Divider Bar */}
         <div className="px-4 mb-3 flex items-center justify-between">
           <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-            <span>🔔</span>
+            <Bell size={12} className="text-gray-400" />
             <span>Incoming Orders ({activeOrders.length})</span>
           </h3>
           <button 
             type="button"
-            className="text-xs font-bold text-orange-600 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+            className="text-xs font-semibold text-orange-600 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
             disabled={ordersLoading} 
             onClick={() => setFeedRetry(n => n + 1)}
           >
@@ -273,13 +273,15 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
           </div>
         )}
 
-        {ordersLoading && <p role="status" className="business-empty text-center py-6 text-xs text-gray-400 font-bold">Connecting to live orders…</p>}
+        {ordersLoading && <p role="status" className="business-empty text-center py-6 text-xs text-gray-400 font-semibold">Connecting to live orders…</p>}
         
         {!ordersLoading && !activeOrders.length && !ordersError && (
           <div className="mx-4 bg-white border border-gray-100 rounded-2xl p-8 text-center shadow-xs">
-            <span className="text-3xl block mb-2">✨</span>
-            <p className="text-sm font-extrabold text-gray-900">All caught up!</p>
-            <p className="text-xs text-gray-500 mt-0.5">New incoming student orders will appear here automatically.</p>
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+              <CheckCircle2 size={24} />
+            </div>
+            <p className="text-sm font-black text-gray-950">All caught up!</p>
+            <p className="text-xs text-gray-500 font-normal mt-0.5">New incoming student orders will appear here automatically.</p>
           </div>
         )}
 
@@ -297,10 +299,10 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                 {/* Card Meta Top Strip */}
                 <div className="bg-amber-50/60 px-4 py-2 flex items-center justify-between border-b border-amber-100/40">
                   <span className="text-[11px] font-black text-amber-800 tracking-wide uppercase flex items-center gap-1">
-                    <span>⚡</span> Campus Pre-Order
+                    <Zap size={11} className="text-amber-700" /> Campus Pre-Order
                   </span>
-                  <span className="text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-2xs font-mono">
-                    #{ord.row.pickup_number || '4'} · Reaching in <span className="text-orange-600 font-extrabold">5 mins</span>
+                  <span className="text-[11px] font-semibold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-2xs font-mono">
+                    #{ord.row.pickup_number || '4'} · Reaching in <span className="text-orange-600 font-black">5 mins</span>
                   </span>
                 </div>
 
@@ -425,12 +427,12 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                         <div className="p-3 bg-gray-50 flex items-center gap-2">
                           <select 
                             aria-label="Payment received at counter" 
-                            className="flex-1 text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-2 text-gray-800 cursor-pointer" 
+                            className="flex-1 text-xs font-semibold bg-white border border-gray-200 rounded-xl px-3 py-2 text-gray-800 cursor-pointer" 
                             value={paymentMethods[ord.id] ?? 'cash'} 
                             onChange={e => setPaymentMethods(prev => ({ ...prev, [ord.id]: e.target.value as 'cash' | 'counter_upi' }))}
                           >
-                            <option value="cash">💵 Cash at Counter</option>
-                            <option value="counter_upi">📱 Counter UPI QR</option>
+                            <option value="cash">Cash at Counter</option>
+                            <option value="counter_upi">Counter UPI QR</option>
                           </select>
                           <FamilyReceiveComponent 
                             triggerLabel={t('Collected & Paid', 'తీసుకున్నారు')} 

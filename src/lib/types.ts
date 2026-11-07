@@ -121,6 +121,13 @@ export interface FoodItem {
   locationLandmark?: string;
   isOnCampus?: boolean;
   isShopOnline?: boolean;
+  actionType?: ActionType;
+  rating?: number;
+  prepTime?: string;
+  tags?: string[];
+  walkTime?: string;
+  reviewCount?: number;
+  freshnessTag?: string;
 }
 
 export interface ShopEntry {

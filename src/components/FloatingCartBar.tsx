@@ -170,57 +170,60 @@ export const FloatingCartBar: React.FC = () => {
                 {/* Scrollable Item Rows */}
                 <div className="overflow-y-auto p-4 space-y-3 flex-grow">
                   {itemsList.map(({ menuItem, quantity }) => (
-                    <div key={menuItem.id} className="flex justify-between items-center py-2.5 border-b border-gray-50 last:border-none">
-                      <div className="flex items-center gap-2.5 min-w-0 pr-3">
+                    <div key={menuItem.id} className="flex justify-between items-center py-2.5 border-b border-gray-100 last:border-none">
+                      {/* Left: Diet Dot + Item Name */}
+                      <div className="flex items-center gap-2.5 min-w-0 pr-3 flex-1">
                         <span className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center flex-shrink-0 ${
-                          menuItem.isVegetarian ? 'border-green-600' : 'border-red-600'
+                          menuItem.isVegetarian ? 'border-emerald-600' : 'border-rose-600'
                         }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${menuItem.isVegetarian ? 'bg-green-600' : 'bg-red-600'}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full ${menuItem.isVegetarian ? 'bg-emerald-600' : 'bg-rose-600'}`} />
                         </span>
-                        <div className="min-w-0">
-                          {/* Price tucked directly alongside dish title on same horizontal axis */}
-                          <h4 className="text-sm font-extrabold text-gray-900 truncate">
-                            {menuItem.name} <span className="text-gray-300 font-normal">·</span> <span className="text-gray-950 font-black">₹{menuItem.price * quantity}</span>
-                          </h4>
-                        </div>
+                        <span className="text-sm font-semibold text-gray-900 truncate">
+                          {menuItem.name}
+                        </span>
                       </div>
 
-                      {/* Real-Time Stepper */}
-                      <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2.5 py-1 bg-gray-50 flex-shrink-0 shadow-2xs">
-                        <button
-                          type="button"
-                          className="text-gray-600 hover:text-gray-950 font-black px-1 transition-colors cursor-pointer"
-                          onClick={() => removeItem(menuItem.id)}
-                          aria-label={`Decrease ${menuItem.name}`}
-                        >
-                          <Minus size={12} />
-                        </button>
-                        <span className="text-xs font-black text-gray-900 w-4 text-center">{quantity}</span>
-                        <button
-                          type="button"
-                          className="text-orange-600 hover:text-orange-700 font-black px-1 transition-colors cursor-pointer"
-                          onClick={() => addItem(menuItem)}
-                          aria-label={`Increase ${menuItem.name}`}
-                        >
-                          <Plus size={12} />
-                        </button>
+                      {/* Right: Price & Stepper Balanced on Same Horizontal Baseline */}
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="text-sm font-black text-gray-950">
+                          ₹{menuItem.price * quantity}
+                        </span>
+                        <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2.5 py-1 bg-gray-50 shadow-2xs">
+                          <button
+                            type="button"
+                            className="text-gray-500 hover:text-gray-950 font-semibold px-1 transition-colors cursor-pointer"
+                            onClick={() => removeItem(menuItem.id)}
+                            aria-label={`Decrease ${menuItem.name}`}
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="text-xs font-black text-gray-900 w-4 text-center">{quantity}</span>
+                          <button
+                            type="button"
+                            className="text-orange-600 hover:text-orange-700 font-semibold px-1 transition-colors cursor-pointer"
+                            onClick={() => addItem(menuItem)}
+                            aria-label={`Increase ${menuItem.name}`}
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
 
-                  {/* Dynamic Arrival Time Selector (Unified rounded-2xl corner radius) */}
-                  <div className="bg-orange-50/60 p-3.5 rounded-2xl border border-orange-100 mt-3">
-                    <label className="text-[11px] font-black text-orange-950 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
-                      <Clock size={13} className="text-orange-600" />
+                  {/* Clean Arrival Time Selector (Symmetrical rounded-xl buttons, zero loud neon borders) */}
+                  <div className="p-3.5 rounded-2xl border border-gray-150 bg-gray-50/70 mt-3">
+                    <div className="flex items-center gap-1.5 mb-2.5 text-xs font-semibold text-gray-700">
+                      <Clock size={13} className="text-orange-500" />
                       <span>When will you reach the shop?</span>
-                    </label>
+                    </div>
                     <div className="flex gap-2">
                       {['5 mins', '10 mins', '15 mins'].map((time) => (
                         <button
                           key={time}
                           type="button"
                           onClick={() => setArrivalTime(time)}
-                          className={`flex-1 text-xs font-black py-2 rounded-2xl border transition-all cursor-pointer ${
+                          className={`flex-1 text-xs font-semibold py-2 rounded-xl border transition-all cursor-pointer ${
                             arrivalTime === time
                               ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
                               : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
@@ -232,13 +235,13 @@ export const FloatingCartBar: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* High-Contrast Summary Mapping: Transparent container with minimal single-pixel divider */}
+                  {/* High-Contrast Summary: Clean Whitespace Grid (Ditched card-within-card nested boxes) */}
                   <div className="space-y-2 mt-4 px-1">
-                    <div className="flex justify-between text-xs text-gray-500 font-medium">
+                    <div className="flex justify-between text-xs text-gray-500 font-normal">
                       <span>Item Total</span>
-                      <span className="font-semibold text-gray-700">₹{totalPrice}</span>
+                      <span className="font-semibold text-gray-800">₹{totalPrice}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-emerald-600 font-bold">
+                    <div className="flex justify-between text-xs text-emerald-600 font-semibold">
                       <span>Campus Walk-In</span>
                       <span>FREE</span>
                     </div>
@@ -246,20 +249,20 @@ export const FloatingCartBar: React.FC = () => {
                       <span className="text-sm font-black text-gray-950">Total Bill Value</span>
                       <span className="text-base font-black text-gray-950">₹{totalPrice}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-amber-900 bg-amber-50/90 px-3 py-2 rounded-2xl border border-amber-200/60 mt-2">
-                      <span className="font-semibold">Payment</span>
-                      <span className="font-black">Pay at Counter (Cash / UPI)</span>
+                    <div className="flex items-center justify-between text-xs text-gray-600 pt-1">
+                      <span className="font-normal text-gray-500">Payment</span>
+                      <span className="font-semibold text-gray-900">Pay at Counter (Cash / UPI)</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Radical Button Hierarchy: Removed "Clear" button completely; 100% full-width primary CTA */}
+                {/* Single Full-Width Primary Action (Zero Redundant 'Clear' CTA) */}
                 <div className="p-4 pt-3 border-t border-gray-100 flex-shrink-0 bg-white">
                   <button 
                     type="button"
                     onClick={handleSendOrder}
                     disabled={isCheckingOut || totalItems === 0}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-sm font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Bell size={16} />
                     <span>{isCheckingOut ? 'Alerting Canteen…' : 'Send Order & Alert Owner'}</span>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { X, Store, MapPin, Navigation } from 'lucide-react';
 import type { MenuItem } from '../types/menu.ts';
 import type { FoodItem } from '../lib/types.ts';
 import { useCart } from '../context/useCart.ts';
@@ -80,8 +81,8 @@ export const ItemDetailSheet: React.FC<ItemDetailSheetProps> = ({
               <span>{item.name.charAt(0)}</span>
             </div>
           )}
-          <button type="button" className="sheet-dismiss-pill-btn" onClick={onClose} aria-label="Close detail sheet">
-            ✕
+          <button type="button" className="sheet-dismiss-pill-btn flex items-center justify-center" onClick={onClose} aria-label="Close detail sheet">
+            <X size={16} />
           </button>
         </div>
 
@@ -111,14 +112,18 @@ export const ItemDetailSheet: React.FC<ItemDetailSheetProps> = ({
           {/* Fulfillment Logistics Block */}
           <div className="sheet-info-section gray-bg-card">
             <div className="logistic-item-row">
-              <span className="logistic-icon">🍳</span>
+              <span className="logistic-icon flex items-center justify-center">
+                <Store size={15} className="text-orange-500" />
+              </span>
               <div className="logistic-text-group">
                 <span className="logistic-label">Preparation Outlet</span>
                 <span className="logistic-value">{vendorName}</span>
               </div>
             </div>
             <div className="logistic-item-row">
-              <span className="logistic-icon">📍</span>
+              <span className="logistic-icon flex items-center justify-center">
+                <MapPin size={15} className="text-orange-500" />
+              </span>
               <div className="logistic-text-group">
                 <span className="logistic-label">Pickup Hub Location</span>
                 <span className="logistic-value">{pickupLocationDetail}</span>
@@ -129,8 +134,8 @@ export const ItemDetailSheet: React.FC<ItemDetailSheetProps> = ({
 
         {/* Integrated Sticky Execution Footer Bar */}
         <div className="sheet-sticky-action-footer">
-          <button type="button" className="sheet-secondary-navigate-btn" onClick={onNavigateClick}>
-            <span className="navigate-btn-icon">🧭</span>
+          <button type="button" className="sheet-secondary-navigate-btn flex items-center gap-1.5" onClick={onNavigateClick}>
+            <Navigation size={14} className="text-gray-700" />
             <span>Directions</span>
           </button>
 

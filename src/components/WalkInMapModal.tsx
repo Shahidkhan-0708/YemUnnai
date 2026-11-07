@@ -3,7 +3,7 @@ import { X, Navigation, MapPin, Copy, Check } from 'lucide-react';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useShops } from '../lib/hooks';
 import type { FoodItem } from '../lib/types';
-import { shopCoordinates } from '../lib/mapLocations';
+import { shopCoordinates, haversineDistance, formatDistance, formatWalkingTime } from '../lib/mapLocations';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
 import { MinimalistWalkingRoute, type RoutePoint } from './MinimalistWalkingRoute';
@@ -27,30 +27,45 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
   const copy = async () => { setCopyError(''); try { await navigator.clipboard.writeText(address); setCopied(true); } catch { setCopied(false); setCopyError('Could not copy. Select the address below to copy it.'); } };
 
   // Build route points from selected shop and nearby entries
-  const routePoints = useMemo<RoutePoint[]>(() => {
+  interface RoutePointWithDistance extends RoutePoint {
+    _distanceMeters: number;
+  }
+  const routePoints = useMemo<RoutePointWithDistance[]>(() => {
     if (!selected || !point) return [];
     const baseLat = point[0];
     const baseLng = point[1];
+    const basePoint: [number, number] = [baseLat, baseLng];
     return entries
       .filter(s => s.id !== selected.id)
-      .map((shop, index): RoutePoint | null => {
+      .map((shop, index): RoutePointWithDistance | null => {
         const coords = shopCoordinates(shop);
         if (!coords) return null;
-        const distance = Math.round(Math.sqrt(
-          Math.pow(coords[0] - baseLat, 2) + Math.pow(coords[1] - baseLng, 2)
-        ) * 111000); // rough meters
-        const time = Math.max(1, Math.round(distance / 75));
+        const distanceMeters = haversineDistance(basePoint, coords);
         return {
           id: shop.id,
           name: shop.name,
           landmark: shop.locationLandmark ?? 'MITS Campus',
-          distance: `${distance}m`,
-          time: `${time} min`,
-          iconColor: index === 0 ? '#EA580C' : '#FEB252'
+          distance: formatDistance(distanceMeters),
+          time: formatWalkingTime(distanceMeters),
+          iconColor: index === 0 ? '#EA580C' : '#FEB252',
+          _distanceMeters: distanceMeters
         };
       })
-      .filter((p): p is RoutePoint => p !== null);
+      .filter((p): p is RoutePointWithDistance => p !== null);
   }, [entries, selected, point]);
+
+  // Total distance is sum of all route points, not just the last one
+  const totalDistance = useMemo(() => {
+    if (routePoints.length === 0) return '450m';
+    const sum = routePoints.reduce((acc, rp) => acc + rp._distanceMeters, 0);
+    return formatDistance(sum);
+  }, [routePoints]);
+
+  const totalTime = useMemo(() => {
+    if (routePoints.length === 0) return '6 min';
+    const sum = routePoints.reduce((acc, rp) => acc + rp._distanceMeters, 0);
+    return formatWalkingTime(sum);
+  }, [routePoints]);
 
   if (!isOpen || !item) return null;
   return <div className="canteen-map-backdrop" onClick={onClose}>
@@ -64,8 +79,8 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
         onClose={() => {}}
         startPoint={name}
         points={routePoints}
-        totalDistance={point && routePoints.length > 0 ? routePoints[routePoints.length - 1].distance : '450m'}
-        totalTime={point && routePoints.length > 0 ? routePoints[routePoints.length - 1].time : '6 min'}
+        totalDistance={totalDistance}
+        totalTime={totalTime}
       />
 
       {/* Legacy Interactive Map */}

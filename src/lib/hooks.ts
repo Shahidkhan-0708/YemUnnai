@@ -16,7 +16,6 @@ import {
 import type { FoodCategory, FoodItem, ShopEntry, DashboardOrder, VendorStats } from './types';
 import { supabase } from './supabase';
 import { cachedFoods, cachedShops, saveFoodSnapshot, saveShopSnapshot } from './catalogSnapshot';
-import { shopCoordinates } from './mapLocations';
 
 /**
  * Geolocation state management hook.

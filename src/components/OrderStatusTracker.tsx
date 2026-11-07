@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Clock, AlertCircle } from 'lucide-react';
+import { Check, Clock, AlertCircle, Utensils, Zap } from 'lucide-react';
 
 export interface OrderStatusTrackerProps {
   canteenName?: string;
@@ -38,14 +38,14 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
       
       {/* 1. Header Confirmation Status */}
       <div className="flex flex-col items-center mb-5">
-        <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-3 shadow-inner">
-          <span className="animate-bounce">🍳</span>
+        <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 shadow-inner">
+          <Utensils size={24} className="text-emerald-600" />
         </div>
         <h3 className="text-xl font-black text-gray-950 tracking-tight">
           Order Pushed to Kitchen!
         </h3>
-        <p className="text-xs text-gray-500 mt-1">
-          <strong className="text-gray-800">{canteenName}</strong> owner has been alerted · {itemsCount} {itemsCount === 1 ? 'item' : 'items'}
+        <p className="text-xs text-gray-500 font-normal mt-1">
+          <span className="font-semibold text-gray-800">{canteenName}</span> owner has been alerted · {itemsCount} {itemsCount === 1 ? 'item' : 'items'}
         </p>
       </div>
 
@@ -58,8 +58,8 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
         <span className="text-4xl font-black text-orange-500 tracking-tight block font-mono">
           {formatCountdown(secondsRemaining)}
         </span>
-        <p className="text-[11px] text-gray-500 font-medium mt-1">
-          Walking distance: <span className="font-bold text-gray-700">~50m</span> from campus court
+        <p className="text-[11px] text-gray-500 font-normal mt-1">
+          Walking distance: <span className="font-semibold text-gray-700">~50m</span> from campus court
         </p>
       </div>
 
@@ -72,26 +72,26 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
 
           {/* Step 1: Sent */}
           <div className="flex flex-col items-center bg-white px-2">
-            <div className="w-6.5 h-6.5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+            <div className="w-6.5 h-6.5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-semibold shadow-xs">
               <Check size={12} strokeWidth={3} />
             </div>
-            <span className="text-[11px] font-bold text-gray-900 mt-1.5">Sent</span>
+            <span className="text-[11px] font-semibold text-gray-900 mt-1.5">Sent</span>
           </div>
 
           {/* Step 2: Preparing */}
           <div className="flex flex-col items-center bg-white px-2">
-            <div className="w-6.5 h-6.5 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center text-[10px] font-black animate-pulse">
-              ⚡
+            <div className="w-6.5 h-6.5 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center animate-pulse">
+              <Zap size={11} className="text-emerald-600 fill-emerald-600" />
             </div>
-            <span className="text-[11px] font-extrabold text-emerald-600 mt-1.5">Preparing</span>
+            <span className="text-[11px] font-black text-emerald-600 mt-1.5">Preparing</span>
           </div>
 
           {/* Step 3: Ready */}
           <div className="flex flex-col items-center bg-white px-2">
-            <div className="w-6.5 h-6.5 rounded-full bg-white border-2 border-gray-200 text-gray-300 flex items-center justify-center text-[10px] font-bold">
+            <div className="w-6.5 h-6.5 rounded-full bg-white border-2 border-gray-200 text-gray-300 flex items-center justify-center text-[10px] font-semibold">
               3
             </div>
-            <span className="text-[11px] font-bold text-gray-400 mt-1.5">Ready</span>
+            <span className="text-[11px] font-semibold text-gray-400 mt-1.5">Ready</span>
           </div>
         </div>
       </div>

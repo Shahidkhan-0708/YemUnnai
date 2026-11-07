@@ -288,10 +288,10 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
               <img src="${imgUrl}" alt="" onerror="this.src='/images/optimized/NewLogo-e14eee5ea6-128.webp'" />
             </div>
             <span class="swiggy-pin-name">${shop.name}</span>
-            <span class="swiggy-pin-eta">⚡${walkTime}m</span>
+            <span class="swiggy-pin-eta">${walkTime}m</span>
           </div>
           <div class="swiggy-pin-needle"></div>
-          ${isSelected ? `<div class="swiggy-pin-bubble">🚶 ${walkTime} min walk</div>` : ''}
+          ${isSelected ? `<div class="swiggy-pin-bubble">${walkTime} min walk</div>` : ''}
         </div>
       `;
 
@@ -355,7 +355,7 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
 
       L.marker(midPoint, {
         icon: L.divIcon({
-          html: `<div class="swiggy-route-pill">🚶 ${activeRoutePath.durationMinutes} min (${activeRoutePath.distanceMeters}m)${activeRoutePath.hasIndoorApproach ? ' · Indoor' : ''}</div>`,
+          html: `<div class="swiggy-route-pill">${activeRoutePath.durationMinutes} min (${activeRoutePath.distanceMeters}m)${activeRoutePath.hasIndoorApproach ? ' · Indoor' : ''}</div>`,
           className: 'swiggy-route-marker',
           iconSize: [140, 26],
           iconAnchor: [70, 13],
@@ -517,12 +517,12 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
                   <span className="swiggy-category-pill">{selectedShop.tag || 'Canteen'}</span>
                 </div>
                 <p className="swiggy-landmark-row">
-                  <span>📍 {selectedShop.locationLandmark || 'Campus Canteen'}</span>
+                  <span>{selectedShop.locationLandmark || 'Campus Canteen'}</span>
                   {selectedShop.isOnCampus && <span className="swiggy-campus-tag">· Inside MITS</span>}
                 </p>
                 <div className="swiggy-meta-row">
                   <span className="swiggy-eta-badge">
-                    🚶 {displayTime} min walk ({displayDistance}m)
+                    {displayTime} min walk ({displayDistance}m)
                   </span>
                   {activeRoutePath?.hasIndoorApproach && (
                     <span className="swiggy-indoor-badge text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded font-semibold border border-sky-200">
