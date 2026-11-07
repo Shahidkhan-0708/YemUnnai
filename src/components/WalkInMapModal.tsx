@@ -6,7 +6,7 @@ import type { FoodItem } from '../lib/types';
 import { shopCoordinates } from '../lib/mapLocations';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
-import { MinimalistWalkingRoute } from './MinimalistWalkingRoute';
+import { MinimalistWalkingRoute, type RoutePoint } from './MinimalistWalkingRoute';
 
 interface Props { isOpen: boolean; item: FoodItem | null; onClose: () => void; }
 
@@ -27,7 +27,7 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
   const copy = async () => { setCopyError(''); try { await navigator.clipboard.writeText(address); setCopied(true); } catch { setCopied(false); setCopyError('Could not copy. Select the address below to copy it.'); } };
 
   // Build route points from selected shop and nearby entries
-  const routePoints = useMemo(() => {
+  const routePoints = useMemo<RoutePoint[]>(() => {
     if (!selected || !point) return [];
     const baseLat = point[0];
     const baseLng = point[1];
@@ -49,7 +49,7 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
           iconColor: index === 0 ? '#EA580C' : '#FEB252'
         };
       })
-      .filter(Boolean);
+      .filter((p): p is RoutePoint => p !== null);
   }, [entries, selected, point]);
 
   if (!isOpen || !item) return null;

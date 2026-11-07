@@ -25,7 +25,7 @@ interface MinimalistWalkingRouteProps {
 export function MinimalistWalkingRoute({
   isOpen,
   onClose,
-  startPoint = 'MITS Campus Entrance',
+  startPoint: _startPoint = 'MITS Campus Entrance',
   points,
   totalDistance = '450m',
   totalTime = '6 min'
@@ -127,8 +127,8 @@ export function MinimalistWalkingRoute({
               stroke="url(#routePattern)"
               strokeWidth="2"
               strokeDasharray="none"
-              strokeLineCap="round"
-              strokeLineJoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
 
             {/* Connection points between route segments */}
