@@ -327,32 +327,33 @@
 }
 
 .discovery-canteen-panel { padding:8px 20px 2px; }
-.discovery-shops-heading { display:flex; justify-content:space-between; align-items:center; min-height:32px; }
+.discovery-shops-heading { display:flex; justify-content:space-between; align-items:center; min-height:36px; }
 .discovery-shops-heading h2 { margin:0; font-size:18px; line-height:24px; font-weight:700; letter-spacing:-.35px; }
-.discovery-shops-heading button { display:flex; align-items:center; justify-content:flex-start; position:relative; width:78px; min-height:32px; padding:0 12px; border-radius:12px; background:#FFF0E3; color:#A23D00; font-size:12px; line-height:18px; font-weight:600; white-space:nowrap; }
-.discovery-shops-heading button>svg { position:absolute; right:5px; transform:translateY(-1px); }
-html[lang=te] .discovery-shops-heading button { width:auto; min-width:78px; padding-right:28px; }
-.discovery-shops-heading button::before { content:''; position:absolute; inset:-6px 0; }
 
-  /* View Toggle Button */
+  /* View Toggle Button - Auto Width, Never Overlap Pin Icon */
   .discovery-view-toggle {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
-    width: 44px;
+    width: auto;
+    min-width: fit-content;
     height: 32px;
-    padding: 0 8px;
-    border-radius: 10px;
+    padding: 0 12px;
+    border-radius: 9999px;
     background: #FFF0E3;
     color: #A23D00;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
     border: 1px solid #E9DED4;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .discovery-view-toggle svg {
     flex-shrink: 0;
+    position: static;
+    transform: none;
   }
   .discovery-view-toggle.is-selected {
     background: #F06A05;
@@ -3921,9 +3922,10 @@ img[data-extracted] { object-fit:contain; }
    ========================================================================== */
 
 .promo-banner-carousel-container {
-  padding: 12px 16px 4px 16px;
+  padding: 12px 0 6px 0;
   background: #ffffff;
   position: relative;
+  overflow: hidden;
 }
 
 .promo-banner-track {
@@ -3931,11 +3933,11 @@ img[data-extracted] { object-fit:contain; }
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding: 0 4px;
+  scroll-padding: 0 16px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 2px 0 6px 0;
+  padding: 0 16px 8px 16px;
 }
 
 .promo-banner-track::-webkit-scrollbar {
@@ -3943,18 +3945,18 @@ img[data-extracted] { object-fit:contain; }
 }
 
 .promo-banner-card {
-  flex: 0 0 calc(100% - 12px);
-  min-width: 280px;
-  max-width: 380px;
-  border-radius: 18px;
-  padding: 16px;
+  flex: 0 0 calc(100% - 24px);
+  min-width: 290px;
+  max-width: 375px;
+  border-radius: 22px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
   scroll-snap-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   overflow: hidden;
   position: relative;

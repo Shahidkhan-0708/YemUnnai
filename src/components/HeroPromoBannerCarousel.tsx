@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Tag, Sparkles, ArrowRight } from 'lucide-react';
-import { PremiumAssetSlot } from './PremiumAssetSlot';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 export interface PromoDeal {
   id: string;
@@ -12,7 +11,6 @@ export interface PromoDeal {
   bgGradient: string;
   emoji: string;
   imageUrl?: string;
-  slotGradient: string;
 }
 
 export const PROMO_DEALS: PromoDeal[] = [
@@ -24,9 +22,8 @@ export const PROMO_DEALS: PromoDeal[] = [
     code: 'CAMPUS20',
     shopName: 'MITS Canteen',
     bgGradient: 'linear-gradient(135deg, #c43800 0%, #e65100 50%, #f57c00 100%)',
-    slotGradient: 'from-orange-400 to-amber-500',
     emoji: '🍲',
-    imageUrl: '/menu-assets/hotel1/images/hotel1_004_masala_dosa.jpg',
+    imageUrl: '/images/item_masala_dosa.png',
   },
   {
     id: 'deal-2',
@@ -36,9 +33,8 @@ export const PROMO_DEALS: PromoDeal[] = [
     code: 'HAPPYTEA',
     shopName: 'Happy Tea',
     bgGradient: 'linear-gradient(135deg, #005b4f 0%, #00796b 50%, #009688 100%)',
-    slotGradient: 'from-teal-500 to-emerald-600',
     emoji: '☕',
-    imageUrl: '/images/shop_happy_tea_uploaded.jpg',
+    imageUrl: '/images/item_samosa_chicken.jpg',
   },
   {
     id: 'deal-3',
@@ -48,9 +44,8 @@ export const PROMO_DEALS: PromoDeal[] = [
     code: 'THALI60',
     shopName: 'Mallikarjuna Mess',
     bgGradient: 'linear-gradient(135deg, #511378 0%, #6a1b9a 50%, #8e24aa 100%)',
-    slotGradient: 'from-purple-500 to-fuchsia-600',
     emoji: '🍱',
-    imageUrl: '/menu-assets/mallikarjuna/images/015_meals.jpg',
+    imageUrl: '/images/item_meals.png',
   },
   {
     id: 'deal-4',
@@ -60,9 +55,8 @@ export const PROMO_DEALS: PromoDeal[] = [
     code: 'CHILLOUT',
     shopName: 'ACS Cafe',
     bgGradient: 'linear-gradient(135deg, #01579b 0%, #0277bd 50%, #0288d1 100%)',
-    slotGradient: 'from-sky-500 to-blue-600',
     emoji: '🍹',
-    imageUrl: '/images/shop_acs_cafe.png',
+    imageUrl: '/images/item_juice.jpg',
   },
 ];
 
@@ -113,7 +107,7 @@ export const HeroPromoBannerCarousel: React.FC<HeroPromoBannerCarouselProps> = (
 
   return (
     <div className="promo-banner-carousel-container">
-      {/* Scrollable Track */}
+      {/* Symmetrical Viewport Masked Track */}
       <div 
         ref={containerRef}
         className="promo-banner-track"
@@ -128,7 +122,7 @@ export const HeroPromoBannerCarousel: React.FC<HeroPromoBannerCarouselProps> = (
         {PROMO_DEALS.map((deal) => (
           <div 
             key={deal.id}
-            className="promo-banner-card relative overflow-hidden rounded-2xl"
+            className="promo-banner-card relative overflow-hidden rounded-2xl group"
             style={{ background: deal.bgGradient }}
             onClick={() => onSelectShop?.(deal.shopName)}
             role="button"
@@ -140,52 +134,71 @@ export const HeroPromoBannerCarousel: React.FC<HeroPromoBannerCarouselProps> = (
               }
             }}
           >
-            {/* Subtle Radial Ambient Highlight Layer */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_70%)] pointer-events-none" />
+            {/* Subtle Ambient Radial Glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_70%)] pointer-events-none" />
 
             {/* Left Content Column */}
-            <div className="promo-banner-content relative z-10 max-w-[62%] sm:max-w-[65%]">
-              <span className="promo-banner-badge">
-                <Sparkles size={10} />
-                <span>{deal.badge}</span>
-              </span>
+            <div className="promo-banner-content relative z-10 max-w-[62%] sm:max-w-[65%] flex flex-col justify-between h-full">
+              <div>
+                {/* Clean Pure Text Badge (Zero heavy background box) */}
+                <div className="flex items-center gap-1.5 text-amber-300 font-black text-[10px] tracking-widest uppercase">
+                  <Sparkles size={11} className="fill-amber-300 text-amber-300" />
+                  <span>{deal.badge}</span>
+                </div>
 
-              <h3 className="promo-banner-title">{deal.title}</h3>
-              <p className="promo-banner-subtitle line-clamp-1">{deal.subtitle}</p>
+                {/* High-Contrast Stacked Title */}
+                <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-tight mt-1.5">
+                  {deal.title}
+                </h3>
 
-              <div className="promo-banner-cta-row mt-3">
-                <span className="promo-coupon-pill font-mono">
-                  <Tag size={10} />
-                  <span>{deal.code}</span>
+                {/* Single-line uniform subtitle */}
+                <p className="text-xs text-white/90 font-medium leading-normal mt-1 line-clamp-1">
+                  {deal.subtitle}
+                </p>
+              </div>
+
+              {/* Cleaned CTA Axis: Typographic Coupon Accent + Polished Dominant White Pill */}
+              <div className="flex items-center gap-3 mt-4">
+                <span className="text-[10.5px] font-mono font-bold text-white/85 tracking-wide uppercase">
+                  Code: <strong className="text-white underline decoration-white/40">{deal.code}</strong>
                 </span>
-                <span className="promo-claim-btn">
+
+                <span className="inline-flex items-center gap-1.5 bg-white text-gray-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm hover:bg-white/90 active:scale-95 transition-all cursor-pointer">
                   <span>Claim</span>
-                  <ArrowRight size={11} />
+                  <ArrowRight size={12} className="text-gray-950" />
                 </span>
               </div>
             </div>
 
-            {/* Continuous Smooth Curves Asset Slot (Zero Octagonal Sub-Corners) */}
-            <div className="relative z-10 flex-shrink-0">
-              <PremiumAssetSlot 
-                emoji={deal.emoji}
-                image={deal.imageUrl}
-                alt={deal.title}
-                bgGradient={deal.slotGradient}
-                size="md"
-              />
+            {/* 1. Unbordered Circular Food Frame (Zero nested square box-in-box error) */}
+            <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-white/10 backdrop-blur-xs border border-white/25 shadow-xl flex items-center justify-center p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+              {deal.imageUrl ? (
+                <img 
+                  src={deal.imageUrl} 
+                  alt={deal.title}
+                  className="w-full h-full object-cover rounded-full"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/images/item_meals.png';
+                  }}
+                />
+              ) : (
+                <span className="text-4xl select-none">{deal.emoji}</span>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Pagination Dot Indicators */}
-      <div className="promo-carousel-dots" aria-hidden="true">
+      {/* Symmetrical Pagination Dot Indicators */}
+      <div className="promo-carousel-dots flex justify-center items-center gap-1.5 mt-2" aria-hidden="true">
         {PROMO_DEALS.map((deal, idx) => (
           <button
             key={deal.id}
             type="button"
-            className={`promo-dot ${idx === currentIndex ? 'active' : ''}`}
+            className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+              idx === currentIndex ? 'bg-orange-600 w-4' : 'bg-gray-300'
+            }`}
             onClick={() => scrollToIndex(idx)}
             aria-label={`Go to slide ${idx + 1}`}
           />

@@ -349,13 +349,13 @@ export function DiscoveryHeader({
           </div>
           <button
             type="button"
-            className="discovery-view-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors cursor-pointer"
+            className="discovery-view-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
             onClick={() => setIsRouteSheetOpen(true)}
             aria-label="Track campus pedestrian routes"
             title="Track campus pedestrian routes"
           >
-            <MapPin size={14} className="text-orange-600" />
-            <span style={{ fontSize: '11px', fontWeight: 700 }}>Track Route</span>
+            <MapPin size={13} className="text-orange-600 shrink-0" />
+            <span className="text-[11px] font-bold whitespace-nowrap">Track Route</span>
           </button>
         </div>
 
