@@ -11,12 +11,14 @@ interface FilterBarPremiumProps {
   filters: FilterState;
   onFilterChange: (updatedFilters: FilterState) => void;
   totalCount: number;
+  hideHeaderCounter?: boolean;
 }
 
 export const FilterBarPremium: React.FC<FilterBarPremiumProps> = ({ 
   filters, 
   onFilterChange, 
-  totalCount 
+  totalCount,
+  hideHeaderCounter = false
 }) => {
   
   const handleCategoryClick = (cat: string) => {
@@ -135,9 +137,11 @@ export const FilterBarPremium: React.FC<FilterBarPremiumProps> = ({
       </div>
 
       {/* High-Contrast Metadata Sub-label */}
-      <div className="premium-filter-results-counter">
-        {totalCount} ITEMS AVAILABLE NEARBY
-      </div>
+      {!hideHeaderCounter && (
+        <div className="premium-filter-results-counter">
+          {totalCount} ITEMS AVAILABLE NEARBY
+        </div>
+      )}
     </div>
   );
 };

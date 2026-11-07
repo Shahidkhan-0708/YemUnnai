@@ -1,5 +1,5 @@
-import { useId, useState, useMemo } from 'react';
-import { X, Map as MapIcon, Layers, MapPin, Clock } from 'lucide-react';
+import { useId, useState, useMemo, useRef } from 'react';
+import { X, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
 import { useLanguage } from '../lib/language';
@@ -176,8 +176,30 @@ export function DiscoveryHeader({
   onBusinessPortal,
   userLocation,
 }: Props) {
-  const [viewMode, setViewMode] = useState<'deck' | 'map'>('deck');
+  const [isRouteSheetOpen, setIsRouteSheetOpen] = useState(false);
   const { t } = useLanguage();
+
+  const deckRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const handleDeckScroll = () => {
+    if (!deckRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = deckRef.current;
+    const maxScroll = scrollWidth - clientWidth;
+    if (maxScroll > 0) {
+      setScrollProgress(Math.min(1, Math.max(0, scrollLeft / maxScroll)));
+      setCanScrollLeft(scrollLeft > 8);
+      setCanScrollRight(scrollLeft < maxScroll - 8);
+    }
+  };
+
+  const scrollDeck = (direction: 'left' | 'right') => {
+    if (!deckRef.current) return;
+    const offset = direction === 'left' ? -276 : 276;
+    deckRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+  };
 
   const baseShops: NearbyShop[] = useMemo(() => {
     return shops.length
@@ -317,42 +339,24 @@ export function DiscoveryHeader({
           </div>
           <button
             type="button"
-            className={`discovery-view-toggle ${viewMode === 'map' ? 'is-selected' : ''}`}
-            onClick={() => setViewMode(v => v === 'deck' ? 'map' : 'deck')}
-            aria-label={viewMode === 'deck' ? 'Switch to map view' : 'Switch to deck view'}
-            title={viewMode === 'deck' ? 'Map view' : 'Deck view'}
+            className="discovery-view-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors cursor-pointer"
+            onClick={() => setIsRouteSheetOpen(true)}
+            aria-label="Track campus pedestrian routes"
+            title="Track campus pedestrian routes"
           >
-            {viewMode === 'deck' ? (
-              <>
-                <MapIcon size={16} />
-                <Layers size={16} />
-              </>
-            ) : (
-              <>
-                <MapPin size={16} />
-                <Clock size={14} />
-              </>
-            )}
+            <MapPin size={14} className="text-orange-600" />
+            <span style={{ fontSize: '11px', fontWeight: 700 }}>Track Route</span>
           </button>
         </div>
 
-        {/* Interactive Map View */}
-        {viewMode === 'map' && (
-          <div className="nearby-interactive-map">
-            <CanteenMap
-              shops={mapShops}
-              selectedId={activeShopId}
-              onSelect={(id) => {
-                const shop = displayedShops.find(s => s.id === id);
-                if (shop) onShop(shop.name, shop.id);
-              }}
-            />
-          </div>
-        )}
-
-        {/* Deck View - Swiggy Style "Big Image Story" Vendor Cards */}
-        {viewMode === 'deck' && (
-          <div className="nearby-food-deck" aria-label={t('Explore nearby food spots', 'సమీప ఆహార కేంద్రాలు చూడండి')}>
+        {/* Deck View - Swiggy Style "Big Image Story" Multi-Item Slider (Clean Visual Feed) */}
+        <div className="nearby-deck-slider-container">
+          <div 
+            ref={deckRef}
+            className="nearby-food-deck" 
+            onScroll={handleDeckScroll}
+            aria-label={t('Explore nearby food spots', 'సమీప ఆహార కేంద్రాలు చూడండి')}
+          >
             {displayedShops.map(shop => {
               const isSelected = selectedShop === shop.name;
               const meta = (shop as any).meta as NearbyFoodMeta;
@@ -372,6 +376,94 @@ export function DiscoveryHeader({
                 />
               );
             })}
+          </div>
+
+          {/* Interactive Scroll Tracker & Navigation Controls */}
+          {displayedShops.length > 1 && (
+            <div className="nearby-deck-progress-bar-wrapper">
+              <button
+                type="button"
+                className={`nearby-deck-nav-btn prev-btn ${!canScrollLeft ? 'is-disabled' : ''}`}
+                onClick={() => scrollDeck('left')}
+                disabled={!canScrollLeft}
+                aria-label="Scroll left"
+              >
+                <ChevronLeft size={13} />
+              </button>
+
+              <div className="nearby-deck-progress-track">
+                <div 
+                  className="nearby-deck-progress-thumb" 
+                  style={{ 
+                    transform: `translateX(${scrollProgress * 32}px)` 
+                  }}
+                />
+              </div>
+
+              <button
+                type="button"
+                className={`nearby-deck-nav-btn next-btn ${!canScrollRight ? 'is-disabled' : ''}`}
+                onClick={() => scrollDeck('right')}
+                disabled={!canScrollRight}
+                aria-label="Scroll right"
+              >
+                <ChevronRight size={13} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Dedicated Full-Bleed Campus Pedestrian Navigator Sheet / Drawer */}
+        {isRouteSheetOpen && (
+          <div className="canteen-map-backdrop" onClick={() => setIsRouteSheetOpen(false)}>
+            <div 
+              className="canteen-map-sheet" 
+              onClick={(e) => e.stopPropagation()} 
+              role="dialog" 
+              aria-modal="true" 
+              aria-label="Campus pedestrian navigation map"
+            >
+              <div className="sheet-handle" />
+              <header className="canteen-map-header">
+                <div>
+                  <p>CAMPUS PEDESTRIAN NAVIGATOR</p>
+                  <h1>MITS Walking Routes & Canteens</h1>
+                </div>
+                <button 
+                  type="button" 
+                  className="canteen-map-close" 
+                  aria-label="Close route map" 
+                  onClick={() => setIsRouteSheetOpen(false)}
+                >
+                  <X size={20} />
+                </button>
+              </header>
+
+              <div className="nearby-interactive-map" style={{ height: '52vh', minHeight: '340px' }}>
+                <CanteenMap
+                  shops={mapShops}
+                  selectedId={activeShopId}
+                  onSelect={(id) => {
+                    const shop = displayedShops.find(s => s.id === id);
+                    if (shop) onShop(shop.name, shop.id);
+                  }}
+                />
+              </div>
+
+              <div className="discovery-map-sheet-footer">
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">A* Pedestrian Engine</p>
+                  <p className="text-xs font-extrabold text-gray-800">Tap any canteen to route walking trail</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsRouteSheetOpen(false)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

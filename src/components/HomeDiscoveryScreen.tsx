@@ -268,6 +268,11 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
           />
         )}
 
+        {/* Subtle Background Gray Divider Block */}
+        {!restaurantId && !savedOnly && (
+          <div className="app-section-divider" aria-hidden="true" />
+        )}
+
         <div className="discovery-content">
           {loading && items.length > 0 && (
             <p className="menu-refresh-status" role="status">
@@ -294,11 +299,31 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
           )}
           {savedOnly && <h1 className="saved-heading">{t('Saved items', 'భద్రపరచిన వంటకాలు')}</h1>}
 
-          {/* Swiggy / Zomato Minimalist Filter Track */}
+          {/* Integrated Section Header Group (Step 1 & 2: Header + Metadata Sub-label) */}
+          {!restaurantId && !savedOnly && (
+            <div className="connected-header-group">
+              <div className="connected-title-row">
+                <h2 className="connected-section-title">
+                  <span>🔥</span>
+                  {t('Campus Favorites & Top Rated', 'క్యాంపస్ పాపులర్ వంటకాలు')}
+                </h2>
+                <span className="connected-top-badge">
+                  <Sparkles size={11} style={{ display: 'inline', marginRight: '3px' }} />
+                  {t('Top Rated', 'టాప్')}
+                </span>
+              </div>
+              <p className="connected-subtitle">
+                {displayedItems.length} {t('delicious options available nearby', 'రుచికరమైన ఎంపికలు అందుబాటులో ఉన్నాయి')}
+              </p>
+            </div>
+          )}
+
+          {/* Contextually Connected Minimalist Filter Track (Step 3: Directly below Header) */}
           <FilterBarPremium
             filters={currentFilters}
             onFilterChange={handleFilterChange}
             totalCount={displayedItems.length}
+            hideHeaderCounter={!restaurantId && !savedOnly}
           />
 
           {/* Restaurant-specific Category Dropdown Filter */}
@@ -343,24 +368,9 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
                HOMEPAGE MENU ORGANIZATION: Structured, Curated Categories
                ================================================================= */
             <div>
-              {/* 1. Campus Hits & Favorites */}
+              {/* 1. Campus Hits & Favorites - Streamlined seamlessly under filters */}
               {campusFavorites.length > 0 && (
-                <section className="homepage-menu-group">
-                  <header className="homepage-group-header">
-                    <div className="homepage-group-title-wrap">
-                      <h2 className="homepage-group-title">
-                        <span>🔥</span>
-                        {t('Campus Favorites & Top Rated', 'క్యాంపస్ పాపులర్ వంటకాలు')}
-                      </h2>
-                      <p className="homepage-group-desc">
-                        {t('Most loved and highest rated dishes across campus eateries', 'అత్యధిక రేటింగ్ మరియు విద్యార్థుల ఎంపిక')}
-                      </p>
-                    </div>
-                    <span className="homepage-group-badge highlight">
-                      <Sparkles size={11} style={{ display: 'inline', marginRight: '3px' }} />
-                      {t('Top Rated', 'టాప్')}
-                    </span>
-                  </header>
+                <section className="homepage-menu-group" style={{ marginTop: '4px' }}>
                   <div className="food-grid">
                     {campusFavorites.map(renderFoodCard)}
                   </div>
