@@ -6,7 +6,10 @@ import type { FoodItem } from '../lib/types';
 import { shopCoordinates } from '../lib/mapLocations';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
+import { MinimalistWalkingRoute } from './MinimalistWalkingRoute';
+
 interface Props { isOpen: boolean; item: FoodItem | null; onClose: () => void; }
+
 export function WalkInMapModal({ isOpen, item, onClose }: Props) {
   const ref = useModalA11y<HTMLDivElement>(isOpen && !!item, onClose);
   const { shops, loading, error, retry } = useShops();
@@ -22,11 +25,50 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
   const destination = point ? point.join(',') : address;
   const href = point ? `https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${encodeURIComponent(destination)}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
   const copy = async () => { setCopyError(''); try { await navigator.clipboard.writeText(address); setCopied(true); } catch { setCopied(false); setCopyError('Could not copy. Select the address below to copy it.'); } };
+
+  // Build route points from selected shop and nearby entries
+  const routePoints = useMemo(() => {
+    if (!selected || !point) return [];
+    const baseLat = point[0];
+    const baseLng = point[1];
+    return entries
+      .filter(s => s.id !== selected.id)
+      .map((shop, index) => {
+        const coords = shopCoordinates(shop);
+        if (!coords) return null;
+        const distance = Math.round(Math.sqrt(
+          Math.pow(coords[0] - baseLat, 2) + Math.pow(coords[1] - baseLng, 2)
+        ) * 111000); // rough meters
+        const time = Math.max(1, Math.round(distance / 75));
+        return {
+          id: shop.id,
+          name: shop.name,
+          landmark: shop.locationLandmark ?? 'MITS Campus',
+          distance: `${distance}m`,
+          time: `${time} min`,
+          iconColor: index === 0 ? '#EA580C' : '#FEB252'
+        };
+      })
+      .filter(Boolean);
+  }, [entries, selected, point]);
+
   if (!isOpen || !item) return null;
   return <div className="canteen-map-backdrop" onClick={onClose}>
     <div ref={ref} role="dialog" aria-modal="true" aria-label={`Walk-in map for ${name}`} className="canteen-map-sheet" onClick={e => e.stopPropagation()}>
       <div className="sheet-handle"/>
-      <header className="canteen-map-header"><div><p>FIND NEARBY FOOD</p><h1>Walking route &amp; directions</h1></div><button type="button" className="canteen-map-close" aria-label="Close map" onClick={onClose}><X size={20}/></button></header>
+      <header className="canteen-map-header"><div><p>FIND NEARBY FOOD</p><h1>Walking route & directions</h1></div><button type="button" className="canteen-map-close" aria-label="Close map" onClick={onClose}><X size={20}/></button></header>
+
+      {/* Minimalist Walking Route View */}
+      <MinimalistWalkingRoute
+        isOpen={true}
+        onClose={() => {}}
+        startPoint={name}
+        points={routePoints}
+        totalDistance={point && routePoints.length > 0 ? routePoints[routePoints.length - 1].distance : '450m'}
+        totalTime={point && routePoints.length > 0 ? routePoints[routePoints.length - 1].time : '6 min'}
+      />
+
+      {/* Legacy Interactive Map */}
       <CanteenMap shops={entries} selectedId={selected?.id} onSelect={id => { setSelectedId(id); setCopied(false); setCopyError(''); }}/>
       <div className="canteen-map-content">
         <div className="canteen-map-rail" aria-label="Choose a food spot">{entries.map(shop => <button key={shop.id} type="button" aria-pressed={selected?.id === shop.id} onClick={() => { setSelectedId(shop.id); setCopied(false); setCopyError(''); }}><CatalogImage src={shop.image} alt=""/><span>{shop.name}</span></button>)}</div>
