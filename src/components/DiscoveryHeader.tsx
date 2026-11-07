@@ -1,5 +1,5 @@
 import { useId, useState, useMemo } from 'react';
-import { X, MapPin } from 'lucide-react';
+import { X } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
 import { CanteenMap } from './CanteenMap';
 import { useLanguage } from '../lib/language';
@@ -335,125 +335,91 @@ export function DiscoveryHeader({
         />
       )}
 
-      {/* Comprehensive Nearby Food Section */}
-      <div className="discovery-nearby-panel">
-        <div className="discovery-shops-heading">
-          <div>
-            <h2>{t('Nearby Food', 'సమీప ఆహార కేంద్రాలు')}</h2>
-            <p className="discovery-nearby-sub">
-              {t(
-                'Campus eateries, local cafes & external dining in your vicinity',
-                'క్యాంపస్ మరియు సమీప రెస్టారెంట్లు'
-              )}
-            </p>
-          </div>
+      {/* 2. Campus Spots Near You (Single Unified Header & Clutter-Free Cards) */}
+      <CanteenSwipeSlider
+        canteens={canteenDataList}
+        onViewMenu={(id, name) => {
+          const shopName = name || displayedShops.find(s => s.id === id)?.name || 'All';
+          trackViewRestaurant({ id, name: shopName });
+          onShop(selectedShop === shopName ? 'All' : shopName, id);
+        }}
+        onOpenMap={() => {
+          setSelectedRouteShopId(undefined);
+          setIsRouteSheetOpen(true);
+        }}
+      />
+
+      {/* Filtered Shop Reset Pill if Active */}
+      {selectedShop !== 'All' && (
+        <div className="px-4 py-2 bg-white flex items-center justify-between border-b border-gray-100">
           <button
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-200/60"
             type="button"
-            className="discovery-view-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
-            onClick={() => setIsRouteSheetOpen(true)}
-            aria-label="Track campus pedestrian routes"
-            title="Track campus pedestrian routes"
+            onClick={() => onShop('All')}
+            aria-label={`Clear filter: ${selectedShop}`}
           >
-            <MapPin size={13} className="text-orange-600 shrink-0" />
-            <span className="text-[11px] font-bold whitespace-nowrap">Track Route</span>
+            <span>Filtered: <strong>{selectedShop}</strong></span>
+            <X size={13} />
+          </button>
+          <button className="text-xs font-bold text-gray-500 hover:text-orange-600" type="button" onClick={() => onShop('All')}>
+            {t('Clear filter', 'తొలగించండి')}
           </button>
         </div>
+      )}
 
-        {/* Canteen Swipe Slider with Integrated Actions */}
-        <CanteenSwipeSlider
-          canteens={canteenDataList}
-          onViewMenu={(id, name) => {
-            const shopName = name || displayedShops.find(s => s.id === id)?.name || 'All';
-            trackViewRestaurant({ id, name: shopName });
-            onShop(selectedShop === shopName ? 'All' : shopName, id);
-          }}
-          onTrackRoute={(canteen) => {
-            setSelectedRouteShopId(canteen.id);
-            setIsRouteSheetOpen(true);
-          }}
-        />
-
-        {/* Dedicated Full-Bleed Campus Pedestrian Navigator Sheet / Drawer */}
-        {isRouteSheetOpen && (
-          <div className="canteen-map-backdrop" onClick={() => setIsRouteSheetOpen(false)}>
-            <div 
-              className="canteen-map-sheet" 
-              onClick={(e) => e.stopPropagation()} 
-              role="dialog" 
-              aria-modal="true" 
-              aria-label="Campus pedestrian navigation map"
-            >
-              <div className="sheet-handle" />
-              <header className="canteen-map-header">
-                <div>
-                  <p>CAMPUS PEDESTRIAN NAVIGATOR</p>
-                  <h1>MITS Walking Routes & Canteens</h1>
-                </div>
-                <button 
-                  type="button" 
-                  className="canteen-map-close" 
-                  aria-label="Close route map" 
-                  onClick={() => setIsRouteSheetOpen(false)}
-                >
-                  <X size={20} />
-                </button>
-              </header>
-
-              <div className="nearby-interactive-map" style={{ height: '52vh', minHeight: '340px' }}>
-                <CanteenMap
-                  shops={mapShops}
-                  selectedId={selectedRouteShopId || activeShopId}
-                  onSelect={(id) => {
-                    const shop = displayedShops.find(s => s.id === id);
-                    if (shop) onShop(shop.name, shop.id);
-                  }}
-                />
+      {/* Dedicated Full-Bleed Campus Pedestrian Navigator Sheet / Drawer */}
+      {isRouteSheetOpen && (
+        <div className="canteen-map-backdrop" onClick={() => setIsRouteSheetOpen(false)}>
+          <div 
+            className="canteen-map-sheet" 
+            onClick={(e) => e.stopPropagation()} 
+            role="dialog" 
+            aria-modal="true" 
+            aria-label="Campus pedestrian navigation map"
+          >
+            <div className="sheet-handle" />
+            <header className="canteen-map-header">
+              <div>
+                <p>CAMPUS PEDESTRIAN NAVIGATOR</p>
+                <h1>MITS Walking Routes & Canteens</h1>
               </div>
+              <button 
+                type="button" 
+                className="canteen-map-close" 
+                aria-label="Close route map" 
+                onClick={() => setIsRouteSheetOpen(false)}
+              >
+                <X size={20} />
+              </button>
+            </header>
 
-              <div className="discovery-map-sheet-footer">
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">A* Pedestrian Engine</p>
-                  <p className="text-xs font-extrabold text-gray-800">Tap any canteen to route walking trail</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsRouteSheetOpen(false)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer"
-                >
-                  Done
-                </button>
+            <div className="nearby-interactive-map" style={{ height: '52vh', minHeight: '340px' }}>
+              <CanteenMap
+                shops={mapShops}
+                selectedId={selectedRouteShopId || activeShopId}
+                onSelect={(id) => {
+                  const shop = displayedShops.find(s => s.id === id);
+                  if (shop) onShop(shop.name, shop.id);
+                }}
+              />
+            </div>
+
+            <div className="discovery-map-sheet-footer">
+              <div>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">A* Pedestrian Engine</p>
+                <p className="text-xs font-extrabold text-gray-800">Tap any canteen to route walking trail</p>
               </div>
+              <button
+                type="button"
+                onClick={() => setIsRouteSheetOpen(false)}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer"
+              >
+                Done
+              </button>
             </div>
           </div>
-        )}
-
-        <div className="discovery-shop-summary">
-          {selectedShop === 'All' ? (
-            <p>
-              {loading && !shops.length
-                ? t('Loading nearby food spots…', 'సమీప ఆహార కేంద్రాలు లోడ్ అవుతున్నాయి…')
-                : !shops.length
-                ? t('No food spots available', 'ఆహార కేంద్రాలు అందుబాటులో లేవు')
-                : t('Browse menus from all nearby food spots & cafes', 'అన్ని సమీప రెస్టారెంట్ల మెనూలు చూడండి')}
-            </p>
-          ) : (
-            <>
-              <button
-                className="discovery-selected-chip"
-                type="button"
-                onClick={() => onShop('All')}
-                aria-label={`Clear filter: ${selectedShop}`}
-              >
-                <span>Filtered: <strong>{selectedShop}</strong></span>
-                <X size={14} />
-              </button>
-              <button className="discovery-clear-shop" type="button" onClick={() => onShop('All')}>
-                {t('Clear filter', 'తొలగించండి')}
-              </button>
-            </>
-          )}
         </div>
-      </div>
+      )}
     </header>
   );
 }
