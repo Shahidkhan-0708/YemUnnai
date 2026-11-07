@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, MapPin, LogIn, LogOut, RefreshCw, CloudOff, Phone, Zap } from 'lucide-react';
+import { ArrowLeft, MapPin, LogIn, LogOut, RefreshCw, CloudOff, Phone, Zap, Check } from 'lucide-react';
 import { FamilyReceiveComponent } from './FamilyReceiveComponent';
 import { useVendorSession, useVendorOrders, useVendorStats } from '../lib/hooks';
 import { setOrderStatus, setVendorOnline, pickupRequest } from '../lib/api';
@@ -12,7 +12,7 @@ import { SupportPanel } from './OrdersScreen';
 import { Button } from './ui/button';
 import { useLanguage, statusLabels, pickupErrorText } from '../lib/language';
 import { PickupError } from '../lib/pickup';
-import { CatalogImage } from './CatalogImage';
+import { getContextualDishImage, getContextualDishEmoji } from '../lib/dishAssetMatching';
 
 interface BusinessDashboardScreenProps {
   onDiscover?: () => void;
@@ -26,7 +26,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   onManageStock
 }) => {
   const { t, lang, setLanguage } = useLanguage();
-    const [paymentMethods, setPaymentMethods] = useState<Record<string, 'cash' | 'counter_upi'>>({});
+  const [paymentMethods, setPaymentMethods] = useState<Record<string, 'cash' | 'counter_upi'>>({});
   const [feedRetry, setFeedRetry] = useState(0);
   const { vendor, checking, signOut } = useVendorSession();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -75,7 +75,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
 
   const handleAccept = async (id: string) => {
     playTapSound();
-    await save(id, () => setOrderStatus(id, 'preparing', undefined));
+    await save(id, () => setOrderStatus(id, 'preparing'));
   };
 
   const handleReady = async (id: string) => {
@@ -108,7 +108,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
             {t('Back to Discover', 'కనుగొనే పేజీకి తిరిగి వెళ్ళండి')}
           </button>
         )}
-        <div className="w-full bg-[#EBF2EE] min-h-screen pb-10 select-none relative flex flex-col items-center justify-center gap-4 px-8 text-center">
+        <div className="w-full bg-[#EBF2EE] min-h-screen pb-10 select-none relative flex flex-col items-center justify-center gap-4 px-8 text-center font-sans">
           {!isBackendConfigured ? (
             <>
               <h2 className="text-base font-black text-[#1F140A]">
@@ -151,47 +151,47 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
 
   return (
     <SvgScreenFrame screen={null}>
-      <section className="business-screen pickup-business screen-enter font-sans pb-12">
+      <section className="w-full max-w-md mx-auto bg-gray-50 min-h-screen font-sans pb-10 select-none">
         
-        {/* 1. Status Top Bar (High-Contrast Header with Online Pill) */}
-        <div className="bg-white px-4 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-2xs">
-          <div className="flex items-center gap-3">
+        {/* 1. Polished Header Strip (Modern Borderless Glow Status Toggle) */}
+        <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100 shadow-2xs">
+          <div className="flex items-center gap-2.5">
             {onDiscover && (
               <button 
                 type="button" 
                 onClick={onDiscover} 
-                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700 transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 transition-colors cursor-pointer"
                 aria-label="Back to Discover"
               >
-                <ArrowLeft size={16} />
+                <ArrowLeft size={14} />
               </button>
             )}
             <div>
-              <h2 className="text-lg font-black text-gray-950 tracking-tight leading-tight">
+              <h2 className="text-base font-black text-gray-950 tracking-tight leading-none">
                 {vendor.vendorName}
               </h2>
-              <p className="text-[11px] text-gray-500 font-semibold tracking-wide">
-                {t('Partner Dashboard', 'భాగస్వామి డ్యాష్‌బోర్డ్')}
-              </p>
+              <span className="text-[10px] text-gray-400 font-bold tracking-wide uppercase mt-1 block">
+                Partner Console
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Online / Offline Pill Button */}
+            {/* Modern Borderless Glow Status Toggle */}
             <button
               type="button"
               onClick={toggleOnline}
               disabled={busyAction !== null}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                 isOnline 
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
-                  : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100' 
+                  : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200'
               }`}
-              title="Click to toggle shop availability"
+              title="Click to toggle store status"
             >
-              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-ping' : 'bg-gray-400'}`} />
-              <span className="text-xs font-black uppercase tracking-wider">
-                {isOnline ? 'Online' : 'Offline'}
+              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse ring-2 ring-emerald-300/50' : 'bg-gray-400'}`} />
+              <span className="text-xs font-black tracking-wide">
+                {isOnline ? 'ONLINE' : 'OFFLINE'}
               </span>
             </button>
 
@@ -211,56 +211,57 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
               type="button" 
               onClick={signOut} 
               aria-label="Sign out"
-              className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
             >
-              <LogOut size={16} />
+              <LogOut size={14} />
             </button>
           </div>
         </div>
 
-        {/* 2. Simplified Actionable Metrics Bar (Zero Corporate Analytics Noise) */}
-        <div className="grid grid-cols-2 gap-3 p-4 bg-white border-b border-gray-100 shadow-2xs">
-          <div className="bg-gray-50 border border-gray-100 rounded-2xl p-3.5 shadow-2xs">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
+        {/* 2. Symmetrical Analytics Grid */}
+        <div className="grid grid-cols-2 gap-3 p-4">
+          <div className="bg-white p-3.5 rounded-xl border border-gray-100 shadow-2xs">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
               Orders Today
             </span>
-            <span className="text-2xl font-black text-gray-950 block mt-0.5 font-mono">
+            <span className="text-2xl font-black text-gray-950 block mt-1 font-mono">
               {stats.error || stats.loading ? '—' : stats.ordersToday}
             </span>
           </div>
-          <div className="bg-gray-50 border border-gray-100 rounded-2xl p-3.5 shadow-2xs">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
-              Avg. Store Rating
+          <div className="bg-white p-3.5 rounded-xl border border-gray-100 shadow-2xs">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
+              Avg Rating
             </span>
-            <span className="text-2xl font-black text-orange-500 block mt-0.5">
-              ★ {stats.loading || stats.avgRating == null ? '4.4' : Number(stats.avgRating).toFixed(1)}
-            </span>
+            <div className="flex items-center gap-1 mt-1 text-2xl font-black text-orange-500">
+              <span>★</span>
+              <span>{stats.loading || stats.avgRating == null ? '1.0' : Number(stats.avgRating).toFixed(1)}</span>
+            </div>
           </div>
         </div>
 
-        {/* 3. Streamlined Incoming Orders Queue */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3.5">
-            <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🔔</span>
-              <span>Incoming Orders ({activeOrders.length})</span>
-            </h3>
-            <button 
-              type="button"
-              className="text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
-              disabled={ordersLoading} 
-              onClick={() => setFeedRetry(n => n + 1)}
-            >
-              <RefreshCw size={12} className={ordersLoading ? 'animate-spin' : ''} />
-              <span>Refresh</span>
-            </button>
-          </div>
+        {/* 3. Section Divider Bar */}
+        <div className="px-4 mb-3 flex items-center justify-between">
+          <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+            <span>🔔</span>
+            <span>Incoming Orders ({activeOrders.length})</span>
+          </h3>
+          <button 
+            type="button"
+            className="text-xs font-bold text-orange-600 flex items-center gap-1 bg-orange-50 hover:bg-orange-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+            disabled={ordersLoading} 
+            onClick={() => setFeedRetry(n => n + 1)}
+          >
+            <RefreshCw size={11} className={ordersLoading ? 'animate-spin' : ''} />
+            <span>Refresh</span>
+          </button>
+        </div>
 
-          {error && <p className="pickup-error mb-3" role="alert">{error}</p>}
-          {stats.error && <div className="feed-notice mb-3" role="status"><span>{stats.error}</span></div>}
+        {error && <div className="px-4 mb-3"><p className="pickup-error" role="alert">{error}</p></div>}
+        {stats.error && <div className="px-4 mb-3"><div className="feed-notice" role="status"><span>{stats.error}</span></div></div>}
 
-          {ordersError && (
-            <div role="status" className="feed-notice mb-4">
+        {ordersError && (
+          <div className="px-4 mb-4">
+            <div role="status" className="feed-notice">
               <CloudOff size={18} aria-hidden="true" />
               <span>
                 {orders.length 
@@ -269,132 +270,170 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
               </span>
               <Button variant="outline" onClick={() => setFeedRetry(n => n + 1)}>Retry</Button>
             </div>
-          )}
+          </div>
+        )}
 
-          {ordersLoading && <p role="status" className="business-empty">Connecting to live orders…</p>}
-          {!ordersLoading && !activeOrders.length && !ordersError && (
-            <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center shadow-xs">
-              <span className="text-3xl block mb-2">✨</span>
-              <p className="text-sm font-extrabold text-gray-900">All caught up!</p>
-              <p className="text-xs text-gray-500 mt-0.5">New incoming student orders will appear here automatically.</p>
-            </div>
-          )}
+        {ordersLoading && <p role="status" className="business-empty text-center py-6 text-xs text-gray-400 font-bold">Connecting to live orders…</p>}
+        
+        {!ordersLoading && !activeOrders.length && !ordersError && (
+          <div className="mx-4 bg-white border border-gray-100 rounded-2xl p-8 text-center shadow-xs">
+            <span className="text-3xl block mb-2">✨</span>
+            <p className="text-sm font-extrabold text-gray-900">All caught up!</p>
+            <p className="text-xs text-gray-500 mt-0.5">New incoming student orders will appear here automatically.</p>
+          </div>
+        )}
 
-          {/* Action-First Order Cards */}
-          <div className="space-y-4">
-            {activeOrders.map(ord => (
+        {/* 4. Refined Order Ticket Components */}
+        <div className="px-4 space-y-4">
+          {activeOrders.map(ord => {
+            const contextualImg = getContextualDishImage(ord.item, ord.image);
+            const contextualEmoji = getContextualDishEmoji(ord.item);
+
+            return (
               <div 
                 key={ord.id} 
-                className="bg-white border border-gray-200/90 rounded-2xl shadow-sm overflow-hidden transition-all"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all"
               >
-                {/* Card Context Header */}
-                <div className="bg-amber-50/70 border-b border-amber-100 px-4 py-2.5 flex justify-between items-center">
-                  <span className="text-xs font-black text-amber-900 uppercase tracking-wider flex items-center gap-1">
+                {/* Card Meta Top Strip */}
+                <div className="bg-amber-50/60 px-4 py-2 flex items-center justify-between border-b border-amber-100/40">
+                  <span className="text-[11px] font-black text-amber-800 tracking-wide uppercase flex items-center gap-1">
                     <span>⚡</span> Campus Pre-Order
                   </span>
-                  <span className="text-xs font-bold text-gray-600 bg-white/70 px-2 py-0.5 rounded-md border border-amber-200/50 font-mono">
-                    #{ord.row.pickup_number || '204'} · Reaching in 5 mins
+                  <span className="text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-2xs font-mono">
+                    #{ord.row.pickup_number || '4'} · Reaching in <span className="text-orange-600 font-extrabold">5 mins</span>
                   </span>
                 </div>
 
-                {/* Item Content Details */}
-                <div className="p-4">
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="flex gap-3 min-w-0">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 flex-shrink-0">
-                        <CatalogImage src={ord.image} alt={ord.item} />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-base font-black text-gray-950 truncate">
-                          {ord.quantity ?? 1} × {ord.item}
-                        </h4>
-                        <p className="text-xs font-bold text-gray-500 mt-0.5">
-                          Pay on pickup: <span className="text-gray-900 font-extrabold">₹{ord.price}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-base font-black text-gray-950 flex-shrink-0">
-                      ₹{ord.price}
-                    </span>
+                {/* Core Food Item Block (Perfect Vertical Middle Alignment) */}
+                <div className="p-4 flex gap-3.5 items-center">
+                  {/* Contextual Placeholder Image Box */}
+                  <div className="w-14 h-14 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center text-xl shadow-inner border border-gray-200/50">
+                    <img 
+                      src={contextualImg} 
+                      alt={ord.item} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to contextual food emoji if image file fails
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        if (target.parentElement) {
+                          target.parentElement.innerHTML = `<span class="text-2xl select-none">${contextualEmoji}</span>`;
+                        }
+                      }}
+                    />
                   </div>
 
-                  {/* Structured Customer Meta Tags */}
-                  <div className="mt-3.5 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
-                    <span className="bg-gray-100 text-gray-700 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
-                      <MapPin size={11} className="text-gray-500" />
-                      <span>{ord.row.pickup_location || ord.location || 'Annapurna Block'}</span>
-                    </span>
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-sm font-black text-gray-950 truncate">
+                        {ord.quantity ?? 1} × {ord.item}
+                      </h4>
+                      <span className="text-sm font-black text-gray-950 flex-shrink-0">
+                        ₹{ord.price}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-emerald-600 mt-1 bg-emerald-50/60 inline-block px-2 py-0.5 rounded-md border border-emerald-100/60">
+                      Pay on pickup: ₹{ord.price}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Micro-Location Tag */}
+                <div className="px-4 pb-3.5">
+                  <div className="text-[11px] font-bold text-gray-500 bg-gray-50 border border-gray-100 px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <MapPin size={12} className="text-gray-400 flex-shrink-0" />
+                      <span className="truncate">{ord.row.pickup_location || ord.location || 'Campus Food Court, Ground Floor'}</span>
+                    </div>
                     {ord.phone && (
                       <a 
                         href={`tel:${ord.phone}`} 
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors"
+                        className="text-gray-600 hover:text-gray-900 flex items-center gap-1 font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-gray-200 flex-shrink-0"
                       >
-                        <Phone size={11} className="text-gray-500" />
+                        <Phone size={10} />
                         <span>{ord.phone}</span>
                       </a>
                     )}
                   </div>
                 </div>
 
-                {/* Prominent, High-Contrast Action Buttons */}
+                {/* Balanced Call-To-Action Split Row & Dynamic Status Transforms */}
                 {ord.row.is_legacy ? (
                   <div className="px-4 py-3 bg-gray-50 text-[11px] text-gray-500 font-medium border-t border-gray-100">
                     Historical order. Pickup state cannot be verified.
                   </div>
                 ) : (
                   <div className="border-t border-gray-100">
-                    {/* Status 1: Pending -> [Decline] and [Accept Order] */}
+                    {/* Status 1: Pending -> [DECLINE 1/3] and [ACCEPT ORDER 2/3] */}
                     {ord.status === 'pending' && (
-                      <div className="grid grid-cols-2">
+                      <div className="flex border-t border-gray-100">
                         <button 
                           type="button"
-                          className="py-3.5 bg-gray-50 text-gray-600 text-xs font-black uppercase tracking-wider hover:bg-gray-100 border-r border-gray-100 active:bg-gray-200 transition-colors cursor-pointer"
+                          className="w-1/3 py-3.5 text-xs font-bold text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors tracking-wide border-r border-gray-100 cursor-pointer"
                           disabled={busyAction !== null} 
                           onClick={() => void handleDecline(ord.id)}
                         >
-                          Decline
+                          DECLINE
                         </button>
                         <button 
                           type="button"
-                          className="py-3.5 bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 active:bg-emerald-800 transition-colors shadow-inner cursor-pointer"
+                          className="w-2/3 py-3.5 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 transition-all tracking-wide shadow-inner cursor-pointer"
                           disabled={busyAction !== null} 
                           onClick={() => void handleAccept(ord.id)}
                         >
-                          Accept Order
+                          ACCEPT ORDER
                         </button>
                       </div>
                     )}
 
-                    {/* Status 2: Preparing -> [Mark as Ready] */}
+                    {/* Status 2: Preparing -> Transforming Live Status Tracking Block ("Preparing Food") */}
                     {ord.status === 'preparing' && (
-                      <button 
-                        type="button"
-                        className="w-full py-3.5 bg-orange-500 text-white text-xs font-black uppercase tracking-wider hover:bg-orange-600 active:bg-orange-700 transition-colors shadow-inner flex items-center justify-center gap-1.5 cursor-pointer"
-                        disabled={busyAction !== null} 
-                        onClick={() => void handleReady(ord.id)}
-                      >
-                        <Zap size={14} />
-                        <span>{t('Mark as Ready', 'సిద్ధంగా ఉందని గుర్తించండి')}</span>
-                      </button>
+                      <div>
+                        <div className="bg-orange-50/80 px-4 py-2 flex items-center justify-between border-b border-orange-100 text-orange-950">
+                          <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                            Preparing Food
+                          </span>
+                          <span className="text-[10px] font-bold text-orange-800">
+                            Est. Ready ~10 mins
+                          </span>
+                        </div>
+                        <button 
+                          type="button"
+                          className="w-full py-3.5 bg-orange-500 text-white text-xs font-black uppercase tracking-wider hover:bg-orange-600 active:bg-orange-700 transition-colors shadow-inner flex items-center justify-center gap-1.5 cursor-pointer"
+                          disabled={busyAction !== null} 
+                          onClick={() => void handleReady(ord.id)}
+                        >
+                          <Zap size={14} />
+                          <span>{t('Mark as Ready', 'సిద్ధంగా ఉందని గుర్తించండి')}</span>
+                        </button>
+                      </div>
                     )}
 
-                    {/* Status 3: Ready -> Collect & Paid confirmation */}
+                    {/* Status 3: Ready -> Counter Collection & Payment Flow */}
                     {ord.status === 'ready' && (
-                      <div className="p-3 bg-gray-50/80 flex flex-col sm:flex-row items-center gap-2">
-                        <div className="w-full sm:w-auto flex-1">
+                      <div>
+                        <div className="bg-emerald-50/80 px-4 py-2 flex items-center justify-between border-b border-emerald-100 text-emerald-950">
+                          <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                            <Check size={12} strokeWidth={3} className="text-emerald-600" />
+                            Ready for Pickup
+                          </span>
+                          <span className="text-[10px] font-bold text-emerald-800">
+                            Waiting for Student
+                          </span>
+                        </div>
+                        <div className="p-3 bg-gray-50 flex items-center gap-2">
                           <select 
                             aria-label="Payment received at counter" 
-                            className="w-full text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-2 text-gray-800 cursor-pointer" 
+                            className="flex-1 text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-2 text-gray-800 cursor-pointer" 
                             value={paymentMethods[ord.id] ?? 'cash'} 
                             onChange={e => setPaymentMethods(prev => ({ ...prev, [ord.id]: e.target.value as 'cash' | 'counter_upi' }))}
                           >
                             <option value="cash">💵 Cash at Counter</option>
                             <option value="counter_upi">📱 Counter UPI QR</option>
                           </select>
-                        </div>
-                        <div className="w-full sm:w-auto flex-shrink-0">
                           <FamilyReceiveComponent 
-                            triggerLabel={t('Confirm Collection & Paid', 'తీసుకున్నట్లు నిర్ధారించండి')} 
+                            triggerLabel={t('Collected & Paid', 'తీసుకున్నారు')} 
                             title="Confirm Collection & Payment" 
                             description={`Has the student collected order #${ord.row.pickup_number} and paid ₹${ord.price} at the counter?`} 
                             confirmLabel="Collected and Paid" 
@@ -439,23 +478,23 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        {/* 4. Past Orders Summary Disclosure */}
+        {/* 5. Past Orders Summary Disclosure */}
         {pastOrders.length > 0 && (
-          <div className="px-4 mb-4">
+          <div className="px-4 mt-4">
             <details className="past-orders-disclosure bg-white border border-gray-100 rounded-2xl p-4 shadow-2xs">
               <summary className="font-extrabold text-xs text-gray-800 cursor-pointer flex items-center justify-between">
                 <span>Past orders</span>
-                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono">
                   {pastOrders.length}
                 </span>
               </summary>
               <div className="past-orders-list mt-3 divide-y divide-gray-100">
                 {pastOrders.map(order => (
-                  <div key={order.id} className="py-2 flex justify-between items-center text-xs">
+                  <div key={order.id} className="py-2.5 flex justify-between items-center text-xs">
                     <div>
                       <strong className="text-gray-900 font-bold">{order.quantity ?? 1} × {order.item}</strong>
                       <p className="text-[11px] text-gray-500 mt-0.5">
@@ -471,8 +510,8 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
           </div>
         )}
 
-        {/* 5. Quick Management Buttons */}
-        <div className="px-4 flex gap-2.5">
+        {/* 6. Quick Management Buttons */}
+        <div className="px-4 flex gap-2.5 mt-5">
           <button 
             type="button" 
             onClick={onAddNewItem}

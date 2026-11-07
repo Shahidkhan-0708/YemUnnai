@@ -1,3 +1,4 @@
+import { getContextualDishImage } from './dishAssetMatching';
 import { supabase, isBackendConfigured } from './supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { retryRead } from './retryRead';
@@ -120,7 +121,7 @@ function rowToItem(row: FoodItemRow): FoodItem {
     likes: row.likes_count,
     dislikes: row.dislikes_count,
     reviews: row.reviews_count,
-    rating: avg,
+    rating: avg ?? undefined,
     freshnessTag,
     walkTime,
     actionType: row.action_type,
@@ -145,7 +146,7 @@ function orderRowToDashboard(row: OrderRow, vendorName: string): DashboardOrder 
     vendor: vendorName,
     phone: row.customer_mobile,
     location: row.delivery_address,
-    image: row.food_items?.image_url ?? '/images/item_samosa_chicken.jpg',
+    image: getContextualDishImage(row.item_name, row.food_items?.image_url),
     status: row.status
   };
 }
