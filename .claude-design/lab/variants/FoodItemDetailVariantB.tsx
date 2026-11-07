@@ -2,8 +2,8 @@
 // Split-pane layout with sticky photo sidebar, horizontal scrolling sections
 // Zomato-style: persistent image, tabbed content areas, contextual actions
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS, type FoodItem, type Vendor } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0]; // Chicken Biryani
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
@@ -264,7 +264,7 @@ export function FoodItemDetailVariantB() {
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                     </svg>
                     <span style={{ fontSize: '15px', fontWeight: '600', color: '#1F140A' }}>{item.rating.toFixed(1)}</span>
-                    <span style={{ fontSize: '13px', color: '#7A6658' }}>({item.reviewCount} reviews)</span>
+                    <span style={{ fontSize: '13px', color: '#7A6658' }}>({item.reviews} reviews)</span>
                   </div>
                   <span style={{ color: '#D6DCE2' }}>•</span>
                   <span style={{ fontSize: '13px', color: '#7A6658', display: 'flex', alignItems: 'center', gap: '3px' }}>

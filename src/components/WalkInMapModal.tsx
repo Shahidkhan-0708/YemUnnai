@@ -33,7 +33,7 @@ export function WalkInMapModal({ isOpen, item, onClose }: Props) {
     const baseLng = point[1];
     return entries
       .filter(s => s.id !== selected.id)
-      .map((shop, index) => {
+      .map((shop, index): RoutePoint | null => {
         const coords = shopCoordinates(shop);
         if (!coords) return null;
         const distance = Math.round(Math.sqrt(
