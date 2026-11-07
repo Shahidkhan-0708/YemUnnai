@@ -5,7 +5,6 @@ export interface CategoryItem {
   name: string;
   nameTe: string;
   image: string;
-  emoji: string;
 }
 
 export const CIRCULAR_DISH_CATEGORIES: CategoryItem[] = [
@@ -14,56 +13,48 @@ export const CIRCULAR_DISH_CATEGORIES: CategoryItem[] = [
     name: 'Tiffin & Dosa',
     nameTe: 'టిఫిన్ & దోశ',
     image: '/images/item_masala_dosa.png',
-    emoji: '🥞',
   },
   {
     id: 'meals',
     name: 'Meals & Thali',
     nameTe: 'భోజనం & మీల్స్',
     image: '/images/item_meals.png',
-    emoji: '🍱',
   },
   {
     id: 'biryani',
     name: 'Biryani & Rice',
     nameTe: 'బిర్యానీ & రైస్',
     image: '/images/item_special_chicken_rice.png',
-    emoji: '🍗',
   },
   {
     id: 'beverages',
     name: 'Chai & Coffee',
     nameTe: 'టీ & కాఫీ',
     image: '/images/item_tea.jpg',
-    emoji: '☕',
   },
   {
     id: 'fast_food',
     name: 'Fast Food',
     nameTe: 'ఫాస్ట్ ఫుడ్',
     image: '/images/item_french_fries.jpg',
-    emoji: '🍔',
   },
   {
     id: 'snacks',
     name: 'Snacks & Samosa',
     nameTe: 'స్నాక్స్ & సమోసా',
     image: '/images/item_samosa_chicken.jpg',
-    emoji: '🥟',
   },
   {
     id: 'coolers',
     name: 'Juices & Shakes',
     nameTe: 'జ్యూస్ & కూలర్స్',
     image: '/images/item_juice.jpg',
-    emoji: '🍹',
   },
   {
     id: 'bakery',
     name: 'Puffs & Bakery',
     nameTe: 'పఫ్స్ & బేకరీ',
     image: '/images/item_veg_puff.jpg',
-    emoji: '🥐',
   },
 ];
 
@@ -77,14 +68,14 @@ export const CircularCategories: React.FC<CircularCategoriesProps> = ({
   onSelectCategory,
 }) => {
   return (
-    <section className="w-full py-4 bg-white border-b-8 border-gray-50">
-      {/* Category Heading */}
+    <section className="w-full bg-white mt-4 py-4 border-y border-gray-100">
+      {/* Category Heading without Emoji Clutter */}
       <div className="px-4 mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-base font-black text-gray-950 tracking-tight flex items-center gap-2">
-            <span>✨</span> What&apos;s on your mind?
+          <h2 className="text-sm font-black text-gray-900 uppercase tracking-wider">
+            What&apos;s on your mind?
           </h2>
-          <p className="text-[11px] font-medium text-gray-500">
+          <p className="text-[11px] text-gray-400 font-medium">
             Explore popular campus food categories &amp; cuisines
           </p>
         </div>
@@ -99,8 +90,8 @@ export const CircularCategories: React.FC<CircularCategoriesProps> = ({
         )}
       </div>
 
-      {/* Horizontal Circular Category Track */}
-      <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-none snap-x snap-mandatory">
+      {/* Horizontal Circular Category Track - Unified Clean Sans & Borderless Fluid Curves */}
+      <div className="flex gap-4 overflow-x-auto px-4 pb-1 scrollbar-none snap-x snap-mandatory">
         {CIRCULAR_DISH_CATEGORIES.map((cat) => {
           const isSelected = selectedCategoryId === cat.id;
           return (
@@ -111,36 +102,29 @@ export const CircularCategories: React.FC<CircularCategoriesProps> = ({
               className="group flex flex-col items-center flex-shrink-0 cursor-pointer focus:outline-hidden snap-start"
               aria-pressed={isSelected}
             >
-              {/* Outer Circular Ring with Soft Hover/Active Feedback */}
+              {/* Unbordered Circular Bubble */}
               <div
-                className={`relative w-18 h-18 sm:w-20 sm:h-20 rounded-full p-0.5 transition-all duration-200 ${
+                className={`w-16 h-16 rounded-full overflow-hidden bg-gray-50 border shadow-xs transition-all duration-200 group-hover:scale-105 active:scale-95 ${
                   isSelected
-                    ? 'bg-gradient-to-tr from-orange-500 to-amber-500 ring-3 ring-orange-500/30 scale-105 shadow-md'
-                    : 'bg-gradient-to-tr from-orange-100 to-amber-50 hover:scale-105 shadow-xs hover:shadow-sm'
+                    ? 'border-orange-500 ring-2 ring-orange-500/30 scale-105 shadow-sm'
+                    : 'border-gray-100 hover:border-gray-200'
                 }`}
               >
-                <div className="w-full h-full rounded-full overflow-hidden bg-white p-1 flex items-center justify-center">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-300"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = '/images/item_meals.png';
-                    }}
-                  />
-                </div>
-
-                {/* Floating Micro Emoji Badge */}
-                <span className="absolute -bottom-1 -right-1 text-xs bg-white rounded-full p-0.5 shadow-xs border border-gray-100">
-                  {cat.emoji}
-                </span>
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/images/item_meals.png';
+                  }}
+                />
               </div>
 
-              {/* Category Name Label */}
+              {/* Clean Plain Text Category Label */}
               <span
-                className={`text-[11.5px] tracking-tight text-center mt-2 font-bold transition-colors line-clamp-1 max-w-[80px] ${
-                  isSelected ? 'text-orange-600 font-black' : 'text-gray-800 group-hover:text-orange-600'
+                className={`mt-1.5 text-[11px] font-bold tracking-tight text-center transition-colors line-clamp-1 max-w-[80px] ${
+                  isSelected ? 'text-orange-600 font-black' : 'text-gray-600 group-hover:text-gray-900'
                 }`}
               >
                 {cat.name}

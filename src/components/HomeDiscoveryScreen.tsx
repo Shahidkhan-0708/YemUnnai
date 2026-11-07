@@ -118,6 +118,24 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
       .slice(0, 10);
   }, [items, shops, selectedCategory, topSellingDishes]);
 
+  // Dynamic category title and subtitle for the curated feed
+  const categoryTitle = useMemo(() => {
+    if (selectedCategory === 'tiffin') return 'Tiffin & Dosa Dishes';
+    if (selectedCategory === 'meals') return 'Meals & Thali Dishes';
+    if (selectedCategory === 'biryani') return 'Biryani & Rice Dishes';
+    if (selectedCategory === 'beverages') return 'Chai & Coffee Options';
+    if (selectedCategory === 'fast_food') return 'Fast Food & Snacks';
+    if (selectedCategory === 'snacks') return 'Campus Snacks & Samosas';
+    if (selectedCategory === 'coolers') return 'Juices & Shakes';
+    if (selectedCategory === 'bakery') return 'Puffs & Bakery Bites';
+    return 'Most Loved on Campus';
+  }, [selectedCategory]);
+
+  const categorySubtitle = useMemo(() => {
+    if (selectedCategory !== 'all') return `Top picks for ${categoryTitle.toLowerCase()} across campus`;
+    return 'Highest rated & most frequently ordered dishes';
+  }, [selectedCategory, categoryTitle]);
+
   // Global search results across all vendors if searching from homepage
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -207,7 +225,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   // -------------------------------------------------------------------------
   return (
     <SvgScreenFrame screen={null}>
-      <section className="discovery-screen screen-enter bg-gray-50 pb-28 font-sans space-y-0">
+      <section className="discovery-screen screen-enter bg-gray-50 pb-40 font-sans space-y-0">
         {/* Error notifications */}
         {(error || shopsError) && (
           <div role="alert" className="pickup-error m-4">
@@ -278,10 +296,12 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
               onSelectCategory={setSelectedCategory}
             />
 
-            {/* Modular Widget 3: Top-Selling Dishes Horizontal Slider (Strictly max 10 items total) */}
+            {/* Modular Widget 3: Top-Selling Dishes Dense Grid (Strictly max 10 items total) */}
             <TopSellingSlider
               items={filteredTopItems}
               onSelectItem={onSelectItem}
+              title={categoryTitle}
+              subtitle={categorySubtitle}
             />
           </>
         )}

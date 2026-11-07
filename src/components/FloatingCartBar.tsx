@@ -82,11 +82,11 @@ export const FloatingCartBar: React.FC = () => {
 
   return (
     <>
-      {/* 1. Floating Bottom Sticky Action Bar */}
+      {/* 1. Elevated Floating Sticky Action Bar (Floats gracefully above navigation tabs with strict clearance) */}
       {totalItems > 0 && !showStatusTracker && (
-        <div className="fixed bottom-20 left-0 right-0 px-4 z-40 pointer-events-none">
+        <div className="fixed bottom-28 left-0 right-0 px-4 z-40 pointer-events-none">
           <div 
-            className="w-full max-w-md mx-auto bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-xl hover:shadow-2xl p-3 px-4 flex items-center justify-between pointer-events-auto transform transition-all active:scale-[0.99] cursor-pointer"
+            className="w-full max-w-sm mx-auto bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-[0_12px_24px_-4px_rgba(4,120,87,0.35)] p-3 px-4 flex items-center justify-between pointer-events-auto transform transition-all active:scale-[0.99] cursor-pointer"
             onClick={() => setIsDrawerOpen(true)}
             role="button"
             tabIndex={0}
@@ -99,15 +99,13 @@ export const FloatingCartBar: React.FC = () => {
             }}
           >
             {/* Left Column: Count badge + Subtotal */}
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={`bg-white/20 backdrop-blur-xs px-2.5 py-1 rounded-lg text-center ${isBouncing ? 'animate-bounce' : ''}`}>
-                <span className="text-xs font-black block leading-none tracking-wide">
-                  {totalItems} {totalItems === 1 ? 'ITEM' : 'ITEMS'}
-                </span>
-              </div>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className={`text-[10px] font-black bg-white/20 px-2.5 py-1 rounded-md tracking-wider leading-none ${isBouncing ? 'animate-bounce' : ''}`}>
+                {totalItems} {totalItems === 1 ? 'ITEM' : 'ITEMS'}
+              </span>
               <div className="min-w-0">
-                <p className="text-sm font-extrabold tracking-tight">₹{totalPrice}</p>
-                <p className="text-[10px] text-emerald-100 font-medium leading-none mt-0.5 truncate">
+                <p className="text-xs font-black leading-tight">₹{totalPrice}</p>
+                <p className="text-[9px] text-emerald-100 font-medium leading-none mt-0.5 truncate">
                   Campus Pickup · Pay at Counter
                 </p>
               </div>
@@ -116,10 +114,10 @@ export const FloatingCartBar: React.FC = () => {
             {/* Right Column: View Cart CTA */}
             <button 
               type="button"
-              className="flex items-center gap-1.5 font-black text-xs tracking-wider uppercase bg-white/15 hover:bg-white/25 px-3.5 py-2 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
+              className="flex items-center gap-1 font-black text-xs uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 cursor-pointer tracking-wide"
             >
               <span>View Cart</span>
-              <ArrowRight size={14} />
+              <ArrowRight size={13} />
             </button>
           </div>
         </div>
