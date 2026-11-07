@@ -1,6 +1,6 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import React, { useState, useMemo } from 'react';
-import { ChevronRight, ArrowLeft, Search, X, Sparkles, LayoutGrid, Layers } from 'lucide-react';
+import { ArrowLeft, Search, X, Sparkles, LayoutGrid, Layers } from 'lucide-react';
 import { Button } from './ui/button';
 import { useFoodItems, useShops, useReactions, useGeolocation } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
@@ -8,6 +8,7 @@ import { useLanguage } from '../lib/language';
 import { SavedSyncNotice } from './SavedSyncNotice';
 import { menuPrices } from '../lib/menuPricing.ts';
 import { ItemCard } from './ItemCard.tsx';
+import { FilterBar, type FilterState } from './FilterBar.tsx';
 import { DiscoveryHeader } from './DiscoveryHeader';
 import { HomepageQuickLinks } from './HomepageQuickLinks';
 import {
@@ -202,6 +203,21 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   const activeLinkMeta = HOMEPAGE_QUICK_LINKS.find(ql => ql.id === activeQuickLink);
   const isHomepageOrganized = !restaurantId && !savedOnly && activeQuickLink === 'all' && !searchQuery.trim() && !maxPrice && homeViewMode === 'organized';
 
+  const currentFilters: FilterState = {
+    sortBy: 'all',
+    maxPrice: maxPrice ? Number(maxPrice) : null,
+    availableNow: availableOnly,
+    pureVeg: vegOnly,
+    category: menuCategory === 'All' ? null : menuCategory,
+  };
+
+  const handleFilterChange = (updated: FilterState) => {
+    setMaxPrice(updated.maxPrice !== null ? String(updated.maxPrice) : '');
+    setAvailableOnly(updated.availableNow);
+    setVegOnly(updated.pureVeg);
+    setMenuCategory(updated.category || 'All');
+  };
+
   return (
     <SvgScreenFrame screen={null}>
       <section className="discovery-screen screen-enter">
@@ -305,95 +321,12 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
             />
           )}
 
-          {/* Quick Filter Bar */}
-          <fieldset className="discovery-filters">
-            <legend className="sr-only">Filter food</legend>
-            <label className="price-filter">
-              <span>₹</span>
-              <input
-                type="number"
-                min="0"
-                aria-label="Maximum price"
-                value={maxPrice}
-                placeholder="Max"
-                onChange={e => setMaxPrice(e.target.value)}
-              />
-              <ChevronRight size={15} />
-            </label>
-            <label className="availability-filter" data-selected={availableOnly}>
-              <input
-                type="checkbox"
-                checked={availableOnly}
-                onChange={e => setAvailableOnly(e.target.checked)}
-              />
-              <i />
-              {t('Available now', 'అందుబాటులో ఉన్నాయి')}
-            </label>
-            <label className="veg-filter" data-selected={vegOnly}>
-              <input
-                type="checkbox"
-                checked={vegOnly}
-                onChange={e => setVegOnly(e.target.checked)}
-              />
-              <span className="diet-mark"><i /></span>
-              {t('Pure veg', 'శాకాహారం')}
-            </label>
-          </fieldset>
-
-          {/* Category Filter Pills */}
-          <fieldset className="discovery-filters">
-            <legend className="sr-only">Filter by category</legend>
-            <label className="beverage-filter">
-              <input
-                type="radio"
-                name="category-filter"
-                value="Beverages"
-                checked={menuCategory === 'Beverages'}
-                onChange={e => setMenuCategory(e.target.value)}
-              />
-              <span>Beverages</span>
-            </label>
-            <label className="drink-filter">
-              <input
-                type="radio"
-                name="category-filter"
-                value="Drinks"
-                checked={menuCategory === 'Drinks'}
-                onChange={e => setMenuCategory(e.target.value)}
-              />
-              <span>Drinks</span>
-            </label>
-            <label className="tiffin-filter">
-              <input
-                type="radio"
-                name="category-filter"
-                value="Tiffin"
-                checked={menuCategory === 'Tiffin'}
-                onChange={e => setMenuCategory(e.target.value)}
-              />
-              <span>Tiffin</span>
-            </label>
-            <label className="lunch-filter">
-              <input
-                type="radio"
-                name="category-filter"
-                value="Lunch"
-                checked={menuCategory === 'Lunch'}
-                onChange={e => setMenuCategory(e.target.value)}
-              />
-              <span>Lunch</span>
-            </label>
-            <label className="fast-food-filter">
-              <input
-                type="radio"
-                name="category-filter"
-                value="Fast Food"
-                checked={menuCategory === 'Fast Food'}
-                onChange={e => setMenuCategory(e.target.value)}
-              />
-              <span>Fast Food</span>
-            </label>
-          </fieldset>
+          {/* High-Fidelity Interactive Filter Ribbon & Budget Drawer */}
+          <FilterBar
+            filters={currentFilters}
+            onFilterChange={handleFilterChange}
+            totalCount={displayedItems.length}
+          />
 
           {/* Active Quick Link Filter Banner */}
           {!restaurantId && activeQuickLink !== 'all' && activeLinkMeta && (

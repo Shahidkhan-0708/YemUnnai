@@ -2465,3 +2465,399 @@ img[data-extracted] { object-fit:contain; }
   text-align: center;
   color: #ffffff;
 }
+
+/* ==========================================================================
+   Swiggy High-Density Row Framework (ShopMenuItem)
+   ========================================================================== */
+
+.swiggy-menu-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 0;
+  margin: 0 16px;
+  border-bottom: 0.5px solid #e9e9eb;
+  background: #ffffff;
+  transition: opacity 0.2s ease;
+}
+
+.swiggy-menu-row:last-child {
+  border-bottom: none;
+}
+
+.swiggy-row-disabled {
+  opacity: 0.5;
+}
+
+/* Left Content Node */
+.swiggy-text-section {
+  flex: 1;
+  padding-right: 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.swiggy-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+/* Regulatory Square Diet Indicators */
+.swiggy-diet-indicator {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid #0f8a45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.swiggy-diet-indicator.is-non-veg {
+  border-color: #a02828;
+}
+
+.swiggy-diet-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #0f8a45;
+}
+
+.swiggy-diet-indicator.is-non-veg .swiggy-diet-dot {
+  background-color: #a02828;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  border-radius: 0;
+  width: 7px;
+  height: 7px;
+}
+
+.swiggy-vendor-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: #fc8019;
+  background: #fff3eb;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.swiggy-item-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #282c3f;
+  margin: 0 0 2px 0;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.swiggy-item-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3d4152;
+  margin: 0 0 6px 0;
+}
+
+/* Subtle Geometric Balanced Subtext Description */
+.swiggy-item-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #93959f;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 90%;
+  text-overflow: ellipsis;
+}
+
+/* Right Action Media Column */
+.swiggy-action-section {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+}
+
+.swiggy-image-box {
+  position: relative;
+  width: 110px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.swiggy-photo-asset, .swiggy-photo-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 0.5px solid #e2e2e7;
+}
+
+.swiggy-photo-fallback {
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #cdd5e1;
+}
+
+/* Absolute Centered Bottom Lip Stepper Overlap */
+.swiggy-stepper-wrapper {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88px;
+  height: 32px;
+  z-index: 10;
+}
+
+.swiggy-add-btn-trigger, .swiggy-stepper-active-block {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid #d4d5d9;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #60b246;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: all 0.1s ease;
+}
+
+.swiggy-add-btn-trigger:hover {
+  background: #fafafa;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.swiggy-stepper-active-block {
+  background: #60b246;
+  color: #ffffff;
+  border-color: #60b246;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.swiggy-step-action {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  width: 24px;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swiggy-step-action:active {
+  transform: scale(0.9);
+}
+
+.swiggy-step-value-text {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 14px;
+  text-align: center;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   FilterBar & Low-Profile Layout Styles
+   ========================================================================== */
+
+/* Sticky Scroll Ribbon Wrapper */
+.aggregator-filter-sticky-wrapper {
+  background: #ffffff;
+  padding: 12px 0 8px 0;
+  border-bottom: 1px solid #f2f4f6;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Horizontal Clean Scrolling Pipeline */
+.filter-scroll-ribbon {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 16px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-scroll-ribbon::-webkit-scrollbar {
+  display: none; /* Strip ugly desktop scroll bars */
+}
+
+/* Base Pill Styling Rules */
+.filter-pill-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e2e7;
+  padding: 7px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3d4152;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.filter-pill-trigger:active {
+  transform: scale(0.96);
+}
+
+/* Premium Selection State Changes */
+.filter-pill-trigger.is-active-pill {
+  background: #f2f7f2;
+  border-color: #60b246;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+/* Special Veg Border Variant Match */
+.filter-pill-trigger.veg-active-pill {
+  border-color: #0f8a45;
+  background: #edf7ed;
+}
+
+.veg-badge-mini-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f8a45;
+  display: inline-block;
+}
+
+.pill-chevron-down {
+  font-size: 11px;
+  color: #686b78;
+  margin-left: 2px;
+}
+
+/* Contextual Result Layer Metrics */
+.filter-results-metadata {
+  padding: 10px 16px 2px 16px;
+}
+
+.results-count-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #686b78;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Bottom Sheet Sliding Price Budget Panel */
+.drawer-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(40, 44, 63, 0.55);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.drawer-panel-surface {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px;
+  animation: slideUpMobile 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.drawer-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.drawer-header-row h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #282c3f;
+  margin: 0;
+}
+
+.drawer-close-btn {
+  background: #f2f4f6;
+  border: none;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #686b78;
+}
+
+.drawer-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawer-option-pill {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e2e2e7;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drawer-option-pill.selected {
+  border-color: #fc8019;
+  background: #fff5ed;
+  color: #fc8019;
+  font-weight: 600;
+}
+
+.drawer-clear-btn-action {
+  background: transparent;
+  border: none;
+  color: #bd3c3c;
+  font-weight: 600;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 4px;
+}
+
+@keyframes slideUpMobile {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}

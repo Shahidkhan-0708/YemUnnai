@@ -1,5 +1,5 @@
-import { ItemCardPremium, type ItemCardPremiumProps } from './ItemCardPremium.tsx';
+import { ShopMenuItem, type ShopMenuItemProps } from './ShopMenuItem.tsx';
 
-export type ItemCardProps = ItemCardPremiumProps;
-export const ItemCard = ItemCardPremium;
+export type ItemCardProps = ShopMenuItemProps;
+export const ItemCard = ShopMenuItem;
 export default ItemCard;
