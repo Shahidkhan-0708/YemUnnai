@@ -5,10 +5,9 @@ import { Button } from './ui/button';
 import { useFoodItems, useShops, useReactions, useGeolocation } from '../lib/hooks';
 import { useSaved } from '../lib/saved';
 import { useLanguage } from '../lib/language';
-import { SaveToggle } from './SaveToggle';
 import { SavedSyncNotice } from './SavedSyncNotice';
-import { CatalogImage } from './CatalogImage';
-import { DietaryBadge } from './DietaryBadge';
+import { menuPrices } from '../lib/menuPricing.ts';
+import { ItemCard } from './ItemCard.tsx';
 import { DiscoveryHeader } from './DiscoveryHeader';
 import { HomepageQuickLinks } from './HomepageQuickLinks';
 import {
@@ -19,10 +18,8 @@ import {
   getBudgetBites,
   type QuickLink
 } from '../lib/homepageMenu';
-import { trackSaveItem, trackPageView } from '../lib/analytics';
+import { trackPageView } from '../lib/analytics';
 import type { FoodItem } from '../lib/types';
-import { MenuPrice } from './MenuPrice';
-import { menuPrices } from '../lib/menuPricing';
 
 export type { FoodItem } from '../lib/types';
 
@@ -33,8 +30,6 @@ interface HomeDiscoveryScreenProps {
   cartCount?: number;
   onOrderNow?: (item: FoodItem) => void;
   onWalkIn?: (item: FoodItem) => void;
-  onReview?: (item: FoodItem) => void;
-  onCartClick?: () => void;
   onSelectShop?: (shopName: string, shopId?: string) => void;
   onBusinessPortal?: () => void;
   onSelectItem?: (item: FoodItem) => void;
@@ -47,9 +42,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
   restaurantId,
   onBack,
   cartCount = 0,
-  onWalkIn,
-  onReview,
-  onCartClick,
+  onWalkIn: _onWalkIn,
   onSelectShop,
   onSelectItem,
   onBusinessPortal
@@ -66,7 +59,7 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
 
   const heading = React.useRef<HTMLHeadingElement>(null);
   const { t, lang } = useLanguage();
-  const { location, getLocation, error: geoError } = useGeolocation();
+  const { location, getLocation, error: _geoError } = useGeolocation();
   const saved = useSaved();
   const [maxPrice, setMaxPrice] = useState('');
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -86,7 +79,9 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     trackPageView(title, window.location.pathname + window.location.search);
   }, [restaurantId, selectedShop, restaurantUnavailable]);
 
-  const { myReactions, counts, toggleLike, pending: pendingReactions, error: reactionError } = useReactions(items);
+  const { counts, toggleLike, toggleDislike, pending, error: reactionError } = useReactions(items);
+  // toggleLike, toggleDislike, pending are defined but not used in this component
+  void toggleLike; void toggleDislike; void pending;
 
   // Filter by query + shop + basic filters
   const baseItems = useMemo(() => {
@@ -194,68 +189,13 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
     }).filter(section => section.items.length > 0);
   }, [displayedItems]);
 
-  const priorityFoodIds = useMemo(() => {
-    const list = restaurantGroups
-      ? restaurantGroups.flatMap(group => group.items)
-      : feedItems;
-    return new Set(list.slice(0, 4).map(item => item.id));
-  }, [restaurantGroups, feedItems]);
-
   const renderFoodCard = (item: FoodItem) => {
-    const unavailable = loading || !!error || !item.inStock || (!item.sourceItemId && (item.price ?? 0) <= 0) || item.isShopOnline === false;
-
     return (
-      <article className="food-card" data-imported={!!item.sourceItemId} key={item.id}>
-        <div className="food-photo">
-          <button
-            className="food-photo-open"
-            type="button"
-            aria-label={`View details for ${item.name}`}
-            onClick={() => onSelectItem?.(item)}
-          >
-            <CatalogImage src={item.image} alt={item.name} size="card" priority={priorityFoodIds.has(item.id)} />
-          </button>
-          <SaveToggle
-            size="sm"
-            idleText=""
-            savedText=""
-            isSaved={saved.ids.has(item.id)}
-            onToggle={value => {
-              trackSaveItem(item.id, item.name, value);
-              saved.toggle(item.id, value);
-            }}
-            className="food-save"
-          />
-        </div>
-        <div className="food-name-row">
-          <h3 title={item.name}>{item.name}</h3>
-        </div>
-        <p className="food-vendor" title={item.vendor}>{item.vendor}</p>
-        <div className="food-diet-row">
-          <DietaryBadge isVeg={item.isVeg} />
-        </div>
-        {item.menuCategory && <p className="menu-category-label">{item.menuCategory}</p>}
-        <div className="food-price-row">
-          <span
-            className={menuPrices(item).length ? 'food-price' : 'food-unavailable'}
-            aria-label={menuPrices(item).length ? undefined : t('Price not specified', 'ధర పేర్కొనలేదు')}
-            title={menuPrices(item).length ? undefined : t('Price not specified', 'ధర పేర్కొనలేదు')}
-          >
-            <MenuPrice item={item} />
-          </span>
-          </div>
-        <p className="food-availability" aria-hidden={unavailable || undefined}>
-          {!unavailable ? t('Available', 'అందుబాటులో ఉంది') : null}
-        </p>
-        <Button
-          className="food-action"
-          variant="walkin"
-          disabled={unavailable}
-          onClick={() => onWalkIn?.(item)}
-        >
-          {loading ? t('Checking…', 'తనిఖీ చేస్తున్నాం…') : item.isShopOnline === false ? t('Shop offline', 'దుకాణం మూసివేయబడింది') : unavailable ? t('Unavailable', 'అందుబాటులో లేదు') : t('Walk In', 'నేరుగా వెళ్లండి')}
-        </Button>
-      </article>
+      <ItemCard
+        key={item.id}
+        item={item}
+        onSelect={onSelectItem}
+      />
     );
   };
 
@@ -300,7 +240,6 @@ export const HomeDiscoveryScreen: React.FC<HomeDiscoveryScreenProps> = ({
             cartCount={cartCount}
             onSearch={setSearchQuery}
             onShop={onSelectShop ?? (() => {})}
-            onCart={onCartClick}
             onBusinessPortal={onBusinessPortal}
             userLocation={location}
             onLocationRequest={getLocation}

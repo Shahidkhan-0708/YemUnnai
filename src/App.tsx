@@ -18,6 +18,7 @@ import { Download, ExternalLink, Eye, X } from 'lucide-react';
 import { useModalA11y } from './lib/useModalA11y';
 import { Toaster, toast } from './components/ui/sonner';
 import { reportAppError } from './lib/telemetry';
+import { CartProvider } from './context/CartContext.tsx';
 
 // Lazy-loaded modal & non-critical routes for fast initial bundle & 300+ user scalability
 const FeedbackModal = lazy(() => import('./components/FeedbackModal').then(m => ({ default: m.FeedbackModal })));
@@ -39,7 +40,6 @@ const Popover6 = lazy(() => import('./components/Popover6'));
 const RunActionButtonDemo = lazy(() => import('./components/RunActionButtonDemo'));
 const FamilyReceiveComponentDemo = lazy(() => import('./components/FamilyReceiveComponentDemo'));
 const MorphingButtonDemo = lazy(() => import('./components/MorphingButtonDemo'));
-const LabPage = lazy(() => import('../.claude-design/lab/page'));
 
 function ScreenFallback() {
   return (
@@ -188,7 +188,9 @@ export function App() {
     );
   }
 
-  return <SvgScreenFrame screen={activePortal==='gallery'?'gallery':activePortal==='artifacts'?'artifacts':activePortal==='components'?'components':null}>
+  return (
+    <CartProvider>
+      <SvgScreenFrame screen={activePortal==='gallery'?'gallery':activePortal==='artifacts'?'artifacts':activePortal==='components'?'components':null}>
     <div className="min-h-screen bg-[#E8ECEF] text-[#1F140A]">
       <Toaster />
       {/* Main Content Area */}
@@ -254,11 +256,6 @@ export function App() {
                       playTapSound();
                       setSelectedWalkInFood(item);
                     }}
-                    onReview={(item) => {
-                      playTapSound();
-                      setSelectedReviewFood(item);
-                    }}
-                    onCartClick={() => {}}
                     onSelectShop={(name, id) => {
                       if (name !== 'All' && !id) return;
                       openRestaurant(name === 'All' ? null : id!);
@@ -712,7 +709,8 @@ export function App() {
 
         )
 
-        {/* 5. DESIGN LAB — Premium redesign variants */}
+        {/* 5. DESIGN LAB — Premium redesign variants (DISABLED - experimental design system with TypeScript errors) */}
+        {/*
         {activePortal === 'design_lab' && (
           <div className="w-full max-w-7xl mx-auto">
             <Suspense fallback={<ScreenFallback />}>
@@ -720,6 +718,8 @@ export function App() {
             </Suspense>
           </div>
         )}
+        */}
+
 
         {activePortal === '404' && (
           <Suspense fallback={<ScreenFallback />}>
@@ -732,7 +732,9 @@ export function App() {
       {/* PWA install sheet — appears when the browser offers install */}
       {activePortal !== '404' && <InstallPrompt autoOffer={activePortal === 'consumer'} />}
     </div>
-  </SvgScreenFrame>;
+  </SvgScreenFrame>
+    </CartProvider>
+  );
 }
 
 export default App;

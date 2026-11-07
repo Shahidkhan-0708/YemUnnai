@@ -366,7 +366,18 @@ html[lang=te] .discovery-shops-heading button { width:auto; min-width:78px; padd
 .discovery-categories { display:flex; gap:4px; padding:4px; height:42px; margin:16px 4px 24px; border-radius:12px; background:#D6DCE2; }
 .discovery-categories button { flex:1; border-radius:9px; color:#7A6658; font-size:12px; }
 .discovery-categories button[aria-pressed=true] { color:white; background:#F06A05; font-weight:500; }
-.food-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.food-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
 .food-card { display:flex; flex-direction:column; padding:10px; min-width:0; border:1px solid #D6DCE2; border-radius:18px; background:white; }
 .food-photo { position:relative; width:100%; aspect-ratio:156/138; border-radius:11px; overflow:hidden; background:#E8ECEF; }
 .food-photo-open { position:absolute; inset:0; width:100%; height:100%; padding:0; }
@@ -1863,6 +1874,258 @@ img[data-extracted] { object-fit:contain; }
   overscroll-behavior: contain;
 }
 
+/* ==========================================================================
+   Standard Swiggy / Zomato Food Item Card & Stepper
+   ========================================================================== */
+
+.swiggy-standard-item-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e8e1da;
+  border-radius: 18px;
+  padding: 14px 16px 18px;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+.swiggy-standard-item-card:hover {
+  border-color: #fbd38d;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+.swiggy-standard-item-card.is-in-cart {
+  border-color: #f97316;
+  background: #fffdfb;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.08);
+}
+
+.swiggy-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.swiggy-card-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+/* Dietary Indicator */
+.swiggy-card-diet-wrapper {
+  margin-bottom: 6px;
+}
+.swiggy-diet-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid currentColor;
+}
+.swiggy-diet-mark.is-veg {
+  color: #16a34a;
+}
+.swiggy-diet-mark.is-non-veg {
+  color: #b91c1c;
+}
+.swiggy-diet-circle {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.swiggy-diet-triangle {
+  width: 0;
+  height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-bottom: 6px solid currentColor;
+}
+
+.swiggy-card-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.35;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  letter-spacing: -0.2px;
+}
+.swiggy-standard-item-card:hover .swiggy-card-name {
+  color: #ea580c;
+}
+
+.swiggy-card-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin-top: auto;
+  color: #0f172a;
+}
+.swiggy-price-currency {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+.swiggy-price-amount {
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+}
+
+/* Right Media Column */
+.swiggy-card-visual {
+  position: relative;
+  width: 104px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.swiggy-card-thumb-frame {
+  position: relative;
+  width: 104px;
+  height: 94px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.swiggy-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+.swiggy-card-thumb-frame:hover .swiggy-card-img {
+  transform: scale(1.05);
+}
+
+.swiggy-sold-out-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Stepper Anchor overlapping bottom edge of image */
+.swiggy-card-stepper-wrap {
+  position: absolute;
+  bottom: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 86px;
+}
+
+.swiggy-btn-add {
+  width: 100%;
+  height: 31px;
+  background: #ffffff;
+  border: 1.5px solid #dcfce7;
+  border-radius: 8px;
+  color: #16a34a;
+  font-size: 12.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.swiggy-btn-add:hover {
+  background: #f0fdf4;
+  border-color: #86efac;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.2);
+  transform: translateY(-1px);
+}
+.swiggy-btn-add:active {
+  transform: scale(0.95);
+}
+.swiggy-add-plus {
+  stroke-width: 3px;
+}
+
+.swiggy-stepper-controller {
+  width: 100%;
+  height: 31px;
+  background: #16a34a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+  overflow: hidden;
+  animation: swiggy-pop-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.swiggy-stepper-minus,
+.swiggy-stepper-plus {
+  width: 26px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.swiggy-stepper-minus:hover,
+.swiggy-stepper-plus:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+.swiggy-stepper-minus:active,
+.swiggy-stepper-plus:active {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.swiggy-stepper-value {
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 16px;
+  text-align: center;
+}
+
+.swiggy-btn-sold-out {
+  width: 100%;
+  height: 28px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: not-allowed;
+}
+
 .rw-action-btn {
   display: flex;
   align-items: center;
@@ -1891,4 +2154,183 @@ img[data-extracted] { object-fit:contain; }
 .rw-action-btn:focus-visible {
   outline: 2px solid #F06A05;
   outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Swiggy / Zomato Premium Food Item Card & Stepper
+   ========================================================================== */
+
+.food-item-premium-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f3f6;
+  background: #ffffff;
+  margin: 0 16px;
+  transition: opacity 0.2s ease;
+}
+
+.item-disabled {
+  opacity: 0.6;
+}
+
+/* Left Metadata Column */
+.item-details-block {
+  flex: 1;
+  padding-right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dietary-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Authentic Veg/Non-Veg Badges */
+.dietary-badge {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid #257e3b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
+.dietary-badge.non-veg {
+  border-color: #bd3c3c;
+}
+
+.dietary-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #257e3b;
+}
+
+.dietary-badge.non-veg .dietary-dot {
+  background-color: #bd3c3c;
+}
+
+.vendor-tag-inline {
+  font-size: 11px;
+  color: #ef4f23;
+  font-weight: 600;
+  background: #fff0ec;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.item-title-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #282c3f;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.item-price-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #3d4152;
+  margin: 0;
+}
+
+/* Right Media Block */
+.item-action-block {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+}
+
+.item-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 96px;
+}
+
+.item-display-photo, .item-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.item-photo-placeholder {
+  background: #f4f6fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #a4b3cc;
+}
+
+/* Swiggy-Style Morphing Floating Stepper */
+.stepper-floating-container {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 32px;
+  z-index: 2;
+}
+
+.stepper-add-trigger, .stepper-active-control {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid #d4d5d9;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #60b246;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.stepper-add-trigger:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+.stepper-active-control {
+  background: #60b246;
+  color: #ffffff;
+  border-color: #60b246;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.stepper-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  width: 24px;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepper-qty-display {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 14px;
+  text-align: center;
 }
