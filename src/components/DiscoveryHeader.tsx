@@ -9,6 +9,7 @@ import { trackViewRestaurant } from '../lib/analytics';
 import type { VendorItem } from './VendorCardPremium';
 import { HeroPromoBannerCarousel } from './HeroPromoBannerCarousel';
 import { CanteenSwipeSlider, type CanteenData } from './CanteenSwipeSlider';
+import { CampusPedestrianPathTracker } from './CampusPedestrianPathTracker';
 import { haversineDistance, formatWalkingTime, shopCoordinates } from '../lib/mapLocations';
 
 export interface NearbyFoodMeta {
@@ -367,58 +368,21 @@ export function DiscoveryHeader({
         </div>
       )}
 
-      {/* Dedicated Full-Bleed Campus Pedestrian Navigator Sheet / Drawer */}
+      {/* Dedicated Architectural Grayscale Campus Pedestrian Path Tracker with Dijkstra Engine */}
       {isRouteSheetOpen && (
-        <div className="canteen-map-backdrop" onClick={() => setIsRouteSheetOpen(false)}>
-          <div 
-            className="canteen-map-sheet" 
-            onClick={(e) => e.stopPropagation()} 
-            role="dialog" 
-            aria-modal="true" 
-            aria-label="Campus pedestrian navigation map"
-          >
-            <div className="sheet-handle" />
-            <header className="canteen-map-header">
-              <div>
-                <p>CAMPUS PEDESTRIAN NAVIGATOR</p>
-                <h1>MITS Walking Routes & Canteens</h1>
-              </div>
-              <button 
-                type="button" 
-                className="canteen-map-close" 
-                aria-label="Close route map" 
-                onClick={() => setIsRouteSheetOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </header>
-
-            <div className="nearby-interactive-map" style={{ height: '52vh', minHeight: '340px' }}>
-              <CanteenMap
-                shops={mapShops}
-                selectedId={selectedRouteShopId || activeShopId}
-                onSelect={(id) => {
-                  const shop = displayedShops.find(s => s.id === id);
-                  if (shop) onShop(shop.name, shop.id);
-                }}
-              />
-            </div>
-
-            <div className="discovery-map-sheet-footer">
-              <div>
-                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">A* Pedestrian Engine</p>
-                <p className="text-xs font-black text-gray-800">Tap any canteen to route walking trail</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsRouteSheetOpen(false)}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-black text-xs px-4 py-2 rounded-xl transition-colors cursor-pointer"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
+        <CampusPedestrianPathTracker
+          isOpen={isRouteSheetOpen}
+          onClose={() => setIsRouteSheetOpen(false)}
+          onViewMenu={(shopId, shopName) => {
+            const foundShop = displayedShops.find(s => s.name.toLowerCase().includes(shopName.toLowerCase()) || s.id === shopId);
+            const targetName = foundShop?.name || shopName;
+            const targetId = foundShop?.id || shopId;
+            trackViewRestaurant({ id: targetId, name: targetName });
+            onShop(targetName, targetId);
+            setIsRouteSheetOpen(false);
+          }}
+          initialShopId={selectedRouteShopId || 'MITS_CANTEEN'}
+        />
       )}
     </header>
   );
