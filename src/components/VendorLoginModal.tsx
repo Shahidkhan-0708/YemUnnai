@@ -138,6 +138,12 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
       if (current !== generation.current) return;
       if (result.ok) {
         resetFailedAttempts();
+        try {
+          sessionStorage.removeItem('terminal_velocity_attempts');
+          sessionStorage.removeItem('terminal_lockout_until');
+        } catch {
+          // ignore storage availability issues
+        }
         onSignedIn?.();
         onClose();
         window.dispatchEvent(new Event('yem-login-success'));
@@ -238,46 +244,45 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         role="dialog" 
         aria-modal="true" 
         aria-labelledby="vendor-login-title"
-        className="vendor-login fixed inset-0 z-50 bg-black/80 backdrop-blur-md text-white font-sans selection:bg-orange-500 flex flex-col justify-end p-0"
+        className="vendor-login fixed inset-0 z-50 bg-black/80 backdrop-blur-md text-white font-sans selection:bg-orange-500 flex items-center justify-center p-4 animate-in fade-in duration-200"
       >
-        {/* Top Dismiss Touch Area */}
+        {/* Backdrop Dismiss Click */}
         <div 
-          className="flex-1 w-full cursor-pointer" 
+          className="absolute inset-0 cursor-pointer" 
           onClick={() => { if (!inFlight.current) onClose(); }}
           aria-hidden="true"
         />
 
-        {/* NATIVE MOBILE BOTTOM-ANCHORED CONTROL SHEET CONTAINER */}
-        <div className="w-full max-w-md mx-auto bg-slate-900 border-t border-slate-800 rounded-t-[2.5rem] rounded-b-none p-6 pt-3 pb-8 text-center text-white shadow-2xl relative overflow-hidden transition-all duration-300 animate-in slide-in-from-bottom duration-250">
-          
-          {/* Native Grab Handle Pill */}
-          <div className="w-12 h-1.5 bg-slate-700/60 rounded-full mx-auto my-3" aria-hidden="true" />
-
-          {/* Close button */}
+        {/* CENTERED FLOATING TERMINAL MODAL CONTAINER (Matching Image 2) */}
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="w-full max-w-sm sm:max-w-md bg-[#0C152B] border border-slate-800/80 rounded-3xl p-6 sm:p-7 text-center text-white shadow-2xl relative z-10 overflow-hidden transition-all duration-300 animate-in zoom-in-95 duration-200"
+        >
+          {/* Close button (WCAG 44x44px touch target) */}
           <button 
             type="button" 
             onClick={onClose} 
             aria-label={t('Close login','ప్రవేశ విండో మూసివేయండి')} 
             disabled={busy}
-            className="absolute top-4 right-5 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-50 cursor-pointer border border-slate-700"
+            className="absolute top-4 right-4 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-50 cursor-pointer border border-slate-700/80"
           >
-            <X size={15} />
+            <X size={16} />
           </button>
 
           {/* 1. PORTAL SECURITY FLOATING BADGE */}
-          <div className="mb-4">
-            <div className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-400 bg-emerald-950/50 border border-emerald-500/20 px-3 py-1 rounded-full uppercase tracking-widest shadow-2xs select-none">
-              <ShieldCheck size={12} className="text-emerald-400" />
-              <span>{t("Encrypted Partner Portal", "రక్షిత వ్యాపార గేట్‌వే")}</span>
+          <div className="mb-3">
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-2xs select-none">
+              <ShieldCheck size={13} className="text-emerald-400" />
+              <span>{t("ENCRYPTED PARTNER PORTAL", "రక్షిత వ్యాపార గేట్‌వే")}</span>
             </div>
           </div>
 
           {/* 2. UNIFIED BRAND IDENTITY LAYER */}
           <div className="flex flex-col items-center mb-5">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center font-black text-white text-lg shadow-lg border border-orange-400/20 select-none">
+            <div className="w-14 h-14 bg-[#F26400] rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-orange-950/30 border border-orange-400/20 select-none">
               YM
             </div>
-            <h2 id="vendor-login-title" className="text-xl font-black tracking-tight text-white mt-3 leading-none">
+            <h2 id="vendor-login-title" className="text-2xl font-black tracking-tight text-white mt-3 leading-none">
               {!matchedOutlet ? 'Merchant Terminal' : matchedOutlet.name}
             </h2>
             <p className="text-xs text-slate-400 font-semibold mt-1.5 tracking-wide max-w-[280px] leading-normal mx-auto">
@@ -298,14 +303,14 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
             </div>
           )}
 
-          {/* STEP 1: BLIND STORE CODE ENTRY (BORDERLESS MATTE INPUT WITH BALANCED TYPOGRAPHY) */}
+          {/* STEP 1: BLIND STORE CODE ENTRY (CRISP WHITE INPUT CONTAINER - EXACT MATCH IMAGE 2) */}
           {!matchedOutlet ? (
             <form onSubmit={handleManualCodeSubmit} className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="text-left">
                 <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
-                  Terminal Store Code
+                  TERMINAL STORE CODE
                 </label>
-                {/* Borderless matte input with subtle shadow and soft typography placeholder */}
+                {/* Crisp white high-contrast input box */}
                 <input 
                   id="store-code-input"
                   type="text"
@@ -317,8 +322,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   disabled={disabled}
                   value={storeCode}
                   onChange={(e) => handleStoreCodeChange(e.target.value)}
-                  placeholder="Enter shortcode (e.g., MITS)"
-                  className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-5 py-3.5 text-center text-lg font-bold tracking-widest text-orange-400 placeholder:text-slate-500 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:text-xs sm:placeholder:text-sm focus:outline-hidden focus:border-orange-500 focus:bg-slate-950 transition-all uppercase shadow-inner disabled:opacity-40"
+                  placeholder="E.G. MITS, PARA, CAFE"
+                  className="w-full bg-white border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-3.5 text-center text-lg font-black tracking-wider text-slate-900 placeholder:text-slate-500 placeholder:font-black placeholder:text-sm sm:placeholder:text-base focus:outline-hidden transition-all uppercase shadow-md disabled:opacity-40"
                 />
 
                 {/* Tactile Quick-Select Chips for Kitchen Delivery Tablets */}
@@ -332,7 +337,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                         type="button"
                         disabled={disabled}
                         onClick={() => handleStoreCodeChange(code)}
-                        className="px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 hover:bg-slate-800 text-xs font-bold text-slate-300 hover:text-orange-400 transition-all active:scale-95 cursor-pointer disabled:opacity-40"
+                        className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 hover:bg-slate-800 text-xs font-bold text-slate-300 hover:text-orange-400 transition-all active:scale-95 cursor-pointer disabled:opacity-40"
                       >
                         {code}
                       </button>
@@ -355,10 +360,10 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
                   isCodeValid && !disabled
                     ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.99] shadow-orange-500/25 cursor-pointer' 
-                    : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed opacity-40'
+                    : 'bg-[#131E3A] text-slate-500 border border-slate-800/80 cursor-not-allowed opacity-60'
                 }`}
               >
-                <span>Unlock Terminal</span>
+                <span>UNLOCK TERMINAL</span>
                 <ArrowRight size={14} />
               </button>
             </form>
@@ -380,10 +385,11 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                       inputMode="numeric"
                       maxLength={1}
                       disabled={disabled}
+                      aria-label={t(`PIN digit ${index + 1} of 4`, `PIN అంకె ${index + 1} / 4`)}
                       value={digit}
                       onChange={(e) => handlePinCellChange(index, e.target.value)}
                       onKeyDown={(e) => handlePinKeyDown(index, e)}
-                      className="w-12 h-13 bg-slate-950 border border-slate-800 rounded-xl text-center text-xl font-black text-orange-400 focus:outline-hidden focus:border-orange-500 transition-all shadow-inner disabled:opacity-40"
+                      className="w-12 h-13 min-w-[44px] min-h-[44px] bg-slate-950 border border-slate-800 rounded-xl text-center text-xl font-black text-orange-400 focus:outline-hidden focus:border-orange-500 transition-all shadow-inner disabled:opacity-40"
                     />
                   ))}
                 </div>

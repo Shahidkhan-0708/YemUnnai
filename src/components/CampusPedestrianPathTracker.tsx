@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X, ChevronRight, LocateFixed, Footprints, Navigation2, Store, Layers } from 'lucide-react';
+import { X, ChevronRight, LocateFixed, Footprints, Store } from 'lucide-react';
 import { Premium3DArchitecturalMap } from './Premium3DArchitecturalMap';
 import { useCampusLocation } from '../hooks/useCampusLocation';
 import { findCampusRoute, type CampusRouteResult } from '../lib/campusGraph';
-import { MITS_CAMPUS, haversineDistance } from '../lib/mapLocations';
+import { formatDistance } from '../lib/mapLocations';
 import { useLanguage } from '../lib/language';
 import {
   type ShopNode,
@@ -324,6 +324,19 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
     }
   };
 
+  // ESC key dismiss support for modal accessibility (WCAG Escape routes)
+  useEffect(() => {
+    if (!isOpen || !onClose) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -334,11 +347,12 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
         className="w-full max-w-lg bg-zinc-950 text-white rounded-t-3xl shadow-2xl flex flex-col border-t border-zinc-800 overflow-hidden max-h-[92vh] h-[85vh] relative"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
+        aria-modal="true"
         aria-label="Campus Pedestrian Path Tracker"
       >
         {/* TOP FLOATING HEADER HUD WITH TELEMETRY */}
         <header className="p-4 pb-3 border-b border-zinc-800/80 flex items-center justify-between flex-shrink-0 bg-zinc-950/95 backdrop-blur-md z-30">
-          <div className="min-w-0 pr-3">
+          <div className="min-w-0 pr-3" role="status" aria-live="polite">
             <div className="flex items-center gap-2 mb-1">
               <span className="flex items-center gap-1.5 text-[10px] font-black text-orange-500 uppercase tracking-widest">
                 <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
@@ -353,7 +367,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
             </div>
             <div className="flex items-baseline gap-2">
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                {activeRouteResult.distanceMeters}m
+                {formatDistance(activeRouteResult.distanceMeters)}
               </h2>
               <span className="text-xs font-semibold text-zinc-400">
                 · {walkingMinutes} {t('min walk', 'నిమిషాల నడక')} {activeRouteResult.hasIndoorApproach ? t('· Indoor', '· లోపల') : ''}
@@ -363,10 +377,11 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* 3D Isometric / Live Dark View Switcher */}
-            <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-0.5 rounded-xl">
+            <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-0.5 rounded-xl" role="group" aria-label="Map view mode">
               <button
                 type="button"
                 onClick={() => setViewMode('3d')}
+                aria-pressed={viewMode === '3d'}
                 className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
                   viewMode === '3d'
                     ? 'bg-orange-500 text-white shadow-xs'
@@ -378,6 +393,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
               <button
                 type="button"
                 onClick={() => setViewMode('geospatial')}
+                aria-pressed={viewMode === 'geospatial'}
                 className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
                   viewMode === 'geospatial'
                     ? 'bg-orange-500 text-white shadow-xs'
@@ -402,12 +418,18 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
         </header>
 
         {/* HORIZONTAL SHOP SELECTION RIBBON */}
-        <div className="px-4 py-2 bg-zinc-900/90 border-b border-zinc-800/60 flex gap-2 overflow-x-auto scrollbar-none snap-x flex-shrink-0 z-30">
+        <div 
+          role="tablist" 
+          aria-label={t('Select campus dining location', 'క్యాంపస్ భోజన స్థలాన్ని ఎంచుకోండి')}
+          className="px-4 py-2 bg-zinc-900/90 border-b border-zinc-800/60 flex gap-2 overflow-x-auto scrollbar-none snap-x flex-shrink-0 z-30"
+        >
           {CAMPUS_SHOPS.map((shop) => {
             const isSelected = shop.id === activeShop.id;
             return (
               <button
                 key={shop.id}
+                role="tab"
+                aria-selected={isSelected}
                 type="button"
                 onClick={() => setActiveShopId(shop.id)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer snap-start flex items-center gap-1.5 active:scale-95 ${
@@ -426,7 +448,11 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
         {/* PROXIMITY ARRIVAL ALERT BANNER (Triggers within 15 meters) */}
         {isNearCanteen && (
-          <div className="absolute top-28 left-4 right-4 z-40 bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 px-4 py-2.5 rounded-2xl text-xs font-black text-center backdrop-blur-md shadow-xl flex items-center justify-center gap-2 animate-bounce">
+          <div 
+            role="alert" 
+            aria-live="assertive" 
+            className="absolute top-28 left-4 right-4 z-40 bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 px-4 py-2.5 rounded-2xl text-xs font-black text-center backdrop-blur-md shadow-xl flex items-center justify-center gap-2 animate-bounce"
+          >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span>{t('You have reached the canteen door! Show your token to collect.', 'మీరు క్యాంటీన్ వద్దకు చేరుకున్నారు! టోకెన్ చూపించండి.')}</span>
           </div>
@@ -434,12 +460,13 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
         {/* VIEW MODE BRANCH: 3D ISOMETRIC ARCHITECTURAL CANVAS vs LEAFLET LIVE DARK */}
         {viewMode === '3d' ? (
-          <div className="w-full flex-grow relative overflow-hidden flex flex-col min-h-[500px]">
+          <div className="w-full flex-grow relative overflow-hidden flex flex-col min-h-0 flex-1">
             <Premium3DArchitecturalMap
               canteenId={activeShop.id}
               canteenName={activeShop.name}
               onViewMenu={onViewMenu}
               onClose={onClose}
+              isEmbedded={true}
             />
           </div>
         ) : (

@@ -59,7 +59,18 @@ export function BuyerProfileScreen({ onNavigate }: { onNavigate: (tab: BuyerTab)
       <div><h2>{loading ? t('Loading profile…', 'ప్రొఫైల్ లోడ్ అవుతోంది…') : verified ? t('Your account', 'మీ ఖాతా') : t('Guest profile', 'అతిథి ప్రొఫైల్')}</h2><p>{verified ? user.email : t('Discover food at your own pace.', 'మీకు నచ్చిన ఆహారాన్ని కనుగొనండి.')}</p></div>
     </div>
     <div className="buyer-profile-links">
-      {[{ tab: 'saved' as const, Icon: Bookmark, title: t('Saved food', 'భద్రపరచిన ఆహారం'), description: t('Your bookmarked dishes', 'మీరు భద్రపరచిన వంటకాలు') }].map(({ tab, Icon, title, description }) => <button key={tab} type="button" onClick={() => onNavigate(tab)}><span className="buyer-profile-link-icon"><Icon size={20} aria-hidden="true" /></span><span><strong>{title}</strong><small>{description}</small></span><ChevronRight size={18} aria-hidden="true" /></button>)}
+      {[{ tab: 'saved' as const, Icon: Bookmark, title: t('Saved food', 'భద్రపరచిన ఆహారం'), description: t('Your bookmarked dishes', 'మీరు భద్రపరచిన వంటకాలు') }].map(({ tab, Icon, title, description }) => (
+        <button 
+          key={tab} 
+          type="button" 
+          onClick={() => onNavigate(tab)}
+          className="focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500 hover:bg-[#FFF4EC] transition-colors"
+        >
+          <span className="buyer-profile-link-icon"><Icon size={20} aria-hidden="true" /></span>
+          <span><strong>{title}</strong><small>{description}</small></span>
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      ))}
     </div>
     <details className="buyer-profile-account">
       <summary>{t('Account & recovery', 'ఖాతా మరియు పునరుద్ధరణ')}<ChevronRight size={18} aria-hidden="true" /></summary>

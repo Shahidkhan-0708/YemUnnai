@@ -69,6 +69,32 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
     prevOrderCountRef.current = orders.length;
   }, [orders.length, ordersLoading]);
 
+  // Instant real-time acoustic chime & push dispatch upon live Supabase INSERT
+  useEffect(() => {
+    const handleIncomingOrder = (e: Event) => {
+      const customEvent = e as CustomEvent<{ order?: any }>;
+      playKitchenOrderAlert();
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate([250, 100, 250, 100, 400]); } catch {}
+      }
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        const orderData = customEvent.detail?.order;
+        const tokenStr = orderData?.token_number ? `#${orderData.token_number}` : '';
+        try {
+          new Notification(t('🔔 New Order Received!', '🔔 కొత్త ఆర్డర్ వచ్చింది!'), {
+            body: `${tokenStr} ${t('New student pre-order awaiting preparation.', 'విద్యార్థి ఆర్డర్ సిద్ధం చేయడానికి సిద్ధంగా ఉంది.')}`,
+            icon: '/images/optimized/NewLogo-e14eee5ea6-128.webp',
+            tag: `kitchen-order-${orderData?.id || Date.now()}`,
+          });
+        } catch {
+          // ignore notification failure
+        }
+      }
+    };
+    window.addEventListener('kitchen-order-incoming', handleIncomingOrder);
+    return () => window.removeEventListener('kitchen-order-incoming', handleIncomingOrder);
+  }, [t]);
+
   // Map orders with optimistic local overrides for instant, reliable interactive transitions
   const activeOrders = orders
     .map(ord => ({
@@ -374,7 +400,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                   const perm = await requestPushPermission();
                   setPushStatus(perm);
                 }}
-                className="bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-black px-4 py-2 rounded-xl transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
+                className="bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-black px-4 py-2 min-w-[76px] flex items-center justify-center whitespace-nowrap rounded-xl transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
               >
                 {t('Enable', 'ప్రారంభించండి')}
               </button>

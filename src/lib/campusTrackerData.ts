@@ -196,3 +196,75 @@ export function computeDijkstraPath(startId: string, targetId: string): Dijkstra
 
   return { pathNodeIds, totalDistanceMeters, svgPath, routeNodes };
 }
+
+export interface Campus3DNodeConfig {
+  id: string;
+  name: string;
+  location: string;
+  pin: { x: number; y: number };
+  pinLabel: string;
+  pathData: string;
+  segments: Array<{ x1: number; y1: number; x2: number; y2: number; angle: number }>;
+}
+
+export const CAMPUS_3D_CONFIGS: Record<string, Campus3DNodeConfig> = {
+  MITS_CANTEEN: {
+    id: 'MITS_CANTEEN',
+    name: 'MITS Canteen',
+    location: 'Campus Food Court, Ground Floor',
+    pin: { x: 770, y: 350 },
+    pinLabel: 'Canteen',
+    pathData: 'M 190 640 L 390 490 Q 420 470 450 490 L 570 610 Q 600 635 630 600 L 770 350',
+    segments: [
+      { x1: 190, y1: 640, x2: 390, y2: 490, angle: -37 },
+      { x1: 390, y1: 490, x2: 570, y2: 610, angle: 34 },
+      { x1: 570, y1: 610, x2: 770, y2: 350, angle: -52 },
+    ],
+  },
+  MITS_CAFE: {
+    id: 'MITS_CAFE',
+    name: 'MITS Cafe',
+    location: 'Academic Block A, Ground Floor',
+    pin: { x: 260, y: 440 },
+    pinLabel: 'MITS Cafe',
+    pathData: 'M 190 640 L 230 550 Q 240 510 250 480 L 260 440',
+    segments: [
+      { x1: 190, y1: 640, x2: 230, y2: 550, angle: -65 },
+      { x1: 230, y1: 550, x2: 260, y2: 440, angle: -73 },
+    ],
+  },
+  HAPPY_TEA: {
+    id: 'HAPPY_TEA',
+    name: 'Happy Tea',
+    location: 'Open Air Student Courtyard',
+    pin: { x: 530, y: 530 },
+    pinLabel: 'Happy Tea',
+    pathData: 'M 190 640 L 390 490 Q 430 470 470 495 L 530 530',
+    segments: [
+      { x1: 190, y1: 640, x2: 390, y2: 490, angle: -37 },
+      { x1: 390, y1: 490, x2: 530, y2: 530, angle: 16 },
+    ],
+  },
+  PARADISE: {
+    id: 'PARADISE',
+    name: 'Paradise Eatery',
+    location: 'South Promenade, Near Library',
+    pin: { x: 730, y: 640 },
+    pinLabel: 'Paradise',
+    pathData: 'M 190 640 L 390 490 Q 440 470 490 500 L 610 620 L 730 640',
+    segments: [
+      { x1: 190, y1: 640, x2: 390, y2: 490, angle: -37 },
+      { x1: 390, y1: 490, x2: 610, y2: 620, angle: 30 },
+      { x1: 610, y1: 620, x2: 730, y2: 640, angle: 9 },
+    ],
+  },
+};
+
+export function get3DConfig(id: string): Campus3DNodeConfig {
+  const norm = (id || '').toUpperCase().trim();
+  if (norm.includes('CAFE')) return CAMPUS_3D_CONFIGS.MITS_CAFE;
+  if (norm.includes('TEA') || norm.includes('HAPPY')) return CAMPUS_3D_CONFIGS.HAPPY_TEA;
+  if (norm.includes('PARA')) return CAMPUS_3D_CONFIGS.PARADISE;
+  return CAMPUS_3D_CONFIGS.MITS_CANTEEN;
+}
+

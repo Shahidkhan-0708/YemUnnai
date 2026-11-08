@@ -392,8 +392,24 @@ export function subscribeVendorOrders(vendorId: string, onData: (orders: Dashboa
   window.addEventListener('online', load);
   document.addEventListener('visibilitychange', load);
   const channel = supabase.channel('vendor-pickup-' + vendorId)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: 'vendor_id=eq.' + vendorId }, () => void load())
-    .subscribe(() => void load());
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'orders', filter: 'vendor_id=eq.' + vendorId },
+      (payload) => {
+        // Zero-latency acoustic kitchen chime & notification trigger
+        if (payload.eventType === 'INSERT' || (payload.eventType === 'UPDATE' && (payload.new as any)?.status === 'pending')) {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('kitchen-order-incoming', { detail: { order: payload.new } }));
+          }
+        }
+        void load();
+      }
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+        void load();
+      }
+    });
   return () => {
     cancelled = true;
     clearInterval(poll);

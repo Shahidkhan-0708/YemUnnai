@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { MITS_CAMPUS, haversineDistance, formatWalkingTime } from '../lib/mapLocations';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { MITS_CAMPUS, haversineDistance, formatDistance, formatWalkingTime } from '../lib/mapLocations';
+import { CAMPUS_SHOPS } from '../lib/campusTrackerData';
 
 export interface TelemetryUpdate {
   latitude: number;
@@ -55,17 +56,31 @@ export function useCampusTelemetry(
     setRecenterTrigger((prev) => prev + 1);
   }, []);
 
+  // Dynamically resolve target destination coordinates if not custom
+  const resolvedTarget: [number, number] = useMemo(() => {
+    if (targetDestinationCoords && (targetDestinationCoords[0] !== 13.6288 || targetDestinationCoords[1] !== 78.5022)) {
+      return targetDestinationCoords;
+    }
+    const matched = CAMPUS_SHOPS.find(s => s.id === canteenId || s.code === canteenId);
+    return matched ? matched.coords : [13.62955, 78.47895];
+  }, [canteenId, targetDestinationCoords]);
+
   // Update dynamic distance and ETA calculations based on coordinates
   const updateMetrics = useCallback((lat: number, lng: number) => {
-    const distMeters = Math.max(8, haversineDistance([lat, lng], targetDestinationCoords));
-    setDistanceRemainingMeters(distMeters);
-    setDistanceRemainingText(`${distMeters}m`);
-    setEstimatedWalkTimeText(formatWalkingTime(distMeters));
-  }, [targetDestinationCoords]);
+    const rawDist = haversineDistance([lat, lng], resolvedTarget);
+    const cleanDist = Math.max(5, Math.round(rawDist));
+    setDistanceRemainingMeters(cleanDist);
+    setDistanceRemainingText(formatDistance(cleanDist));
+    setEstimatedWalkTimeText(formatWalkingTime(cleanDist));
+  }, [resolvedTarget]);
 
   // Primary Telemetry Stream: WebSocket + Geolocation Guard
   useEffect(() => {
     isMountedRef.current = true;
+
+    // Immediately synchronize metrics to current or default location
+    const [initLat, initLng] = courierLocation || MITS_CAMPUS;
+    updateMetrics(initLat, initLng);
 
     // 1. Attempt WebSocket connection if endpoint is configured
     const wsUrl = import.meta.env.VITE_TELEMETRY_WS_URL;
