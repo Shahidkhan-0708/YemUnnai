@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X, ChevronRight, LocateFixed, Footprints, Navigation2, Store } from 'lucide-react';
+import { X, ChevronRight, LocateFixed, Footprints, Navigation2, Store, Layers } from 'lucide-react';
+import { Premium3DArchitecturalMap } from './Premium3DArchitecturalMap';
 import { useCampusLocation } from '../hooks/useCampusLocation';
 import { findCampusRoute, type CampusRouteResult } from '../lib/campusGraph';
 import { MITS_CAMPUS, haversineDistance } from '../lib/mapLocations';
@@ -41,6 +42,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 }) => {
   const { t } = useLanguage();
   const [activeShopId, setActiveShopId] = useState<string>(initialShopId);
+  const [viewMode, setViewMode] = useState<'3d' | 'geospatial'>('3d');
   const { location: userLocation, accuracyMeters, heading, isWatching, triggerRecenter } = useCampusLocation();
 
   const mapNode = useRef<HTMLDivElement>(null);
@@ -359,16 +361,44 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
             </div>
           </div>
 
-          {onClose && (
-            <button 
-              type="button"
-              onClick={onClose}
-              aria-label="Close campus path tracker"
-              className="w-9 h-9 rounded-full bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer border border-zinc-800 flex-shrink-0"
-            >
-              <X size={16} />
-            </button>
-          )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* 3D Isometric / Live Dark View Switcher */}
+            <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-0.5 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setViewMode('3d')}
+                className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                  viewMode === '3d'
+                    ? 'bg-orange-500 text-white shadow-xs'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                3D Isometric
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('geospatial')}
+                className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                  viewMode === 'geospatial'
+                    ? 'bg-orange-500 text-white shadow-xs'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                Live Dark
+              </button>
+            </div>
+
+            {onClose && (
+              <button 
+                type="button"
+                onClick={onClose}
+                aria-label="Close campus path tracker"
+                className="w-9 h-9 rounded-full bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer border border-zinc-800 flex-shrink-0"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
         </header>
 
         {/* HORIZONTAL SHOP SELECTION RIBBON */}
@@ -402,62 +432,76 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
           </div>
         )}
 
-        {/* -------------------------------------------------------------------
-         * LEAFLET GEOSPATIAL MAP CANVAS ENGINE
-         * Native Hardware GPU Touch Pinch & Walkway Tracing
-         * ------------------------------------------------------------------- */}
-        <div className="relative w-full flex-grow min-h-[300px] overflow-hidden select-none bg-zinc-950">
-          <div ref={mapNode} className="w-full h-full z-10" />
-
-          {/* FLOATING RECENTER FAB ACTION BUTTON */}
-          <button
-            type="button"
-            onClick={handleRecenter}
-            aria-label="Recenter map on your position"
-            title="Recenter GPS"
-            className="absolute bottom-4 right-4 z-20 w-11 h-11 rounded-full bg-zinc-900/95 hover:bg-zinc-800 text-orange-500 border border-zinc-700/80 shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all"
-          >
-            <LocateFixed size={18} />
-          </button>
-        </div>
-
-        {/* -------------------------------------------------------------------
-         * SYMMETRICAL COMPACT BOTTOM-SHEET CONTROL DRAWER
-         * ------------------------------------------------------------------- */}
-        <footer className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-30">
-          
-          {/* Left: Dense Vertical Layout Grid */}
-          <div className="min-w-0 pr-3">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-black text-white truncate">
-                {activeShop.name}
-              </h3>
-              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex-shrink-0">
-                {activeShop.status}
-              </span>
-            </div>
-            
-            <p className="text-xs text-zinc-400 font-semibold mt-1 flex items-center gap-1.5 truncate">
-              <Footprints size={13} className="text-orange-500 flex-shrink-0" />
-              <span>{walkingMinutes} {t('min walk', 'నిమిషాల నడక')} · {activeRouteResult.distanceMeters}m</span>
-              <span className="text-zinc-600">·</span>
-              <span className="text-zinc-400 truncate">{activeShop.landmark}</span>
-            </p>
+        {/* VIEW MODE BRANCH: 3D ISOMETRIC ARCHITECTURAL CANVAS vs LEAFLET LIVE DARK */}
+        {viewMode === '3d' ? (
+          <div className="w-full flex-grow relative overflow-hidden flex flex-col min-h-[500px]">
+            <Premium3DArchitecturalMap
+              canteenId={activeShop.id}
+              canteenName={activeShop.name}
+              onViewMenu={onViewMenu}
+              onClose={onClose}
+            />
           </div>
+        ) : (
+          <>
+            {/* -------------------------------------------------------------------
+             * LEAFLET GEOSPATIAL MAP CANVAS ENGINE
+             * Native Hardware GPU Touch Pinch & Walkway Tracing
+             * ------------------------------------------------------------------- */}
+            <div className="relative w-full flex-grow min-h-[300px] overflow-hidden select-none bg-zinc-950">
+              <div ref={mapNode} className="w-full h-full z-10" />
 
-          {/* Right: Primary Action Button */}
-          <button
-            type="button"
-            onClick={() => {
-              onViewMenu?.(activeShop.id, activeShop.name);
-              onClose?.();
-            }}
-            className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black px-5 py-3 rounded-xl shadow-lg shadow-orange-500/25 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
-          >
-            <span>{t('View Menu', 'మెనూ చూడండి')}</span>
-            <ChevronRight size={14} />
-          </button>
-        </footer>
+              {/* FLOATING RECENTER FAB ACTION BUTTON */}
+              <button
+                type="button"
+                onClick={handleRecenter}
+                aria-label="Recenter map on your position"
+                title="Recenter GPS"
+                className="absolute bottom-4 right-4 z-20 w-11 h-11 rounded-full bg-zinc-900/95 hover:bg-zinc-800 text-orange-500 border border-zinc-700/80 shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all"
+              >
+                <LocateFixed size={18} />
+              </button>
+            </div>
+
+            {/* -------------------------------------------------------------------
+             * SYMMETRICAL COMPACT BOTTOM-SHEET CONTROL DRAWER
+             * ------------------------------------------------------------------- */}
+            <footer className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-30">
+              
+              {/* Left: Dense Vertical Layout Grid */}
+              <div className="min-w-0 pr-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-black text-white truncate">
+                    {activeShop.name}
+                  </h3>
+                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex-shrink-0">
+                    {activeShop.status}
+                  </span>
+                </div>
+                
+                <p className="text-xs text-zinc-400 font-semibold mt-1 flex items-center gap-1.5 truncate">
+                  <Footprints size={13} className="text-orange-500 flex-shrink-0" />
+                  <span>{walkingMinutes} {t('min walk', 'నిమిషాల నడక')} · {activeRouteResult.distanceMeters}m</span>
+                  <span className="text-zinc-600">·</span>
+                  <span className="text-zinc-400 truncate">{activeShop.landmark}</span>
+                </p>
+              </div>
+
+              {/* Right: Primary Action Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  onViewMenu?.(activeShop.id, activeShop.name);
+                  onClose?.();
+                }}
+                className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black px-5 py-3 rounded-xl shadow-lg shadow-orange-500/25 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
+              >
+                <span>{t('View Menu', 'మెనూ చూడండి')}</span>
+                <ChevronRight size={14} />
+              </button>
+            </footer>
+          </>
+        )}
 
       </div>
     </div>
