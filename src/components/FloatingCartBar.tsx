@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, X, Plus, Minus, Bell, Clock } from 'lucide-react';
 import { useCart } from '../context/useCart.ts';
 import { placeOrder } from '../lib/pickup.ts';
@@ -12,15 +12,14 @@ export const FloatingCartBar: React.FC = () => {
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
 
-  const [isBouncing, setIsBouncing] = useState(false);
+  const [triggerPop, setTriggerPop] = useState(false);
+  const [showFloatingBar, setShowFloatingBar] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showStatusTracker, setShowStatusTracker] = useState(false);
   const [confirmedToken, setConfirmedToken] = useState<string | number | undefined>(undefined);
   const [placedOrderId, setPlacedOrderId] = useState<string | undefined>(undefined);
   const [arrivalTime, setArrivalTime] = useState('5 mins');
-
-  const prevCountRef = useRef(totalItems);
 
   // Listen for open-cart-drawer event from BuyerTabBar
   useEffect(() => {
@@ -29,18 +28,21 @@ export const FloatingCartBar: React.FC = () => {
     return () => window.removeEventListener('open-cart-drawer', handleOpenCart);
   }, []);
 
-  // Trigger bouncy scale on badge when item count changes
+  // Trigger spring animation scale-pop contextually when item volumes change
   useEffect(() => {
-    if (totalItems !== prevCountRef.current && totalItems > 0) {
-      setIsBouncing(true);
-      const timer = setTimeout(() => setIsBouncing(false), 300);
-      prevCountRef.current = totalItems;
-      return () => clearTimeout(timer);
+    if (totalItems === 0) {
+      setShowFloatingBar(false);
+      return;
     }
-    prevCountRef.current = totalItems;
+    
+    setTriggerPop(true);
+    setShowFloatingBar(true);
+
+    const timer = setTimeout(() => setTriggerPop(false), 220);
+    return () => clearTimeout(timer);
   }, [totalItems]);
 
-  if (totalItems === 0 && !showStatusTracker && !isDrawerOpen) {
+  if (totalItems === 0 && !showFloatingBar && !showStatusTracker && !isDrawerOpen) {
     return null;
   }
 
@@ -103,46 +105,58 @@ export const FloatingCartBar: React.FC = () => {
 
   return (
     <>
-      {/* 1. Elevated Floating Sticky Action Bar (Floats gracefully above navigation tabs with strict clearance) */}
-      {totalItems > 0 && !showStatusTracker && (
-        <div className="fixed bottom-28 left-0 right-0 px-4 z-40 pointer-events-none">
-          <div 
-            className="w-full max-w-sm mx-auto bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-[0_12px_24px_-4px_rgba(4,120,87,0.35)] p-3 px-4 flex items-center justify-between pointer-events-auto transform transition-all active:scale-[0.99] cursor-pointer"
-            onClick={() => setIsDrawerOpen(true)}
-            role="button"
-            tabIndex={0}
-            aria-label={`View cart: ${totalItems} items, ₹${totalPrice}`}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsDrawerOpen(true);
-              }
-            }}
-          >
-            {/* Left Column: Count badge + Subtotal */}
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className={`text-[10px] font-black bg-white/20 px-2.5 py-1 rounded-md tracking-wider leading-none ${isBouncing ? 'animate-bounce' : ''}`}>
-                {totalItems} {totalItems === 1 ? t('ITEM', 'వంటకం') : t('ITEMS', 'వంటకాలు')}
-              </span>
-              <div className="min-w-0">
-                <p className="text-xs font-black leading-tight">₹{totalPrice}</p>
-                <p className="text-[9px] text-emerald-100 font-medium leading-none mt-0.5 truncate">
-                  {t('Campus Pickup · Pay at Counter', 'క్యాంపస్ పికప్ · కౌంటర్ వద్ద చెల్లింపు')}
-                </p>
-              </div>
-            </div>
-
-            {/* Right Column: View Cart CTA */}
-            <button 
-              type="button"
-              className="flex items-center gap-1 font-black text-xs uppercase bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 cursor-pointer tracking-wide"
+      {/* 1. Elevated Floating Sticky Action Bar (Micro-Interactive Scale-Pop & Safe Clearance) */}
+      <div 
+        className={`fixed bottom-24 left-0 right-0 px-4 z-40 pointer-events-none max-w-md mx-auto transition-all duration-300 transform ${
+          showFloatingBar && !showStatusTracker
+            ? 'translate-y-0 opacity-100 scale-100'
+            : 'translate-y-8 opacity-0 scale-95 pointer-events-none'
+        }`}
+      >
+        <div 
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-[0_12px_32px_-4px_rgba(4,120,87,0.38)] p-3 px-4 flex items-center justify-between pointer-events-auto border border-emerald-500/30 transform transition-all active:scale-[0.99] cursor-pointer"
+          onClick={() => {
+            playTapSound();
+            setIsDrawerOpen(true);
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label={`View cart: ${totalItems} items, ₹${totalPrice}`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsDrawerOpen(true);
+            }
+          }}
+        >
+          {/* Left Column: Count badge with Spring-Animated Pop + Subtotal */}
+          <div className="flex items-center gap-3 min-w-0">
+            {/* MICRO-SPRING POPPING NUMERIC OVERLAY STATE PIN */}
+            <span 
+              className={`text-[10px] font-black bg-white/20 border border-white/10 px-2.5 py-1 rounded-md tracking-wider leading-none transition-all duration-200 select-none ${
+                triggerPop ? 'scale-115 bg-white/30 text-amber-300 border-white/40 shadow-xs' : 'scale-100'
+              }`}
             >
-              <span>{t('View Cart', 'కార్ట్ చూడండి')}</span>
-              <ArrowRight size={13} />
-            </button>
+              {totalItems} {totalItems === 1 ? t('ITEM', 'వంటకం') : t('ITEMS', 'వంటకాలు')}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-black tracking-tight leading-none">₹{totalPrice}</p>
+              <p className="text-[9px] text-emerald-100/90 font-semibold tracking-wide uppercase mt-1 leading-none truncate">
+                {t('Campus Pre-Order Active', 'క్యాంపస్ ప్రీ-ఆర్డర్ యాక్టివ్')}
+              </p>
+            </div>
           </div>
+
+          {/* Right Column: View Cart CTA */}
+          <button 
+            type="button"
+            className="flex items-center gap-1 font-black text-xs uppercase bg-white text-emerald-700 hover:bg-emerald-50 px-3.5 py-2 rounded-xl transition-all flex-shrink-0 cursor-pointer tracking-wide shadow-xs active:scale-95"
+          >
+            <span>{t('View Cart', 'కార్ట్ చూడండి')}</span>
+            <ArrowRight size={13} />
+          </button>
         </div>
-      )}
+      </div>
 
       {/* 2. Elite Bottom-Anchored Sheet Drawer (Locked flush to bottom with thumb ergonomics) */}
       {isDrawerOpen && (
