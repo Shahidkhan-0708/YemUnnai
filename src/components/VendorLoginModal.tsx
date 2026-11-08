@@ -1,8 +1,7 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import { createPortal } from 'react-dom';
-import { CatalogImage } from './CatalogImage';
 import { useEffect, useRef, useState } from 'react';
-import { X, AlertCircle, Delete, Store, ShieldCheck, ArrowRight, RotateCcw } from 'lucide-react';
+import { X, AlertCircle, Delete, ShieldCheck, ArrowRight, RotateCcw } from 'lucide-react';
 import { useVendorSession, useShops } from '../lib/hooks';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage } from '../lib/language';
@@ -75,6 +74,9 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
   const activeLockoutSeconds = Math.max(outletRetrySeconds, deviceLockSeconds);
   const disabled = busy || activeLockoutSeconds > 0;
 
+  const isCodeValid = storeCode.trim().length >= 3;
+  const isPinComplete = pin.every(d => d !== '');
+
   // Reset state on open/close
   useEffect(() => {
     generation.current++;
@@ -89,35 +91,36 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
     return () => { clearInterval(timer); generation.current++; };
   }, [isOpen]);
 
-  // Handle store code changes (Blind lookup: reveals nothing until matched)
+  // Handle store code input
   const handleStoreCodeChange = (raw: string) => {
     const clean = raw.toUpperCase().trim().replace(/[^A-Z0-9]/g, '');
     setStoreCode(clean);
     setCodeError(null);
 
+    // Instant matching check
     const match = lookupOutletByStoreCode(clean, outlets);
     if (match) {
       playTapSound();
       setMatchedOutlet(match);
       setPin(['', '', '', '']);
       setError(null);
-      // Auto-focus first PIN input box after state flush
       setTimeout(() => {
         pinInputRefs[0].current?.focus();
-      }, 80);
+      }, 100);
     }
   };
 
   const handleManualCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (disabled || !storeCode.trim()) return;
+    if (disabled || !isCodeValid) return;
     const match = lookupOutletByStoreCode(storeCode, outlets);
     if (match) {
+      playTapSound();
       setMatchedOutlet(match);
-      setTimeout(() => pinInputRefs[0].current?.focus(), 80);
+      setTimeout(() => pinInputRefs[0].current?.focus(), 100);
     } else {
       recordFailedAttempt();
-      setCodeError(t('Invalid terminal shortcode. Please check with campus manager.', 'చెల్లని టెర్మినల్ కోడ్. దయచేసి నిర్వాహకుడిని సంప్రదించండి.'));
+      setCodeError(t('Unrecognized terminal code. Contact administrator.', 'గుర్తించబడని టెర్మినల్ కోడ్. నిర్వాహకుడిని సంప్రదించండి.'));
     }
   };
 
@@ -140,7 +143,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         window.dispatchEvent(new Event('yem-login-success'));
       } else {
         recordFailedAttempt();
-        setError(t(result.error ?? 'Incorrect security PIN. Please try again.', 'తప్పు భద్రతా PIN. మళ్లీ ప్రయత్నించండి.'));
+        setError(t(result.error ?? 'Incorrect security PIN. Please retry.', 'తప్పు భద్రతా PIN. మళ్లీ ప్రయత్నించండి.'));
         setPin(['', '', '', '']);
         pinInputRefs[0].current?.focus();
         if (result.retrySeconds) {
@@ -152,7 +155,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
     } catch {
       if (current === generation.current) {
         recordFailedAttempt();
-        setError(t('Unable to connect to kitchen server. Please retry.', 'కనెక్షన్ లేదు. మళ్లీ ప్రయత్నించండి.'));
+        setError(t('Unable to reach kitchen server. Please retry.', 'కనెక్షన్ లేదు. మళ్లీ ప్రయత్నించండి.'));
         setPin(['', '', '', '']);
         pinInputRefs[0].current?.focus();
       }
@@ -163,36 +166,36 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
   };
 
   const handlePinCellChange = (index: number, val: string) => {
-    if (inFlight.current || retrySeconds > 0) return;
+    if (inFlight.current || activeLockoutSeconds > 0) return;
     const digit = val.replace(/\D/g, '').slice(-1);
     const nextPin = [...pin];
     nextPin[index] = digit;
     setPin(nextPin);
     setError(null);
 
-    // Auto-advance to next box
+    // Auto-advancing focus forward
     if (digit && index < 3) {
       pinInputRefs[index + 1].current?.focus();
     }
 
-    // Auto-submit on 4th digit
+    // Auto-submission on 4th digit
     if (digit && index === 3 && nextPin.every(d => d !== '')) {
       void attemptPinSubmit(nextPin);
     }
   };
 
   const handlePinKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Backspace auto-retreat focus backward
     if (e.key === 'Backspace' && !pin[index] && index > 0) {
       pinInputRefs[index - 1].current?.focus();
     }
   };
 
   const handleKeypadPress = (key: string) => {
-    if (inFlight.current || retrySeconds > 0) return;
+    if (inFlight.current || activeLockoutSeconds > 0) return;
     playTapSound();
 
     if (key === 'delete') {
-      // Find last filled cell
       const lastFilledIndex = [...pin].reverse().findIndex(d => d !== '');
       if (lastFilledIndex !== -1) {
         const targetIndex = 3 - lastFilledIndex;
@@ -204,7 +207,6 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
       return;
     }
 
-    // Find first empty cell
     const emptyIndex = pin.findIndex(d => d === '');
     if (emptyIndex !== -1) {
       const nextPin = [...pin];
@@ -236,214 +238,187 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         role="dialog" 
         aria-modal="true" 
         aria-labelledby="vendor-login-title"
-        className="vendor-login fixed inset-0 z-50 overflow-y-auto bg-slate-900 text-white font-sans selection:bg-orange-500"
+        className="vendor-login fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md text-white font-sans selection:bg-orange-500 flex items-center justify-center p-4 sm:p-6"
       >
-        <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-between px-5 py-6 sm:py-8">
+        {/* ELITE BORDERLESS MATTE TERMINAL CONTAINER */}
+        <div className="w-full max-w-sm bg-[#0b1329] rounded-[2.5rem] p-7 sm:p-8 text-center text-white border border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300">
           
-          {/* Top Bar */}
-          <header className="flex items-center justify-between">
-            <button 
-              type="button" 
-              onClick={onClose} 
-              aria-label={t('Close login','ప్రవేశ విండో మూసివేయండి')} 
-              disabled={busy}
-              className="flex size-10 items-center justify-center rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              <X className="size-5" />
-            </button>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span>{t("Encrypted Partner Portal","రక్షిత వ్యాపార గేట్‌వే")}</span>
+          {/* Close button */}
+          <button 
+            type="button" 
+            onClick={onClose} 
+            aria-label={t('Close login','ప్రవేశ విండో మూసివేయండి')} 
+            disabled={busy}
+            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-50 cursor-pointer border border-slate-800"
+          >
+            <X size={15} />
+          </button>
+
+          {/* 1. PORTAL SECURITY FLOATING BADGE */}
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-500/20 px-3 py-1 rounded-full uppercase tracking-widest shadow-2xs select-none">
+              <ShieldCheck size={12} className="text-emerald-400" />
+              <span>{t("Encrypted Partner Portal", "రక్షిత వ్యాపార గేట్‌వే")}</span>
             </div>
-          </header>
-
-          {/* Central Security Core */}
-          <div className="my-auto py-6">
-            
-            {/* Logo and Brand Title */}
-            <div className="text-center mb-6">
-              <CatalogImage 
-                src="/images/NewLogo.svg" 
-                size="thumbnail" 
-                priority 
-                alt="YEMUNNAI" 
-                className="mx-auto size-16 rounded-2xl bg-[#F06A05] object-contain p-2 shadow-lg shadow-orange-500/20" 
-              />
-              <h2 id="vendor-login-title" className="mt-4 text-xl sm:text-2xl font-black text-white tracking-tight">
-                {matchedOutlet ? matchedOutlet.name : 'Merchant Terminal'}
-              </h2>
-              <p className="mt-1 text-xs text-slate-400 font-normal">
-                {matchedOutlet 
-                  ? t('Enter 4-digit security PIN to unlock console', 'కన్సోల్ తెరవడానికి 4 అంకెల భద్రతా PIN నమోదు చేయండి') 
-                  : t('Enter your unique store code to unlock kitchen console', 'మీ ప్రత్యేక స్టోర్ కోడ్ నమోదు చేయండి')}
-              </p>
-            </div>
-
-            {/* STEP 1: BLIND STORE CODE ENTRY */}
-            {!matchedOutlet ? (
-              <form onSubmit={handleManualCodeSubmit} className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                {activeLockoutSeconds > 0 && (
-                  <div role="alert" className="p-3.5 bg-rose-950/70 border border-rose-500/50 rounded-2xl text-center">
-                    <p className="text-xs font-black text-rose-300">Terminal Security Lock Active</p>
-                    <p className="text-[11px] text-rose-400 font-normal mt-0.5">
-                      Too many failed attempts. Device locked for {Math.floor(activeLockoutSeconds / 60)}:{String(activeLockoutSeconds % 60).padStart(2, '0')}.
-                    </p>
-                  </div>
-                )}
-
-                <div className="bg-slate-800/80 rounded-3xl p-6 border border-slate-700/60 shadow-xl backdrop-blur-xs">
-                  <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2.5">
-                    Terminal Store Code
-                  </label>
-                  <input 
-                    id="store-code-input"
-                    type="text"
-                    autoFocus
-                    autoCapitalize="characters"
-                    autoComplete="off"
-                    spellCheck="false"
-                    maxLength={10}
-                    disabled={disabled}
-                    value={storeCode}
-                    onChange={(e) => handleStoreCodeChange(e.target.value)}
-                    placeholder="e.g. MITS, PARA, CAFE"
-                    className="w-full bg-slate-950 border-2 border-slate-700 focus:border-orange-500 rounded-2xl px-4 py-3.5 text-center text-xl font-black tracking-widest uppercase text-orange-400 placeholder:text-slate-600 focus:outline-hidden transition-all shadow-inner disabled:opacity-40"
-                  />
-
-                  {codeError ? (
-                    <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold mt-3">
-                      <AlertCircle size={14} className="shrink-0" />
-                      <span>{codeError}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[11px] text-slate-400 font-normal mt-3 text-center">
-                      Type your 3–4 letter shop shortcode to unlock terminal
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={disabled || !storeCode.trim()}
-                  className="w-full bg-orange-500 hover:bg-orange-600 active:scale-98 disabled:opacity-40 text-white text-xs font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>Unlock Terminal</span>
-                  <ArrowRight size={14} />
-                </button>
-              </form>
-            ) : (
-              /* STEP 2: VERIFIED OUTLET & 4-DIGIT PIN DECK */
-              <div className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
-                
-                {/* Verified Outlet Header */}
-                <div className="flex items-center justify-between bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-3 px-4 shadow-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                      <Store size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-white">{matchedOutlet.name}</h3>
-                      <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        Terminal Active ({matchedOutlet.code})
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleSwitchAccount}
-                    className="text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-white flex items-center gap-1 bg-slate-700/60 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <RotateCcw size={11} />
-                    <span>Switch</span>
-                  </button>
-                </div>
-
-                {/* 4-Box PIN Deck */}
-                <div className="bg-slate-800/80 rounded-3xl p-5 sm:p-6 border border-slate-700/60 shadow-xl">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center mb-3">
-                    Enter 4-Digit Security PIN
-                  </label>
-                  
-                  <div className="flex justify-center gap-2.5 sm:gap-3 mb-2">
-                    {pin.map((digit, idx) => (
-                      <input 
-                        key={idx}
-                        ref={el => { pinInputRefs[idx].current = el; }}
-                        type="password"
-                        inputMode="numeric"
-                        maxLength={1}
-                        disabled={disabled}
-                        value={digit}
-                        onChange={(e) => handlePinCellChange(idx, e.target.value)}
-                        onKeyDown={(e) => handlePinKeyDown(idx, e)}
-                        className={`w-12 h-14 sm:w-14 sm:h-16 bg-slate-950 border-2 text-center text-2xl font-black text-white rounded-2xl focus:outline-hidden transition-all ${
-                          digit ? 'border-emerald-500 text-emerald-400' : 'border-slate-700 focus:border-orange-500'
-                        } disabled:opacity-40`}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Feedback Message */}
-                  <div className="mt-3 min-h-6 text-center text-xs" aria-live="polite">
-                    {retrySeconds > 0 ? (
-                      <p role="alert" className="text-rose-400 font-semibold">
-                        Too many attempts. Try again in {Math.floor(retrySeconds / 60)}:{String(retrySeconds % 60).padStart(2, '0')}.
-                      </p>
-                    ) : error ? (
-                      <p role="alert" className="flex items-center justify-center gap-1 text-rose-400 font-semibold">
-                        <AlertCircle size={13} className="shrink-0" />
-                        <span>{error}</span>
-                      </p>
-                    ) : (
-                      <p className="text-slate-500 font-normal">
-                        Sign-in confirms automatically upon 4th digit.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Onscreen Tactile Keypad */}
-                  <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-2.5" aria-label="PIN keypad">
-                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => key === '' ? (
-                      <span key="space" />
-                    ) : (
-                      <button 
-                        key={key} 
-                        type="button" 
-                        disabled={disabled} 
-                        aria-label={key === 'delete' ? 'Delete last digit' : key}
-                        onClick={() => handleKeypadPress(key)}
-                        className="flex h-11 sm:h-12 items-center justify-center rounded-xl bg-slate-900/90 hover:bg-slate-700/80 active:scale-95 text-lg font-black text-white border border-slate-700/50 transition-all cursor-pointer disabled:opacity-40"
-                      >
-                        {key === 'delete' ? <Delete className="size-5 text-slate-400" /> : key}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Submit Action */}
-                <button 
-                  type="button" 
-                  disabled={disabled || pin.some(d => d === '')}
-                  onClick={() => attemptPinSubmit(pin)}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 disabled:opacity-40 text-white text-xs font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <ShieldCheck size={16} />
-                  <span>{busy ? 'Authenticating…' : 'Access Partner Console'}</span>
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Symmetrical Security Footer */}
-          <footer className="text-center pt-3 border-t border-slate-800/80">
-            <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest flex items-center justify-center gap-1">
-              <span>Secure Terminal Auth</span>
-              <span>·</span>
-              <span>End-to-End Encrypted</span>
+          {/* 2. UNIFIED BRAND IDENTITY LAYER */}
+          <div className="flex flex-col items-center mb-7">
+            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg border border-orange-400/20 select-none">
+              YM
+            </div>
+            <h2 id="vendor-login-title" className="text-xl font-black tracking-tight text-white mt-4 leading-none">
+              {!matchedOutlet ? 'Merchant Terminal' : matchedOutlet.name}
+            </h2>
+            <p className="text-2xs text-slate-400 font-semibold mt-2 tracking-wide max-w-[240px] leading-normal mx-auto">
+              {!matchedOutlet 
+                ? 'Enter your unique store code to unlock the kitchen console'
+                : `Terminal identified as ${matchedOutlet.code}. Input 4-digit security PIN.`
+              }
             </p>
-          </footer>
+          </div>
+
+          {/* LOCKOUT ACTIVE NOTIFICATION */}
+          {activeLockoutSeconds > 0 && (
+            <div role="alert" className="mb-5 p-3.5 bg-rose-950/70 border border-rose-500/40 rounded-2xl text-center">
+              <p className="text-xs font-black text-rose-300">Terminal Security Lock Active</p>
+              <p className="text-[11px] text-rose-400 font-normal mt-0.5">
+                Too many failed attempts. Device locked for {Math.floor(activeLockoutSeconds / 60)}:{String(activeLockoutSeconds % 60).padStart(2, '0')}.
+              </p>
+            </div>
+          )}
+
+          {/* STEP 1: BLIND STORE CODE ENTRY (BORDERLESS MATTE INPUT) */}
+          {!matchedOutlet ? (
+            <form onSubmit={handleManualCodeSubmit} className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="text-left">
+                <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">
+                  Terminal Store Code
+                </label>
+                {/* Borderless matte input with subtle shadow and vanish placeholder */}
+                <input 
+                  id="store-code-input"
+                  type="text"
+                  autoFocus
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  spellCheck="false"
+                  maxLength={6}
+                  disabled={disabled}
+                  value={storeCode}
+                  onChange={(e) => handleStoreCodeChange(e.target.value)}
+                  placeholder="e.g. MITS, PARA, CAFE"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-center text-xl font-black tracking-widest text-orange-400 placeholder:text-slate-700 focus:outline-hidden focus:border-orange-500 focus:bg-slate-900/40 transition-all uppercase shadow-inner disabled:opacity-40"
+                />
+
+                {codeError && (
+                  <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold mt-2.5">
+                    <AlertCircle size={13} className="shrink-0" />
+                    <span>{codeError}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* ACTIVE STATE VIBRATION PHYSICS BUTTON */}
+              <button 
+                type="submit"
+                disabled={disabled || !isCodeValid}
+                className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
+                  isCodeValid && !disabled
+                    ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.99] shadow-orange-500/25 cursor-pointer' 
+                    : 'bg-slate-900 text-slate-600 border border-slate-800/80 cursor-not-allowed opacity-40'
+                }`}
+              >
+                <span>Unlock Terminal</span>
+                <ArrowRight size={14} />
+              </button>
+            </form>
+          ) : (
+            /* STEP 2: 4-BOX AUTO-ADVANCING PIN DECK */
+            <div className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="text-left">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3 text-center">
+                  Secure Terminal PIN
+                </label>
+                
+                {/* Symmetrical 4-Box Entry Layout */}
+                <div className="flex justify-center gap-3">
+                  {pin.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={el => { pinInputRefs[index].current = el; }}
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={1}
+                      disabled={disabled}
+                      value={digit}
+                      onChange={(e) => handlePinCellChange(index, e.target.value)}
+                      onKeyDown={(e) => handlePinKeyDown(index, e)}
+                      className="w-12 h-14 bg-slate-900 border border-slate-800 rounded-xl text-center text-xl font-black text-orange-400 focus:outline-hidden focus:border-orange-500 transition-all shadow-inner disabled:opacity-40"
+                    />
+                  ))}
+                </div>
+
+                {/* Error feedback */}
+                {error && (
+                  <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold mt-2.5 text-center">
+                    <AlertCircle size={13} className="shrink-0" />
+                    <span>{error}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* On-screen tactile keypad for tablet touchscreens */}
+              <div className="grid grid-cols-3 gap-2" aria-label="PIN keypad">
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => key === '' ? (
+                  <span key="space" />
+                ) : (
+                  <button 
+                    key={key} 
+                    type="button" 
+                    disabled={disabled} 
+                    aria-label={key === 'delete' ? 'Delete last digit' : key}
+                    onClick={() => handleKeypadPress(key)}
+                    className="flex h-11 items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-base font-black text-white border border-slate-800/80 transition-all cursor-pointer disabled:opacity-40"
+                  >
+                    {key === 'delete' ? <Delete className="size-4 text-slate-400" /> : key}
+                  </button>
+                ))}
+              </div>
+
+              {/* Final Submission Control Target */}
+              <button 
+                type="button"
+                disabled={disabled || !isPinComplete}
+                onClick={() => attemptPinSubmit(pin)}
+                className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
+                  isPinComplete && !disabled
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.99] shadow-emerald-600/25 cursor-pointer' 
+                    : 'bg-slate-900 text-slate-600 border border-slate-800/80 cursor-not-allowed opacity-40'
+                }`}
+              >
+                <ShieldCheck size={15} />
+                <span>{busy ? 'Verifying…' : 'Verify Credentials'}</span>
+              </button>
+
+              {/* Reset Bridge back to Code Entry */}
+              <button 
+                type="button"
+                onClick={handleSwitchAccount}
+                className="text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-wider block mx-auto transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <RotateCcw size={10} />
+                <span>Switch Terminal Code</span>
+              </button>
+            </div>
+          )}
+
+          {/* 4. BALANCED MINIMALIST FOOTNOTE */}
+          <div className="mt-7 pt-4 border-t border-slate-900/80 select-none">
+            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">
+              Secure Terminal Auth · End-to-End Encrypted
+            </p>
+          </div>
 
         </div>
       </div>
