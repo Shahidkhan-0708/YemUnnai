@@ -27,6 +27,19 @@ function calculateDistanceMeters(p1: [number, number], p2: [number, number]): nu
 }
 
 /**
+ * Calculates geographic bearing angle (0-360 degrees) between two coordinates
+ * for accurate real-time directional heading alignment of the courier marker.
+ */
+function calculateGeographicBearing(p1: [number, number], p2: [number, number]): number {
+  const lat1 = (p1[0] * Math.PI) / 180;
+  const lat2 = (p2[0] * Math.PI) / 180;
+  const dLng = ((p2[1] - p1[1]) * Math.PI) / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
+/**
  * Intelligent radial dispersion for co-located or near-identical coordinates (< 18m).
  * Prevents pins from stacking on top of each other (like ACS Cafe & Chai Victoria).
  */
@@ -364,7 +377,72 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
       }).addTo(routes);
     }
 
-    // 5. Asymmetric Viewport Framing (only when auto-follow is active)
+    // 5. Live Animated Courier Route Runner (Zomato-Grade Continuous LERP Animation Loop)
+    let runnerAnimFrameId: number | null = null;
+    if (activeRoutePath && activeRoutePath.coordinates.length > 1) {
+      const path = activeRoutePath.coordinates;
+      const startCoord = path[0];
+
+      const initialBearing = path.length > 1 ? calculateGeographicBearing(path[0], path[1]) : 0;
+      const runnerIcon = L.divIcon({
+        html: `
+          <div class="swiggy-runner-marker">
+            <div class="swiggy-runner-halo"></div>
+            <div class="swiggy-runner-disc" style="transform: rotate(${Math.round(initialBearing)}deg);">
+              <span class="swiggy-runner-emoji">🛵</span>
+              <div class="swiggy-runner-pointer"></div>
+            </div>
+          </div>
+        `,
+        className: 'swiggy-runner-leaflet-marker',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+
+      const runnerMarker = L.marker(startCoord, {
+        icon: runnerIcon,
+        zIndexOffset: 1200,
+        interactive: false,
+      }).addTo(routes);
+
+      let currentSeg = 0;
+      let segProgress = 0;
+      const runnerSpeed = 0.012;
+
+      const animateRunner = () => {
+        if (currentSeg >= path.length - 1) {
+          currentSeg = 0;
+          segProgress = 0;
+        }
+
+        const p1 = path[currentSeg];
+        const p2 = path[currentSeg + 1];
+
+        if (p1 && p2) {
+          const curLat = p1[0] + (p2[0] - p1[0]) * segProgress;
+          const curLng = p1[1] + (p2[1] - p1[1]) * segProgress;
+          runnerMarker.setLatLng([curLat, curLng]);
+
+          const bearing = calculateGeographicBearing(p1, p2);
+          const disc = runnerMarker.getElement()?.querySelector<HTMLElement>('.swiggy-runner-disc');
+          if (disc) {
+            disc.style.transform = `rotate(${Math.round(bearing)}deg)`;
+          }
+
+          segProgress += runnerSpeed;
+          if (segProgress >= 1) {
+            segProgress = 0;
+            currentSeg += 1;
+          }
+        }
+
+        runnerAnimFrameId = requestAnimationFrame(animateRunner);
+      };
+
+      runnerAnimFrameId = requestAnimationFrame(animateRunner);
+    }
+
+    // 6. Asymmetric Viewport Framing (only when auto-follow is active)
     if (isAutoFollowEnabled) {
       if (activeRoutePath && activeRoutePath.coordinates.length > 1) {
         instance.fitBounds(L.latLngBounds(activeRoutePath.coordinates), MAP_FIT_PADDING);
@@ -385,6 +463,12 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
         });
       }
     }
+
+    return () => {
+      if (runnerAnimFrameId) {
+        cancelAnimationFrame(runnerAnimFrameId);
+      }
+    };
   }, [shops, activeId, selectedId, userLocation, accuracyMeters, heading, dispersedCoords, activeRoutePath, isAutoFollowEnabled, retry]);
 
   const handleRecenter = () => {

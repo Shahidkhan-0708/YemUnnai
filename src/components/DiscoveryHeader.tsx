@@ -26,7 +26,7 @@ export interface NearbyShop extends ShopEntry {
   meta?: NearbyFoodMeta;
 }
 
-export const NEARBY_FOOD_METADATA: Record<string, NearbyFoodMeta> = {
+const NEARBY_FOOD_METADATA: Record<string, NearbyFoodMeta> = {
   'MITS Canteen': {
     cuisine: 'South Indian Tiffin & Meals',
     priceRange: '₹10–₹70',

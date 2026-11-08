@@ -1312,6 +1312,74 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 }
 
 /* ==========================================================================
+   Live Animated Courier Route Runner (Zomato / Swiggy Grade)
+   ========================================================================== */
+
+.swiggy-runner-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.swiggy-runner-marker {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.swiggy-runner-halo {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(240, 106, 5, 0.28);
+  animation: swiggy-runner-pulse 1.8s infinite ease-out;
+}
+
+.swiggy-runner-disc {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ff5200;
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 12px rgba(255, 82, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.08s linear;
+}
+
+.swiggy-runner-emoji {
+  font-size: 13px;
+  line-height: 1;
+  user-select: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.swiggy-runner-pointer {
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid #ffffff;
+  filter: drop-shadow(1px 0 1px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes swiggy-runner-pulse {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+/* ==========================================================================
    Swiggy / Blinkit Floating Bottom Restaurant Card
    ========================================================================== */
 

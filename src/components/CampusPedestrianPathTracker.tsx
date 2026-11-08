@@ -1,199 +1,38 @@
-import React, { useState, useMemo } from 'react';
-import { X, Navigation2, Clock, MapPin, Footprints, ChevronRight, Zap } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { X, ChevronRight, Footprints } from 'lucide-react';
 import { useCampusLocation } from '../hooks/useCampusLocation';
-
-export interface ShopNode {
-  id: string;
-  name: string;
-  code: string;
-  status: 'OPEN' | 'CLOSED';
-  category: string;
-  targetCx: number;
-  targetCy: number;
-  landmark: string;
-}
+import {
+  type GeospatialNode,
+  type RunnerState,
+  type ShopNode,
+  CAMPUS_SHOPS,
+  START_NODE,
+  WAYPOINTS,
+  GRAPH_EDGES,
+  ALL_GRAPH_NODES,
+  DEFAULT_WALKWAY_COORDINATES,
+  computeDijkstraPath,
+} from '../lib/campusTrackerData';
 
 export interface CampusPedestrianPathTrackerProps {
   isOpen?: boolean;
   onClose?: () => void;
   onViewMenu?: (shopId: string, shopName: string) => void;
   initialShopId?: string;
+  onArrival?: () => void;
 }
 
-// ---------------------------------------------------------------------------
-// 1. GRAPH NODES & STATIC CAMPUS BLUEPRINT DEFINITION
-// ---------------------------------------------------------------------------
-interface Waypoint {
-  id: string;
-  x: number;
-  y: number;
-}
-
-const START_NODE: Waypoint = { id: 'START_PIN', x: 60, y: 340 };
-
-const WAYPOINTS: Record<string, Waypoint> = {
-  START_PIN: START_NODE,
-  J_CENTRAL: { id: 'J_CENTRAL', x: 170, y: 250 },
-  J_NORTH: { id: 'J_NORTH', x: 230, y: 150 },
-  J_SOUTH: { id: 'J_SOUTH', x: 180, y: 380 },
-  J_EAST: { id: 'J_EAST', x: 270, y: 280 },
-};
-
-export const CAMPUS_SHOPS: ShopNode[] = [
-  {
-    id: 'MITS_CANTEEN',
-    name: 'MITS Canteen',
-    code: 'MITS',
-    status: 'OPEN',
-    category: 'Meals & South Indian',
-    targetCx: 330,
-    targetCy: 320,
-    landmark: 'Campus Food Court, Ground Floor'
-  },
-  {
-    id: 'MITS_CAFE',
-    name: 'MITS Cafe',
-    code: 'CAFE',
-    status: 'OPEN',
-    category: 'Snacks & Bakery',
-    targetCx: 280,
-    targetCy: 110,
-    landmark: 'Near Library Academic Block'
-  },
-  {
-    id: 'HAPPY_TEA',
-    name: 'Happy Tea',
-    code: 'TEA',
-    status: 'OPEN',
-    category: 'Chai, Coffee & Shakes',
-    targetCx: 340,
-    targetCy: 410,
-    landmark: 'South Promenade Lawn'
-  },
-  {
-    id: 'PARADISE',
-    name: 'Paradise Eatery',
-    code: 'PARA',
-    status: 'OPEN',
-    category: 'Biryani & Chinese',
-    targetCx: 110,
-    targetCy: 120,
-    landmark: 'North Student Center'
-  }
-];
-
-// Graph Adjacency Edges with Euclidian weights
-const GRAPH_EDGES: Array<{ from: string; to: string; weight: number }> = [
-  { from: 'START_PIN', to: 'J_CENTRAL', weight: 125 },
-  { from: 'START_PIN', to: 'J_SOUTH', weight: 126 },
-  { from: 'J_CENTRAL', to: 'J_NORTH', weight: 116 },
-  { from: 'J_CENTRAL', to: 'J_EAST', weight: 104 },
-  { from: 'J_CENTRAL', to: 'J_SOUTH', weight: 130 },
-  { from: 'J_NORTH', to: 'MITS_CAFE', weight: 64 },
-  { from: 'J_NORTH', to: 'PARADISE', weight: 123 },
-  { from: 'J_EAST', to: 'MITS_CANTEEN', weight: 72 },
-  { from: 'J_EAST', to: 'HAPPY_TEA', weight: 147 },
-  { from: 'J_SOUTH', to: 'HAPPY_TEA', weight: 162 },
-  { from: 'J_SOUTH', to: 'MITS_CANTEEN', weight: 161 },
-];
-
-// All nodes indexed by ID for path calculation
-const ALL_GRAPH_NODES: Record<string, { x: number; y: number }> = {
-  ...WAYPOINTS,
-  MITS_CANTEEN: { x: 330, y: 320 },
-  MITS_CAFE: { x: 280, y: 110 },
-  HAPPY_TEA: { x: 340, y: 410 },
-  PARADISE: { x: 110, y: 120 },
-};
-
-// ---------------------------------------------------------------------------
-// 2. DIJKSTRA'S SHORTEST PATH CALCULATION ENGINE
-// ---------------------------------------------------------------------------
-function computeDijkstraPath(startId: string, targetId: string): { pathNodeIds: string[]; totalDistanceMeters: number; svgPath: string } {
-  // Build adjacency list
-  const adj: Record<string, Array<{ node: string; weight: number }>> = {};
-  for (const id of Object.keys(ALL_GRAPH_NODES)) {
-    adj[id] = [];
-  }
-  for (const edge of GRAPH_EDGES) {
-    adj[edge.from]?.push({ node: edge.to, weight: edge.weight });
-    adj[edge.to]?.push({ node: edge.from, weight: edge.weight });
-  }
-
-  const distances: Record<string, number> = {};
-  const previous: Record<string, string | null> = {};
-  const unvisited = new Set<string>(Object.keys(ALL_GRAPH_NODES));
-
-  for (const id of Object.keys(ALL_GRAPH_NODES)) {
-    distances[id] = Infinity;
-    previous[id] = null;
-  }
-  distances[startId] = 0;
-
-  while (unvisited.size > 0) {
-    // Find unvisited node with minimum distance
-    let current: string | null = null;
-    let minDistance = Infinity;
-    for (const node of unvisited) {
-      if (distances[node] < minDistance) {
-        minDistance = distances[node];
-        current = node;
-      }
-    }
-
-    if (!current || minDistance === Infinity) break;
-    if (current === targetId) break;
-
-    unvisited.delete(current);
-
-    const neighbors = adj[current] || [];
-    for (const { node: neighbor, weight } of neighbors) {
-      if (!unvisited.has(neighbor)) continue;
-      const alt = distances[current] + weight;
-      if (alt < distances[neighbor]) {
-        distances[neighbor] = alt;
-        previous[neighbor] = current;
-      }
-    }
-  }
-
-  // Reconstruct path
-  const pathNodeIds: string[] = [];
-  let curr: string | null = targetId;
-  while (curr !== null) {
-    pathNodeIds.unshift(curr);
-    curr = previous[curr];
-  }
-
-  // Generate SVG path string
-  let svgPath = '';
-  if (pathNodeIds.length > 0 && pathNodeIds[0] === startId) {
-    svgPath = pathNodeIds.reduce((acc, id, idx) => {
-      const coord = ALL_GRAPH_NODES[id];
-      if (!coord) return acc;
-      return idx === 0 ? `M ${coord.x} ${coord.y}` : `${acc} L ${coord.x} ${coord.y}`;
-    }, '');
-  }
-
-  // 1 pixel roughly corresponds to 0.38 meters on the campus blueprint scale
-  const totalDistanceMeters = Math.max(25, Math.round((distances[targetId] || 150) * 0.38));
-
-  return { pathNodeIds, totalDistanceMeters, svgPath };
-}
-
-// ---------------------------------------------------------------------------
-// 3. CAMPUS PEDESTRIAN PATH TRACKER COMPONENT
-// ---------------------------------------------------------------------------
 export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerProps> = ({
   isOpen = true,
   onClose,
   onViewMenu,
-  initialShopId = 'MITS_CANTEEN'
+  initialShopId = 'MITS_CANTEEN',
+  onArrival,
 }) => {
   const [activeShopId, setActiveShopId] = useState<string>(initialShopId);
   const { accuracyMeters, isWatching } = useCampusLocation();
 
-  const activeShop = useMemo(() => {
+  const activeShop: ShopNode = useMemo(() => {
     return CAMPUS_SHOPS.find(s => s.id === activeShopId) ?? CAMPUS_SHOPS[0];
   }, [activeShopId]);
 
@@ -204,7 +43,85 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
   const walkingMinutes = Math.max(1, Math.ceil(activeRoute.totalDistanceMeters / 75));
 
+  const activeNodes: GeospatialNode[] = useMemo(() => {
+    if (activeRoute.routeNodes.length >= 2) return activeRoute.routeNodes;
+    return DEFAULT_WALKWAY_COORDINATES;
+  }, [activeRoute.routeNodes]);
+
+  // ---------------------------------------------------------------------------
+  // LIVE ANIMATED COURIER ROUTE RUNNER (LERP + TANGENT VECTOR HEADING)
+  // ---------------------------------------------------------------------------
+  const [runner, setRunner] = useState<RunnerState>({
+    x: activeNodes[0]?.x ?? START_NODE.x,
+    y: activeNodes[0]?.y ?? START_NODE.y,
+    bearing: 0,
+  });
+
+  const animationFrameId = useRef<number | null>(null);
+  const stateRef = useRef({
+    currentSegment: 0,
+    progress: 0,
+    speed: 0.012, // Linear step delta per frame
+  });
+
+  useEffect(() => {
+    // Reset tracker parameters cleanly whenever active route nodes update
+    stateRef.current = { currentSegment: 0, progress: 0, speed: 0.012 };
+
+    if (activeNodes.length < 2) return;
+
+    const computeRealtimeFrame = () => {
+      const { currentSegment, progress, speed } = stateRef.current;
+
+      if (currentSegment >= activeNodes.length - 1) {
+        onArrival?.();
+        // Emulate ongoing path loop telemetry for seamless preview mode
+        stateRef.current.currentSegment = 0;
+        stateRef.current.progress = 0;
+        animationFrameId.current = requestAnimationFrame(computeRealtimeFrame);
+        return;
+      }
+
+      const startNode = activeNodes[currentSegment];
+      const endNode = activeNodes[currentSegment + 1];
+
+      // 1. Calculate precise spatial angle for real-time asset alignment
+      const deltaX = endNode.x - startNode.x;
+      const deltaY = endNode.y - startNode.y;
+      const angleDegrees = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+      // 2. Compute smooth Linear Interpolation (LERP) coordinate physics
+      const currentX = startNode.x + deltaX * progress;
+      const currentY = startNode.y + deltaY * progress;
+
+      setRunner({ x: currentX, y: currentY, bearing: angleDegrees });
+
+      // Advance delta ticker state
+      stateRef.current.progress += speed;
+
+      if (stateRef.current.progress >= 1) {
+        stateRef.current.progress = 0;
+        stateRef.current.currentSegment += 1;
+      }
+
+      animationFrameId.current = requestAnimationFrame(computeRealtimeFrame);
+    };
+
+    animationFrameId.current = requestAnimationFrame(computeRealtimeFrame);
+
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, [activeNodes, onArrival]);
+
   if (!isOpen) return null;
+
+  const targetNode = activeNodes[activeNodes.length - 1] ?? {
+    x: activeShop.targetCx,
+    y: activeShop.targetCy,
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end justify-center p-0 font-sans animate-in fade-in duration-200">
@@ -216,13 +133,13 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
         role="dialog"
         aria-label="Campus Pedestrian Path Tracker"
       >
-        {/* Top Floating Header & Automated Data Feedback Block */}
+        {/* Top Floating Header & Realtime Telemetry Feedback Block */}
         <header className="p-4 pb-3 border-b border-zinc-800/80 flex items-center justify-between flex-shrink-0 bg-zinc-950/95 backdrop-blur-md">
           <div className="min-w-0 pr-3">
             <div className="flex items-center gap-2 mb-1">
               <span className="flex items-center gap-1.5 text-[10px] font-black text-orange-500 uppercase tracking-widest">
                 <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                Dijkstra Shortest Path
+                Live Courier Path Tracking
               </span>
               {isWatching && (
                 <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md flex items-center gap-1">
@@ -279,7 +196,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
          * HIGH-PERFORMANCE ARCHITECTURAL GRAYSCALE SVG CANVAS
          * Pure inline SVG vector engine: zero heavy 3D libraries or raw bitmaps.
          * ------------------------------------------------------------------- */}
-        <div className="relative w-full aspect-4/3 bg-zinc-950 flex-grow min-h-[280px] overflow-hidden select-none">
+        <div className="relative w-full aspect-4/3 bg-zinc-950 flex-grow min-h-[300px] overflow-hidden select-none">
           <svg
             viewBox="0 0 400 480"
             className="w-full h-full object-cover"
@@ -371,44 +288,96 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
             {/* ---------------------------------------------------------------
              * DYNAMIC DIJKSTRA ACTIVE TRAIL
-             * Re-draws instantaneously on key={activeShop.id} with glow drop shadow.
+             * Dual-stroke approach: soft ambient glow halo + high-contrast core.
              * --------------------------------------------------------------- */}
-            <path
-              key={`active-trail-${activeShop.id}`}
-              d={activeRoute.svgPath}
-              fill="none"
-              stroke="#F06A05"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              filter="url(#trail-glow)"
-              className="transition-all duration-300"
-            />
+            {activeRoute.svgPath && (
+              <g className="active-trail">
+                {/* Outer Glow Halo */}
+                <path
+                  d={activeRoute.svgPath}
+                  fill="none"
+                  stroke="#F06A05"
+                  strokeWidth="7"
+                  strokeOpacity="0.25"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                {/* Core High-Contrast Path */}
+                <path
+                  d={activeRoute.svgPath}
+                  fill="none"
+                  stroke="#F06A05"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#trail-glow)"
+                />
+              </g>
+            )}
 
-            {/* Start Pin Dot (Minimal White concentric marker) */}
+            {/* Start Pin Dot (Minimal White concentric origin marker) */}
             <g className="start-pin">
               <circle cx={START_NODE.x} cy={START_NODE.y} r="8" fill="#FFFFFF" fillOpacity="0.15" />
               <circle cx={START_NODE.x} cy={START_NODE.y} r="5" fill="#FFFFFF" stroke="#090D11" strokeWidth="1.5" />
               <text x={START_NODE.x} y={START_NODE.y + 16} textAnchor="middle" fill="#A1A1AA" fontSize="8" fontWeight="700">
-                YOU ARE HERE
+                START
               </text>
             </g>
 
-            {/* Destination Shop Target Anchor (Soft Red Ring Anchor) */}
-            <g className="destination-target" key={`target-pin-${activeShop.id}`}>
-              <circle cx={activeShop.targetCx} cy={activeShop.targetCy} r="14" fill="#F43F5E" fillOpacity="0.18" />
-              <circle cx={activeShop.targetCx} cy={activeShop.targetCy} r="8" fill="none" stroke="#F43F5E" strokeWidth="2.5" />
-              <circle cx={activeShop.targetCx} cy={activeShop.targetCy} r="3" fill="#F43F5E" />
+            {/* ---------------------------------------------------------------
+             * PREMIUM ANCHOR PIN DESTINATION MARKER
+             * Pulsing radar ring, store badge, and target anchor.
+             * --------------------------------------------------------------- */}
+            <g className="destination-target" transform={`translate(${targetNode.x}, ${targetNode.y})`}>
+              {/* Radar pulse ping */}
+              <circle cx="0" cy="0" r="14" className="stroke-orange-500 fill-orange-500/15 animate-ping opacity-25" strokeWidth="1.5" />
+              <circle cx="0" cy="0" r="4.5" className="fill-orange-500 stroke-white" strokeWidth="1.5" />
+              
+              {/* Floating merchant profile badge */}
+              <g transform="translate(-16, -34)">
+                <rect width="32" height="22" rx="6" className="fill-zinc-950 stroke-zinc-700 shadow-md" strokeWidth="1.2" />
+                <text x="16" y="15" textAnchor="middle" className="text-[11px] select-none">
+                  {activeShop.emoji || '🍱'}
+                </text>
+              </g>
+              <line x1="0" y1="-12" x2="0" y2="0" stroke="#f06a05" strokeWidth="1.5" />
+              
               <text 
-                x={activeShop.targetCx} 
-                y={activeShop.targetCy - 12} 
+                x="0" 
+                y="14" 
                 textAnchor="middle" 
-                fill="#FDA4AF" 
-                fontSize="9" 
+                fill="#FDBA74" 
+                fontSize="8.5" 
                 fontWeight="900"
+                className="select-none"
               >
                 {activeShop.name}
               </text>
+            </g>
+
+            {/* ---------------------------------------------------------------
+             * LIVE ANIMATED COURIER ROUTE RUNNER (ZOMATO STYLE)
+             * Smooth LERP motion with dynamic tangent orientation.
+             * --------------------------------------------------------------- */}
+            <g 
+              className="animated-courier-runner"
+              transform={`translate(${runner.x}, ${runner.y}) rotate(${runner.bearing})`}
+            >
+              {/* Directional ambient shadow glow */}
+              <circle cx="0" cy="0" r="12" className="fill-orange-500/20 blur-xs" />
+              
+              <g transform="translate(-11, -11)">
+                {/* High-visibility orange disc */}
+                <circle cx="11" cy="11" r="10.5" className="fill-orange-500 stroke-white" strokeWidth="1.75" />
+                
+                {/* Forward Heading Direction Pointer Triangle */}
+                <polygon points="21,11 16.5,7.5 16.5,14.5" className="fill-white" />
+                
+                {/* Courier Scooter Glyph */}
+                <text x="9" y="14.5" className="text-[10px] text-anchor-middle select-none font-bold">
+                  🛵
+                </text>
+              </g>
             </g>
           </svg>
         </div>
