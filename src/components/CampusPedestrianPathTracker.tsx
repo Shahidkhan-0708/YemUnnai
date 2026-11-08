@@ -10,6 +10,7 @@ import { useLanguage } from '../lib/language';
 import {
   type ShopNode,
   CAMPUS_SHOPS,
+  calculateDynamicCampusRoute,
 } from '../lib/campusTrackerData';
 
 export interface CampusPedestrianPathTrackerProps {
@@ -33,14 +34,6 @@ function calculateGeographicBearing(p1: [number, number], p2: [number, number]):
   return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
-// Decoupled location node profiles with calibrated on-campus metric matrices
-const CAMPUS_GRAPH_DATA: Record<string, { id: string; name: string; distanceMeters: number; walkMinutes: number }> = {
-  MITS_CANTEEN: { id: 'MITS_CANTEEN', name: 'MITS Canteen', distanceMeters: 148, walkMinutes: 2 },
-  MITS_CAFE:    { id: 'MITS_CAFE',    name: 'MITS Cafe',    distanceMeters: 85,  walkMinutes: 1 },
-  HAPPY_TEA:    { id: 'HAPPY_TEA',    name: 'Happy Tea',    distanceMeters: 230, walkMinutes: 3 },
-  PARADISE:     { id: 'PARADISE',     name: 'Paradise Eatery', distanceMeters: 190, walkMinutes: 2 },
-};
-
 export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerProps> = ({
   isOpen = true,
   onClose,
@@ -62,35 +55,43 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
     return CAMPUS_SHOPS.find(s => s.id === activeShopId) ?? CAMPUS_SHOPS[0];
   }, [activeShopId]);
 
+  // Dynamic Dijkstra route computation across campus pedestrian network
+  const dynamicCampusRoute = useMemo(() => {
+    return calculateDynamicCampusRoute(userLocation, activeShop.id);
+  }, [userLocation, activeShop.id]);
+
   // Compute live walking route using real MITS Campus Graph (A* / Dijkstra)
   const activeRouteResult: CampusRouteResult = useMemo(() => {
     return findCampusRoute(userLocation, activeShop.coords);
   }, [userLocation, activeShop.coords]);
 
-  const walkingMinutes = activeRouteResult.durationMinutes || Math.max(1, Math.ceil(activeRouteResult.distanceMeters / 75));
-  const isNearCanteen = activeRouteResult.distanceMeters <= 15;
+  const walkingMinutes = activeRouteResult.durationMinutes || Math.max(1, Math.round(activeRouteResult.distanceMeters / 80));
+  const isNearCanteen = activeRouteResult.distanceMeters <= 15 || dynamicCampusRoute.totalDistanceMeters <= 15;
 
   // Resolve calibrated on-campus metrics when in 3D Isometric View or when GPS is located off-campus (> 500m)
-  const isOffCampus = activeRouteResult.distanceMeters > 500;
+  const isOffCampus = dynamicCampusRoute.isOffCampus || activeRouteResult.distanceMeters > 500;
   const activeMetrics = useMemo(() => {
     if (viewMode === '3d' || isOffCampus) {
-      const profile = CAMPUS_GRAPH_DATA[activeShop.id] || CAMPUS_GRAPH_DATA.MITS_CANTEEN;
       return {
-        distanceMeters: profile.distanceMeters,
-        durationMinutes: profile.walkMinutes,
-        distanceStr: `${profile.distanceMeters}m`,
-        timeStr: `${profile.walkMinutes} ${t('min walk', 'నిమిషాల నడక')}`,
-        accuracyBadge: 'GPS (±2m)',
+        distanceMeters: Math.round(dynamicCampusRoute.totalDistanceMeters),
+        durationMinutes: dynamicCampusRoute.walkingMinutes,
+        distanceStr: dynamicCampusRoute.distanceRemainingText,
+        timeStr: `${dynamicCampusRoute.walkingMinutes} ${t('min walk', 'నిమిషాల నడక')}`,
+        accuracyBadge: isOffCampus && dynamicCampusRoute.clampedGateName
+          ? `GPS (±2m) · ${dynamicCampusRoute.clampedGateName}`
+          : 'GPS (±2m)',
+        statusBadge: dynamicCampusRoute.statusBadgeText,
       };
     }
     return {
-      distanceMeters: activeRouteResult.distanceMeters,
+      distanceMeters: Math.round(activeRouteResult.distanceMeters),
       durationMinutes: walkingMinutes,
-      distanceStr: formatDistance(activeRouteResult.distanceMeters),
+      distanceStr: formatDistance(Math.round(activeRouteResult.distanceMeters)),
       timeStr: `${walkingMinutes} ${t('min walk', 'నిమిషాల నడక')}`,
       accuracyBadge: `GPS (±${accuracyMeters}m)`,
+      statusBadge: 'Live Dark Walkway',
     };
-  }, [viewMode, isOffCampus, activeShop.id, activeRouteResult.distanceMeters, walkingMinutes, accuracyMeters, t]);
+  }, [viewMode, isOffCampus, dynamicCampusRoute, activeRouteResult.distanceMeters, walkingMinutes, accuracyMeters, t]);
 
   // Initialize Leaflet Map with Carto Dark Matter tiles (zero labels clutter)
   useEffect(() => {

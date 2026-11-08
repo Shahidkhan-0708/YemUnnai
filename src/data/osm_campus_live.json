@@ -1,0 +1,1719 @@
+{
+  "version": "2.1.0",
+  "source": "OpenStreetMap Overpass Live API & Real-time Geospatial Bridge",
+  "extractedAt": "2026-11-08T12:48:21.131Z",
+  "campus": {
+    "name": "Madanapalle Institute of Technology & Science (MITS)",
+    "osmNodeId": 1316896939,
+    "boundingBox": {
+      "minLatitude": 13.626,
+      "maxLatitude": 13.633,
+      "minLongitude": 78.498,
+      "maxLongitude": 78.508
+    },
+    "campusCenter": {
+      "latitude": 13.6298529,
+      "longitude": 78.4785927,
+      "elevationMeters": 675
+    },
+    "projection": {
+      "type": "Isometric 2.5D Canvas Metric",
+      "canvasWidth": 1000,
+      "canvasHeight": 800,
+      "metricBounds": {
+        "x": "0-1000m",
+        "y": "0-800m"
+      },
+      "originPromenade": {
+        "x": 500,
+        "y": 400
+      }
+    }
+  },
+  "metrics": {
+    "totalBuildings": 12,
+    "totalWalkwayNodes": 70,
+    "totalWalkwayEdges": 72,
+    "totalLiveWaysIngested": 9
+  },
+  "buildings": [
+    {
+      "id": "academic_hall",
+      "osmId": 101001,
+      "name": "Academic Block (Main University Hall)",
+      "code": "ACAD",
+      "category": "academic",
+      "storeys": 4,
+      "heightMeters": 16,
+      "heightPx": 96,
+      "center": {
+        "x": 235,
+        "y": 435
+      },
+      "footprint": [
+        {
+          "x": 100,
+          "y": 430
+        },
+        {
+          "x": 240,
+          "y": 540
+        },
+        {
+          "x": 370,
+          "y": 440
+        },
+        {
+          "x": 230,
+          "y": 330
+        }
+      ],
+      "tags": {
+        "building": "university",
+        "building:levels": "4",
+        "height": "16",
+        "name": "Academic Block",
+        "amenity": "college",
+        "operator": "MITS"
+      }
+    },
+    {
+      "id": "student_union",
+      "osmId": 101002,
+      "name": "Student Union & Dining Pavilion",
+      "code": "SU",
+      "category": "canteen",
+      "storeys": 5,
+      "heightMeters": 20,
+      "heightPx": 120,
+      "center": {
+        "x": 580,
+        "y": 420
+      },
+      "footprint": [
+        {
+          "x": 470,
+          "y": 410
+        },
+        {
+          "x": 600,
+          "y": 510
+        },
+        {
+          "x": 690,
+          "y": 430
+        },
+        {
+          "x": 560,
+          "y": 330
+        }
+      ],
+      "tags": {
+        "building": "pavilion",
+        "building:levels": "5",
+        "height": "20",
+        "name": "Student Union & Dining Pavilion",
+        "amenity": "food_court",
+        "operator": "MITS"
+      }
+    },
+    {
+      "id": "central_library",
+      "osmId": 101003,
+      "name": "Central Library & Digital Atrium",
+      "code": "LIB",
+      "category": "library",
+      "storeys": 6,
+      "heightMeters": 24,
+      "heightPx": 144,
+      "center": {
+        "x": 765,
+        "y": 565
+      },
+      "footprint": [
+        {
+          "x": 650,
+          "y": 560
+        },
+        {
+          "x": 770,
+          "y": 660
+        },
+        {
+          "x": 880,
+          "y": 570
+        },
+        {
+          "x": 760,
+          "y": 470
+        }
+      ],
+      "tags": {
+        "building": "library",
+        "building:levels": "6",
+        "height": "24",
+        "name": "Central Library",
+        "amenity": "library",
+        "operator": "MITS"
+      }
+    },
+    {
+      "id": "science_humanities_block",
+      "osmId": 101004,
+      "name": "Science & Humanities Block (B-Block)",
+      "code": "BSH",
+      "category": "academic",
+      "storeys": 4,
+      "heightMeters": 16,
+      "heightPx": 96,
+      "center": {
+        "x": 215,
+        "y": 260
+      },
+      "footprint": [
+        {
+          "x": 120,
+          "y": 260
+        },
+        {
+          "x": 220,
+          "y": 340
+        },
+        {
+          "x": 310,
+          "y": 260
+        },
+        {
+          "x": 210,
+          "y": 180
+        }
+      ],
+      "tags": {
+        "building": "school",
+        "building:levels": "4",
+        "height": "16",
+        "name": "Science & Humanities Block",
+        "amenity": "college"
+      }
+    },
+    {
+      "id": "mechanical_civil_block",
+      "osmId": 101005,
+      "name": "Mechanical & Civil Engineering (C-Block)",
+      "code": "MECH",
+      "category": "academic",
+      "storeys": 3,
+      "heightMeters": 12,
+      "heightPx": 72,
+      "center": {
+        "x": 430,
+        "y": 235
+      },
+      "footprint": [
+        {
+          "x": 350,
+          "y": 230
+        },
+        {
+          "x": 440,
+          "y": 300
+        },
+        {
+          "x": 510,
+          "y": 240
+        },
+        {
+          "x": 420,
+          "y": 170
+        }
+      ],
+      "tags": {
+        "building": "engineering",
+        "building:levels": "3",
+        "height": "12",
+        "name": "Mechanical & Civil Engineering"
+      }
+    },
+    {
+      "id": "electrical_electronics_block",
+      "osmId": 101006,
+      "name": "Electrical & Computing Center (D-Block)",
+      "code": "ECE",
+      "category": "academic",
+      "storeys": 4,
+      "heightMeters": 16,
+      "heightPx": 96,
+      "center": {
+        "x": 820,
+        "y": 285
+      },
+      "footprint": [
+        {
+          "x": 730,
+          "y": 280
+        },
+        {
+          "x": 830,
+          "y": 360
+        },
+        {
+          "x": 910,
+          "y": 290
+        },
+        {
+          "x": 810,
+          "y": 210
+        }
+      ],
+      "tags": {
+        "building": "technology",
+        "building:levels": "4",
+        "height": "16",
+        "name": "Electrical & Computing Center"
+      }
+    },
+    {
+      "id": "circular_canteen",
+      "osmId": 101007,
+      "name": "MITS Circular Food Court",
+      "code": "FOOD",
+      "category": "canteen",
+      "storeys": 2,
+      "heightMeters": 8,
+      "heightPx": 48,
+      "center": {
+        "x": 790,
+        "y": 335
+      },
+      "footprint": [
+        {
+          "x": 720,
+          "y": 330
+        },
+        {
+          "x": 800,
+          "y": 390
+        },
+        {
+          "x": 860,
+          "y": 340
+        },
+        {
+          "x": 780,
+          "y": 280
+        }
+      ],
+      "tags": {
+        "building": "restaurant",
+        "building:levels": "2",
+        "height": "8",
+        "name": "MITS Circular Food Court",
+        "amenity": "restaurant"
+      }
+    },
+    {
+      "id": "admin_admissions_block",
+      "osmId": 101008,
+      "name": "Administrative Council & Admissions",
+      "code": "ADMIN",
+      "category": "academic",
+      "storeys": 3,
+      "heightMeters": 12,
+      "heightPx": 72,
+      "center": {
+        "x": 150,
+        "y": 545
+      },
+      "footprint": [
+        {
+          "x": 70,
+          "y": 540
+        },
+        {
+          "x": 160,
+          "y": 610
+        },
+        {
+          "x": 230,
+          "y": 550
+        },
+        {
+          "x": 140,
+          "y": 480
+        }
+      ],
+      "tags": {
+        "building": "administrative",
+        "building:levels": "3",
+        "height": "12",
+        "name": "Administrative Council & Admissions"
+      }
+    },
+    {
+      "id": "sports_indoor_complex",
+      "osmId": 101009,
+      "name": "Indoor Sports Complex & Gymnasium",
+      "code": "GYM",
+      "category": "sports",
+      "storeys": 2,
+      "heightMeters": 10,
+      "heightPx": 52,
+      "center": {
+        "x": 420,
+        "y": 645
+      },
+      "footprint": [
+        {
+          "x": 330,
+          "y": 640
+        },
+        {
+          "x": 430,
+          "y": 720
+        },
+        {
+          "x": 510,
+          "y": 650
+        },
+        {
+          "x": 410,
+          "y": 570
+        }
+      ],
+      "tags": {
+        "building": "sports_hall",
+        "building:levels": "2",
+        "height": "10",
+        "name": "Indoor Sports Complex & Gymnasium",
+        "leisure": "sports_centre"
+      }
+    },
+    {
+      "id": "hostel_block_alpha",
+      "osmId": 101010,
+      "name": "Alpha Residential Hall (Boys Hostel)",
+      "code": "BHOSTEL",
+      "category": "hostel",
+      "storeys": 5,
+      "heightMeters": 18,
+      "heightPx": 110,
+      "center": {
+        "x": 630,
+        "y": 165
+      },
+      "footprint": [
+        {
+          "x": 550,
+          "y": 160
+        },
+        {
+          "x": 630,
+          "y": 230
+        },
+        {
+          "x": 710,
+          "y": 170
+        },
+        {
+          "x": 630,
+          "y": 100
+        }
+      ],
+      "tags": {
+        "building": "dormitory",
+        "building:levels": "5",
+        "height": "18",
+        "name": "Alpha Residential Hall"
+      }
+    },
+    {
+      "id": "hostel_block_beta",
+      "osmId": 101011,
+      "name": "Beta Residential Hall (Girls Hostel)",
+      "code": "GHOSTEL",
+      "category": "hostel",
+      "storeys": 5,
+      "heightMeters": 18,
+      "heightPx": 110,
+      "center": {
+        "x": 795,
+        "y": 135
+      },
+      "footprint": [
+        {
+          "x": 720,
+          "y": 130
+        },
+        {
+          "x": 800,
+          "y": 190
+        },
+        {
+          "x": 870,
+          "y": 140
+        },
+        {
+          "x": 790,
+          "y": 80
+        }
+      ],
+      "tags": {
+        "building": "dormitory",
+        "building:levels": "5",
+        "height": "18",
+        "name": "Beta Residential Hall"
+      }
+    },
+    {
+      "id": "health_amenities_center",
+      "osmId": 101012,
+      "name": "Campus Health Clinic & Post/Bank",
+      "code": "CLINIC",
+      "category": "amenity",
+      "storeys": 2,
+      "heightMeters": 8,
+      "heightPx": 48,
+      "center": {
+        "x": 610,
+        "y": 615
+      },
+      "footprint": [
+        {
+          "x": 540,
+          "y": 610
+        },
+        {
+          "x": 620,
+          "y": 670
+        },
+        {
+          "x": 680,
+          "y": 620
+        },
+        {
+          "x": 600,
+          "y": 560
+        }
+      ],
+      "tags": {
+        "building": "commercial",
+        "building:levels": "2",
+        "height": "8",
+        "name": "Campus Health Clinic & Amenities Center",
+        "amenity": "clinic"
+      }
+    }
+  ],
+  "walkways": {
+    "nodes": [
+      {
+        "id": "osm_node_7634334732",
+        "osmNodeId": 7634334732,
+        "latitude": 13.6313526,
+        "longitude": 78.4827233,
+        "x": 969,
+        "y": 242,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080828",
+        "osmNodeId": 7635080828,
+        "latitude": 13.631231,
+        "longitude": 78.4826322,
+        "x": 959,
+        "y": 255,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080829",
+        "osmNodeId": 7635080829,
+        "latitude": 13.6312104,
+        "longitude": 78.4825998,
+        "x": 955,
+        "y": 257,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080827",
+        "osmNodeId": 7635080827,
+        "latitude": 13.6311982,
+        "longitude": 78.4825571,
+        "x": 950,
+        "y": 258,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080826",
+        "osmNodeId": 7635080826,
+        "latitude": 13.631155,
+        "longitude": 78.4823008,
+        "x": 921,
+        "y": 263,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080831",
+        "osmNodeId": 7635080831,
+        "latitude": 13.6311281,
+        "longitude": 78.4822458,
+        "x": 915,
+        "y": 265,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080830",
+        "osmNodeId": 7635080830,
+        "latitude": 13.6310895,
+        "longitude": 78.4821891,
+        "x": 909,
+        "y": 269,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080832",
+        "osmNodeId": 7635080832,
+        "latitude": 13.6309413,
+        "longitude": 78.4820601,
+        "x": 894,
+        "y": 285,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080825",
+        "osmNodeId": 7635080825,
+        "latitude": 13.6308771,
+        "longitude": 78.4820348,
+        "x": 891,
+        "y": 292,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080834",
+        "osmNodeId": 7635080834,
+        "latitude": 13.6307134,
+        "longitude": 78.4820228,
+        "x": 890,
+        "y": 309,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635080833",
+        "osmNodeId": 7635080833,
+        "latitude": 13.629928,
+        "longitude": 78.4821734,
+        "x": 907,
+        "y": 392,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257406",
+        "osmNodeId": 7634257406,
+        "latitude": 13.629147,
+        "longitude": 78.4821128,
+        "x": 900,
+        "y": 475,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_4915301979",
+        "osmNodeId": 4915301979,
+        "latitude": 13.6287452,
+        "longitude": 78.4820627,
+        "x": 894,
+        "y": 517,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257413",
+        "osmNodeId": 7634257413,
+        "latitude": 13.6285798,
+        "longitude": 78.4820453,
+        "x": 892,
+        "y": 534,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257403",
+        "osmNodeId": 7634257403,
+        "latitude": 13.6278347,
+        "longitude": 78.4819668,
+        "x": 883,
+        "y": 613,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257405",
+        "osmNodeId": 7634257405,
+        "latitude": 13.6291966,
+        "longitude": 78.4817005,
+        "x": 853,
+        "y": 469,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257407",
+        "osmNodeId": 7634257407,
+        "latitude": 13.6291583,
+        "longitude": 78.4792359,
+        "x": 573,
+        "y": 473,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257408",
+        "osmNodeId": 7634257408,
+        "latitude": 13.6290697,
+        "longitude": 78.4795604,
+        "x": 610,
+        "y": 483,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257409",
+        "osmNodeId": 7634257409,
+        "latitude": 13.6289602,
+        "longitude": 78.4802872,
+        "x": 692,
+        "y": 494,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257414",
+        "osmNodeId": 7634257414,
+        "latitude": 13.62894,
+        "longitude": 78.4803715,
+        "x": 702,
+        "y": 496,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257410",
+        "osmNodeId": 7634257410,
+        "latitude": 13.6288716,
+        "longitude": 78.4805018,
+        "x": 717,
+        "y": 504,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257415",
+        "osmNodeId": 7634257415,
+        "latitude": 13.6288528,
+        "longitude": 78.4805584,
+        "x": 723,
+        "y": 506,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257411",
+        "osmNodeId": 7634257411,
+        "latitude": 13.6288299,
+        "longitude": 78.4806574,
+        "x": 735,
+        "y": 508,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7634257412",
+        "osmNodeId": 7634257412,
+        "latitude": 13.6287624,
+        "longitude": 78.4812729,
+        "x": 804,
+        "y": 515,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138080",
+        "osmNodeId": 7635138080,
+        "latitude": 13.6333892,
+        "longitude": 78.4799659,
+        "x": 656,
+        "y": 30,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138079",
+        "osmNodeId": 7635138079,
+        "latitude": 13.6331656,
+        "longitude": 78.4799505,
+        "x": 654,
+        "y": 50,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160292",
+        "osmNodeId": 7635160292,
+        "latitude": 13.632384,
+        "longitude": 78.4799342,
+        "x": 652,
+        "y": 133,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138078",
+        "osmNodeId": 7635138078,
+        "latitude": 13.6323591,
+        "longitude": 78.4799337,
+        "x": 652,
+        "y": 135,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160293",
+        "osmNodeId": 7635160293,
+        "latitude": 13.631142,
+        "longitude": 78.4799532,
+        "x": 655,
+        "y": 264,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138077",
+        "osmNodeId": 7635138077,
+        "latitude": 13.6310589,
+        "longitude": 78.4799545,
+        "x": 655,
+        "y": 273,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160290",
+        "osmNodeId": 7635160290,
+        "latitude": 13.6304892,
+        "longitude": 78.4799724,
+        "x": 657,
+        "y": 333,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138081",
+        "osmNodeId": 7635138081,
+        "latitude": 13.6300333,
+        "longitude": 78.4799819,
+        "x": 658,
+        "y": 381,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160287",
+        "osmNodeId": 7635160287,
+        "latitude": 13.630019,
+        "longitude": 78.4799803,
+        "x": 658,
+        "y": 382,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160288",
+        "osmNodeId": 7635160288,
+        "latitude": 13.630003,
+        "longitude": 78.4799723,
+        "x": 657,
+        "y": 384,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138084",
+        "osmNodeId": 7635138084,
+        "latitude": 13.6299937,
+        "longitude": 78.4799605,
+        "x": 655,
+        "y": 385,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160286",
+        "osmNodeId": 7635160286,
+        "latitude": 13.6299946,
+        "longitude": 78.479906,
+        "x": 649,
+        "y": 385,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160285",
+        "osmNodeId": 7635160285,
+        "latitude": 13.6300045,
+        "longitude": 78.4798882,
+        "x": 647,
+        "y": 384,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138082",
+        "osmNodeId": 7635138082,
+        "latitude": 13.6300176,
+        "longitude": 78.4798767,
+        "x": 646,
+        "y": 383,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160289",
+        "osmNodeId": 7635160289,
+        "latitude": 13.6304854,
+        "longitude": 78.4798647,
+        "x": 644,
+        "y": 333,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160294",
+        "osmNodeId": 7635160294,
+        "latitude": 13.6310408,
+        "longitude": 78.4798619,
+        "x": 644,
+        "y": 275,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160296",
+        "osmNodeId": 7635160296,
+        "latitude": 13.6311172,
+        "longitude": 78.479855,
+        "x": 643,
+        "y": 267,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635138083",
+        "osmNodeId": 7635138083,
+        "latitude": 13.6312136,
+        "longitude": 78.4798461,
+        "x": 642,
+        "y": 256,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160291",
+        "osmNodeId": 7635160291,
+        "latitude": 13.6323802,
+        "longitude": 78.4798484,
+        "x": 643,
+        "y": 133,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_5469644003",
+        "osmNodeId": 5469644003,
+        "latitude": 13.6334672,
+        "longitude": 78.4798506,
+        "x": 643,
+        "y": 30,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7651303004",
+        "osmNodeId": 7651303004,
+        "latitude": 13.6310178,
+        "longitude": 78.4794043,
+        "x": 592,
+        "y": 277,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160295",
+        "osmNodeId": 7635160295,
+        "latitude": 13.6309856,
+        "longitude": 78.4787633,
+        "x": 519,
+        "y": 280,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160303",
+        "osmNodeId": 7635160303,
+        "latitude": 13.6309876,
+        "longitude": 78.4786548,
+        "x": 507,
+        "y": 280,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160302",
+        "osmNodeId": 7635160302,
+        "latitude": 13.6309953,
+        "longitude": 78.4786312,
+        "x": 504,
+        "y": 279,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160301",
+        "osmNodeId": 7635160301,
+        "latitude": 13.6310084,
+        "longitude": 78.4786254,
+        "x": 504,
+        "y": 278,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160298",
+        "osmNodeId": 7635160298,
+        "latitude": 13.6310367,
+        "longitude": 78.4786274,
+        "x": 504,
+        "y": 275,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160299",
+        "osmNodeId": 7635160299,
+        "latitude": 13.6310584,
+        "longitude": 78.478638,
+        "x": 505,
+        "y": 273,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160300",
+        "osmNodeId": 7635160300,
+        "latitude": 13.6310765,
+        "longitude": 78.478657,
+        "x": 507,
+        "y": 271,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7635160297",
+        "osmNodeId": 7635160297,
+        "latitude": 13.6310801,
+        "longitude": 78.4786794,
+        "x": 510,
+        "y": 270,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7651303003",
+        "osmNodeId": 7651303003,
+        "latitude": 13.6311026,
+        "longitude": 78.479392,
+        "x": 591,
+        "y": 268,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186076",
+        "osmNodeId": 7642186076,
+        "latitude": 13.6278928,
+        "longitude": 78.4798856,
+        "x": 647,
+        "y": 607,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186074",
+        "osmNodeId": 7642186074,
+        "latitude": 13.6279654,
+        "longitude": 78.4806095,
+        "x": 729,
+        "y": 599,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186073",
+        "osmNodeId": 7642186073,
+        "latitude": 13.6279155,
+        "longitude": 78.480787,
+        "x": 749,
+        "y": 605,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186072",
+        "osmNodeId": 7642186072,
+        "latitude": 13.6277952,
+        "longitude": 78.4809815,
+        "x": 771,
+        "y": 617,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186071",
+        "osmNodeId": 7642186071,
+        "latitude": 13.6276645,
+        "longitude": 78.4811549,
+        "x": 791,
+        "y": 631,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186070",
+        "osmNodeId": 7642186070,
+        "latitude": 13.6275716,
+        "longitude": 78.4812292,
+        "x": 799,
+        "y": 641,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186069",
+        "osmNodeId": 7642186069,
+        "latitude": 13.6274409,
+        "longitude": 78.4812327,
+        "x": 800,
+        "y": 655,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186075",
+        "osmNodeId": 7642186075,
+        "latitude": 13.6272029,
+        "longitude": 78.4811746,
+        "x": 793,
+        "y": 680,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "osm_node_7642186077",
+        "osmNodeId": 7642186077,
+        "latitude": 13.6263951,
+        "longitude": 78.4812446,
+        "x": 801,
+        "y": 765,
+        "type": "campus_path_waypoint"
+      },
+      {
+        "id": "hub_gate_west",
+        "osmNodeId": 90001,
+        "latitude": 13.6283,
+        "longitude": 78.4775,
+        "x": 190,
+        "y": 640,
+        "type": "campus_entrance"
+      },
+      {
+        "id": "hub_promenade_center",
+        "osmNodeId": 90002,
+        "latitude": 13.62985,
+        "longitude": 78.47859,
+        "x": 420,
+        "y": 500,
+        "type": "promenade_junction"
+      },
+      {
+        "id": "hub_academic_plaza",
+        "osmNodeId": 90003,
+        "latitude": 13.6301,
+        "longitude": 78.4784,
+        "x": 260,
+        "y": 440,
+        "type": "plaza"
+      },
+      {
+        "id": "hub_student_union",
+        "osmNodeId": 90004,
+        "latitude": 13.62955,
+        "longitude": 78.47895,
+        "x": 590,
+        "y": 510,
+        "type": "dining_hub"
+      },
+      {
+        "id": "hub_library_square",
+        "osmNodeId": 90005,
+        "latitude": 13.6288,
+        "longitude": 78.4794,
+        "x": 770,
+        "y": 350,
+        "type": "library_concourse"
+      },
+      {
+        "id": "hub_south_terrace",
+        "osmNodeId": 90006,
+        "latitude": 13.6291,
+        "longitude": 78.4781,
+        "x": 530,
+        "y": 530,
+        "type": "courtyard"
+      },
+      {
+        "id": "hub_sports_walk",
+        "osmNodeId": 90007,
+        "latitude": 13.6276,
+        "longitude": 78.4769,
+        "x": 730,
+        "y": 640,
+        "type": "recreation"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_817440664_7634334732_7635080828",
+        "osmWayId": 817440664,
+        "from": "osm_node_7634334732",
+        "to": "osm_node_7635080828",
+        "distanceMeters": 17,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080828_7635080829",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080828",
+        "to": "osm_node_7635080829",
+        "distanceMeters": 4,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080829_7635080827",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080829",
+        "to": "osm_node_7635080827",
+        "distanceMeters": 5,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080827_7635080826",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080827",
+        "to": "osm_node_7635080826",
+        "distanceMeters": 28,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080826_7635080831",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080826",
+        "to": "osm_node_7635080831",
+        "distanceMeters": 7,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080831_7635080830",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080831",
+        "to": "osm_node_7635080830",
+        "distanceMeters": 7,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080830_7635080832",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080830",
+        "to": "osm_node_7635080832",
+        "distanceMeters": 22,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080832_7635080825",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080832",
+        "to": "osm_node_7635080825",
+        "distanceMeters": 8,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080825_7635080834",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080825",
+        "to": "osm_node_7635080834",
+        "distanceMeters": 18,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080834_7635080833",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080834",
+        "to": "osm_node_7635080833",
+        "distanceMeters": 89,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7635080833_7634257406",
+        "osmWayId": 817440664,
+        "from": "osm_node_7635080833",
+        "to": "osm_node_7634257406",
+        "distanceMeters": 87,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7634257406_4915301979",
+        "osmWayId": 817440664,
+        "from": "osm_node_7634257406",
+        "to": "osm_node_4915301979",
+        "distanceMeters": 45,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_4915301979_7634257413",
+        "osmWayId": 817440664,
+        "from": "osm_node_4915301979",
+        "to": "osm_node_7634257413",
+        "distanceMeters": 18,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440664_7634257413_7634257403",
+        "osmWayId": 817440664,
+        "from": "osm_node_7634257413",
+        "to": "osm_node_7634257403",
+        "distanceMeters": 83,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440666_7634257405_7634257406",
+        "osmWayId": 817440666,
+        "from": "osm_node_7634257405",
+        "to": "osm_node_7634257406",
+        "distanceMeters": 45,
+        "highwayType": "residential"
+      },
+      {
+        "id": "edge_817440667_7634257407_7634257408",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257407",
+        "to": "osm_node_7634257408",
+        "distanceMeters": 36,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257408_7634257409",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257408",
+        "to": "osm_node_7634257409",
+        "distanceMeters": 80,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257409_7634257414",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257409",
+        "to": "osm_node_7634257414",
+        "distanceMeters": 9,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257414_7634257410",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257414",
+        "to": "osm_node_7634257410",
+        "distanceMeters": 16,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257410_7634257415",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257410",
+        "to": "osm_node_7634257415",
+        "distanceMeters": 6,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257415_7634257411",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257415",
+        "to": "osm_node_7634257411",
+        "distanceMeters": 11,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257411_7634257412",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257411",
+        "to": "osm_node_7634257412",
+        "distanceMeters": 67,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817440667_7634257412_7634257413",
+        "osmWayId": 817440667,
+        "from": "osm_node_7634257412",
+        "to": "osm_node_7634257413",
+        "distanceMeters": 86,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138080_7635138079",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138080",
+        "to": "osm_node_7635138079",
+        "distanceMeters": 25,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138079_7635160292",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138079",
+        "to": "osm_node_7635160292",
+        "distanceMeters": 87,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160292_7635138078",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160292",
+        "to": "osm_node_7635138078",
+        "distanceMeters": 3,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138078_7635160293",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138078",
+        "to": "osm_node_7635160293",
+        "distanceMeters": 135,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160293_7635138077",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160293",
+        "to": "osm_node_7635138077",
+        "distanceMeters": 9,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138077_7635160290",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138077",
+        "to": "osm_node_7635160290",
+        "distanceMeters": 63,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160290_7635138081",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160290",
+        "to": "osm_node_7635138081",
+        "distanceMeters": 51,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138081_7635160287",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138081",
+        "to": "osm_node_7635160287",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160287_7635160288",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160287",
+        "to": "osm_node_7635160288",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160288_7635138084",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160288",
+        "to": "osm_node_7635138084",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138084_7635160286",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138084",
+        "to": "osm_node_7635160286",
+        "distanceMeters": 6,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160286_7635160285",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160286",
+        "to": "osm_node_7635160285",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160285_7635138082",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160285",
+        "to": "osm_node_7635138082",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138082_7635160289",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138082",
+        "to": "osm_node_7635160289",
+        "distanceMeters": 52,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160289_7635160294",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160289",
+        "to": "osm_node_7635160294",
+        "distanceMeters": 62,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160294_7635160296",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160294",
+        "to": "osm_node_7635160296",
+        "distanceMeters": 9,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160296_7635138083",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160296",
+        "to": "osm_node_7635138083",
+        "distanceMeters": 11,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635138083_7635160291",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635138083",
+        "to": "osm_node_7635160291",
+        "distanceMeters": 130,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526032_7635160291_5469644003",
+        "osmWayId": 817526032,
+        "from": "osm_node_7635160291",
+        "to": "osm_node_5469644003",
+        "distanceMeters": 121,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526033_7635160289_7635160290",
+        "osmWayId": 817526033,
+        "from": "osm_node_7635160289",
+        "to": "osm_node_7635160290",
+        "distanceMeters": 12,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526034_7635160291_7635160292",
+        "osmWayId": 817526034,
+        "from": "osm_node_7635160291",
+        "to": "osm_node_7635160292",
+        "distanceMeters": 9,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635138077_7635160294",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635138077",
+        "to": "osm_node_7635160294",
+        "distanceMeters": 10,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160294_7651303004",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160294",
+        "to": "osm_node_7651303004",
+        "distanceMeters": 50,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7651303004_7635160295",
+        "osmWayId": 817526035,
+        "from": "osm_node_7651303004",
+        "to": "osm_node_7635160295",
+        "distanceMeters": 69,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160295_7635160303",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160295",
+        "to": "osm_node_7635160303",
+        "distanceMeters": 12,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160303_7635160302",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160303",
+        "to": "osm_node_7635160302",
+        "distanceMeters": 3,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160302_7635160301",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160302",
+        "to": "osm_node_7635160301",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160301_7635160298",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160301",
+        "to": "osm_node_7635160298",
+        "distanceMeters": 3,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160298_7635160299",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160298",
+        "to": "osm_node_7635160299",
+        "distanceMeters": 3,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160299_7635160300",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160299",
+        "to": "osm_node_7635160300",
+        "distanceMeters": 3,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160300_7635160297",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160300",
+        "to": "osm_node_7635160297",
+        "distanceMeters": 2,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160297_7651303003",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160297",
+        "to": "osm_node_7651303003",
+        "distanceMeters": 77,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7651303003_7635160296",
+        "osmWayId": 817526035,
+        "from": "osm_node_7651303003",
+        "to": "osm_node_7635160296",
+        "distanceMeters": 50,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_817526035_7635160296_7635160293",
+        "osmWayId": 817526035,
+        "from": "osm_node_7635160296",
+        "to": "osm_node_7635160293",
+        "distanceMeters": 11,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186076_7642186074",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186076",
+        "to": "osm_node_7642186074",
+        "distanceMeters": 79,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186074_7642186073",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186074",
+        "to": "osm_node_7642186073",
+        "distanceMeters": 20,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186073_7642186072",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186073",
+        "to": "osm_node_7642186072",
+        "distanceMeters": 25,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186072_7642186071",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186072",
+        "to": "osm_node_7642186071",
+        "distanceMeters": 24,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186071_7642186070",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186071",
+        "to": "osm_node_7642186070",
+        "distanceMeters": 13,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186070_7642186069",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186070",
+        "to": "osm_node_7642186069",
+        "distanceMeters": 15,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186069_7642186075",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186069",
+        "to": "osm_node_7642186075",
+        "distanceMeters": 27,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_818294757_7642186075_7642186077",
+        "osmWayId": 818294757,
+        "from": "osm_node_7642186075",
+        "to": "osm_node_7642186077",
+        "distanceMeters": 90,
+        "highwayType": "service"
+      },
+      {
+        "id": "edge_819316684_7651303004_7651303003",
+        "osmWayId": 819316684,
+        "from": "osm_node_7651303004",
+        "to": "osm_node_7651303003",
+        "distanceMeters": 10,
+        "highwayType": "service"
+      },
+      {
+        "id": "arterial_edge_1",
+        "osmWayId": 99000,
+        "from": "hub_gate_west",
+        "to": "hub_academic_plaza",
+        "distanceMeters": 45,
+        "highwayType": "footway"
+      },
+      {
+        "id": "arterial_edge_2",
+        "osmWayId": 99001,
+        "from": "hub_academic_plaza",
+        "to": "hub_promenade_center",
+        "distanceMeters": 38,
+        "highwayType": "footway"
+      },
+      {
+        "id": "arterial_edge_3",
+        "osmWayId": 99002,
+        "from": "hub_promenade_center",
+        "to": "hub_south_terrace",
+        "distanceMeters": 32,
+        "highwayType": "footway"
+      },
+      {
+        "id": "arterial_edge_4",
+        "osmWayId": 99003,
+        "from": "hub_south_terrace",
+        "to": "hub_student_union",
+        "distanceMeters": 28,
+        "highwayType": "footway"
+      },
+      {
+        "id": "arterial_edge_5",
+        "osmWayId": 99004,
+        "from": "hub_student_union",
+        "to": "hub_library_square",
+        "distanceMeters": 62,
+        "highwayType": "footway"
+      },
+      {
+        "id": "arterial_edge_6",
+        "osmWayId": 99005,
+        "from": "hub_promenade_center",
+        "to": "hub_sports_walk",
+        "distanceMeters": 85,
+        "highwayType": "footway"
+      }
+    ]
+  }
+}
