@@ -7,8 +7,6 @@ import { get3DConfig } from '../lib/campusTrackerData';
 import { fetchRealtimeOSMBuildings, FALLBACK_CAMPUS_BUILDINGS, type RealtimeBuildingPolygon } from '../lib/realtimeMapBridge';
 import { renderProcedural3DBuilding } from '../lib/procedural3DExtruder';
 
-export { renderProcedural3DBuilding } from '../lib/procedural3DExtruder';
-
 export interface Premium3DArchitecturalMapProps {
   onClose?: () => void;
   onViewMenu?: (shopId: string, shopName: string) => void;
