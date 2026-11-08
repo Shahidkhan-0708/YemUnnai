@@ -57,7 +57,7 @@ export async function registerServiceWorkerPush(): Promise<PushSubscription | nu
       const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       const options: PushSubscriptionOptionsInit = {
         userVisibleOnly: true,
-        ...(vapidKey ? { applicationServerKey: urlB64ToUint8Array(vapidKey) } : {})
+        ...(vapidKey ? { applicationServerKey: urlB64ToUint8Array(vapidKey) as unknown as BufferSource } : {})
       };
 
       try {
@@ -108,7 +108,7 @@ export async function sendTestKitchenNotification(orderId = 'TEST-101'): Promise
         url: '/?portal=business',
         orderId
       }
-    });
+    } as any);
     return true;
   } catch (err) {
     console.error('[PushNotifications] Test notification failed:', err);

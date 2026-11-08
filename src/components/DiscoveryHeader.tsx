@@ -1,7 +1,6 @@
 import { useId, useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { CatalogImage } from './CatalogImage';
-import { CanteenMap } from './CanteenMap';
 import { useLanguage } from '../lib/language';
 import type { ShopEntry, Coordinates } from '../lib/types';
 import { VENDOR_OUTLETS } from '../lib/vendorAuth';
@@ -205,22 +204,6 @@ export function DiscoveryHeader({
     return filterShopsByLocation(baseShops, userLocation, 5);
   }, [baseShops, userLocation]);
 
-  // Build shop entries for the interactive map
-  const mapShops = useMemo((): ShopEntry[] => {
-    return displayedShops.map(shop => ({
-      id: shop.id,
-      name: shop.name,
-      image: shop.image,
-      isActive: shop.isActive ?? true,
-      isOnline: shop.isOnline ?? true,
-      latitude: shop.latitude ?? undefined,
-      longitude: shop.longitude ?? undefined,
-      locationLandmark: typeof shop.locationLandmark === 'string' ? shop.locationLandmark : undefined,
-      isOnCampus: shop.isOnCampus,
-    }));
-  }, [displayedShops]);
-
-
   const canteenDataList: CanteenData[] = useMemo(() => {
     return displayedShops.map(shop => {
       const meta = (shop as any).meta as NearbyFoodMeta;
@@ -238,7 +221,6 @@ export function DiscoveryHeader({
     });
   }, [displayedShops]);
 
-  const activeShopId = selectedShop === 'All' ? undefined : displayedShops.find(s => s.name === selectedShop)?.id;
   const id = useId().replace(/:/g, '');
 
   return (

@@ -330,7 +330,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 <div className="flex items-center justify-center gap-2 pt-2.5 flex-wrap">
                   <span className="text-[10px] font-semibold text-slate-500">{t('Quick Pick:', 'త్వరిత ఎంపిక:')}</span>
                   {outlets.slice(0, 4).map((outlet) => {
-                    const code = outlet.code || (outlet as any).shortCode || outlet.id;
+                    const code = ('code' in outlet ? (outlet as any).code : (outlet as any).shortCode) || outlet.id;
                     return (
                       <button
                         key={outlet.id}

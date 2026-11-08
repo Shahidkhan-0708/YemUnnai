@@ -1,4 +1,3 @@
-import React from 'react';
 import { Compass, Bookmark, UserRound } from 'lucide-react';
 import { useLanguage } from '../lib/language';
 import { playTapSound } from '../lib/celebration';
