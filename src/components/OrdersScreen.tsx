@@ -161,7 +161,20 @@ export function OrdersScreen({ orders, loading, error, retry, onReorder, onDisco
         {!order.is_legacy&&ongoing&&<Button variant="outline" disabled={busy!==null||order.cancellation_requested} onClick={()=>void act(order.id,()=>cancelBuyerOrder(order.id))}>{order.status==='pending'?'Cancel order':'Request cancellation'}</Button>}
         {!ongoing&&order.food_item_id&&<Button variant="outline" disabled={busy!==null} onClick={()=>void act(order.id,async()=>onReorder(await recheckItem(order.food_item_id!)))}>Order again</Button>}
       </div>
-      <div className="order-card-help"><button type="button" aria-expanded={activeHelpId===order.id} onClick={()=>setActiveHelpId(activeHelpId===order.id?null:order.id)}><span>Need help with this order?</span><ChevronDown size={13} className={activeHelpId===order.id?'rotate-180':''}/></button>{activeHelpId===order.id&&<form className="mt-3 space-y-2 screen-enter" onSubmit={event=>{event.preventDefault();const form=event.currentTarget,message=new FormData(form).get('message');void act(order.id,async()=>{await pickupRequest({action:'support',orderId:order.id,message});form.reset();setActiveHelpId(null);setNotice('Help request sent to the shop.');window.dispatchEvent(new Event('pickup-support-changed'));});}}><textarea name="message" required maxLength={2000} className="pickup-input" placeholder="Describe what went wrong with your order…"/><Button type="submit" disabled={busy!==null}>Send to shop</Button></form>}</div>
+      <div className="order-card-help">
+        <button type="button" aria-expanded={activeHelpId===order.id} onClick={()=>setActiveHelpId(activeHelpId===order.id?null:order.id)}>
+          <span>Need help with this order?</span>
+          <ChevronDown size={13} className={activeHelpId===order.id?'rotate-180':''}/>
+        </button>
+        <div className={`order-help-collapse ${activeHelpId===order.id ? 'is-open' : ''}`}>
+          <div className="order-help-collapse-inner">
+            <form className="mt-3 space-y-2" onSubmit={event=>{event.preventDefault();const form=event.currentTarget,message=new FormData(form).get('message');void act(order.id,async()=>{await pickupRequest({action:'support',orderId:order.id,message});form.reset();setActiveHelpId(null);setNotice('Help request sent to the shop.');window.dispatchEvent(new Event('pickup-support-changed'));});}}>
+              <textarea name="message" required maxLength={2000} className="pickup-input" placeholder="Describe what went wrong with your order…"/>
+              <Button type="submit" disabled={busy!==null}>Send to shop</Button>
+            </form>
+          </div>
+        </div>
+      </div>
     </article>;
   };
   return <SvgScreenFrame screen={null}><section className="pickup-page orders-screen space-y-5 screen-enter">

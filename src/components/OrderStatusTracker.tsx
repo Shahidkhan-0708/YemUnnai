@@ -256,7 +256,9 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
               : 'bg-white border border-gray-200 text-gray-400 shadow-2xs'
           }`}>
             {isReady || isCollected ? (
-              <Check size={13} strokeWidth={3} />
+              <span key="ready-check-badge" className="dish-num-pulse flex items-center justify-center">
+                <Check size={13} strokeWidth={3} />
+              </span>
             ) : (
               <ConciergeBell size={12} className="text-gray-400" />
             )}

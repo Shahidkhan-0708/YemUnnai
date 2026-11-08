@@ -889,6 +889,27 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 .order-card-help { border-top:1px solid #D6DCE2; margin-top:10px; padding-top:6px; }
 .order-card-help>button { width:100%; min-height:26px; display:flex; align-items:center; justify-content:space-between; font-size:11px; color:#7A6658; }
 .order-card-help>button svg { transition:transform 180ms var(--ease-ui); }
+.order-help-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.order-help-collapse.is-open {
+  grid-template-rows: 1fr;
+}
+.order-help-collapse-inner {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+.order-help-collapse.is-open .order-help-collapse-inner {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .order-help-collapse {
+    transition: none;
+  }
+}
 
 .onboarding-screen { display:flex; flex-direction:column; justify-content:space-between; min-height:812px; padding:58px 28px 24px; background:white; color:#1F140A; }
 .onboarding-screen header { text-align:center; }
@@ -2622,6 +2643,46 @@ img[data-extracted] { object-fit:contain; }
   min-width: 16px;
   text-align: center;
   color: #ffffff;
+}
+
+/* Stepper & ADD morph transitions */
+@keyframes stepper-pop-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stepper-num-pulse {
+  0% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.dish-stepper-enter {
+  animation: stepper-pop-enter 140ms var(--ease-ui) both;
+}
+
+.dish-num-pulse {
+  display: inline-block;
+  animation: stepper-num-pulse 120ms var(--ease-ui) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dish-stepper-enter {
+    animation: none;
+    transition: opacity 100ms ease;
+  }
+  .dish-num-pulse {
+    animation: none;
+  }
 }
 
 /* ==========================================================================

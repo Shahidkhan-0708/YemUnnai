@@ -476,7 +476,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
             return (
               <div 
                 key={ord.id} 
-                className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden transition-all"
+                className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden transition-all duration-200 animate-in fade-in slide-in-from-top-2"
               >
                 {/* Top Status Header */}
                 <div className="bg-amber-50/60 px-4 py-2.5 flex items-center justify-between border-b border-amber-100/30">

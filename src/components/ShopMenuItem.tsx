@@ -108,7 +108,7 @@ export const ShopMenuItem: React.FC<ShopMenuItemProps> = ({ item, onSelect }) =>
           {quantity === 0 ? (
             <button 
               type="button"
-              className="w-full bg-white text-emerald-600 border border-gray-200 shadow-sm text-[10px] font-black py-1.5 rounded-lg text-center uppercase tracking-wide hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:text-gray-400"
+              className="w-full bg-white text-emerald-600 border border-gray-200 shadow-sm text-[10px] font-black py-1.5 rounded-lg text-center uppercase tracking-wide hover:bg-gray-50 transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:text-gray-400 dish-stepper-enter"
               onClick={(e) => {
                 e.stopPropagation();
                 if (isAvailable) addItem(normalizedMenuItem);
@@ -119,7 +119,7 @@ export const ShopMenuItem: React.FC<ShopMenuItemProps> = ({ item, onSelect }) =>
             </button>
           ) : (
             <div 
-              className="w-full bg-white text-emerald-600 border border-gray-200 shadow-sm rounded-lg flex items-center justify-between px-2 py-1 text-xs font-black"
+              className="w-full bg-white text-emerald-600 border border-gray-200 shadow-sm rounded-lg flex items-center justify-between px-2 py-1 text-xs font-black dish-stepper-enter"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
@@ -129,7 +129,7 @@ export const ShopMenuItem: React.FC<ShopMenuItemProps> = ({ item, onSelect }) =>
               >
                 −
               </button>
-              <span className="text-xs font-black text-emerald-700 font-mono">
+              <span key={quantity} className="text-xs font-black text-emerald-700 font-mono dish-num-pulse">
                 {quantity}
               </span>
               <button 

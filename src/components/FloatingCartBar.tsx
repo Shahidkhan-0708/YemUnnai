@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, X, Plus, Minus, Bell, Clock } from 'lucide-react';
+import { ArrowRight, X, Plus, Minus, Bell, Clock, Loader2 } from 'lucide-react';
 import { useCart } from '../context/useCart.ts';
 import { placeOrder } from '../lib/pickup.ts';
 import { playSuccessChime, fireOrderConfetti, playTapSound } from '../lib/celebration.ts';
@@ -381,16 +381,22 @@ export const FloatingCartBar: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Single Full-Width Primary Action */}
+                    {/* Single Full-Width Primary Action with Morphing Micro-State */}
                     <div className="p-4 pt-3 border-t border-gray-100 flex-shrink-0 bg-white">
                       <button 
                         type="button"
                         onClick={handleSendOrder}
                         disabled={isCheckingOut || totalItems === 0}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-sm font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-sm font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-80"
                       >
-                        <Bell size={16} />
-                        <span>{isCheckingOut ? t('Alerting Canteen…', 'క్యాంటీన్‌ను హెచ్చరిస్తున్నాం…') : t('Send Order & Alert Owner', 'ఆర్డర్ పంపి యజమానికి తెలపండి')}</span>
+                        {isCheckingOut ? (
+                          <Loader2 size={16} className="animate-spin text-white/90" />
+                        ) : (
+                          <Bell size={16} className="transition-transform duration-150" />
+                        )}
+                        <span className="transition-opacity duration-150">
+                          {isCheckingOut ? t('Alerting Canteen…', 'క్యాంటీన్‌ను హెచ్చరిస్తున్నాం…') : t('Send Order & Alert Owner', 'ఆర్డర్ పంపి యజమానికి తెలపండి')}
+                        </span>
                       </button>
                     </div>
                   </>

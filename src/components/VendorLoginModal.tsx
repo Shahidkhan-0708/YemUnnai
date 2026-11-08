@@ -332,7 +332,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
                   TERMINAL STORE CODE
                 </label>
-                {/* Crisp white high-contrast input box */}
+                {/* Dark-slate high-contrast input box matching PIN boxes */}
                 <input 
                   id="store-code-input"
                   type="text"
@@ -345,7 +345,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   value={storeCode}
                   onChange={(e) => handleStoreCodeChange(e.target.value)}
                   placeholder="E.G. MITS, PARA, CAFE"
-                  className="w-full bg-white border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-3.5 text-center text-lg font-black tracking-wider text-slate-900 placeholder:text-slate-500 placeholder:font-black placeholder:text-sm sm:placeholder:text-base focus:outline-hidden transition-all uppercase shadow-md disabled:opacity-40"
+                  className="w-full bg-slate-950 border-2 border-slate-800 focus:border-orange-500 rounded-2xl px-5 py-3.5 text-center text-lg font-black tracking-wider text-white placeholder:text-slate-500 placeholder:font-black placeholder:text-sm sm:placeholder:text-base focus:outline-hidden transition-all uppercase shadow-inner disabled:opacity-40"
                 />
 
                 {/* Balanced Quick Pick Badge Track (Purged raw database UUID texts) */}
@@ -385,8 +385,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 disabled={disabled || !isCodeValid}
                 className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
                   isCodeValid && !disabled
-                    ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.99] shadow-orange-500/25 cursor-pointer' 
-                    : 'bg-[#131E3A] text-slate-500 border border-slate-800/80 cursor-not-allowed opacity-60'
+                    ? 'bg-orange-500 text-slate-950 hover:bg-orange-400 active:scale-[0.99] shadow-orange-500/25 cursor-pointer font-black' 
+                    : 'bg-slate-900/80 text-slate-400 border border-slate-800/80 cursor-not-allowed'
                 }`}
               >
                 <span>UNLOCK TERMINAL</span>
@@ -467,8 +467,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   isSuccess
                     ? 'bg-emerald-600 text-white shadow-emerald-600/30 ring-2 ring-emerald-500/40 cursor-default'
                     : isPinComplete && !disabled
-                    ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.99] shadow-orange-500/25 cursor-pointer' 
-                    : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed opacity-40'
+                    ? 'bg-orange-500 text-slate-950 hover:bg-orange-400 active:scale-[0.99] shadow-orange-500/25 cursor-pointer font-black' 
+                    : 'bg-slate-900/80 text-slate-400 border border-slate-800 cursor-not-allowed'
                 }`}
               >
                 <ShieldCheck size={15} />
@@ -481,7 +481,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
               <button 
                 type="button"
                 onClick={handleSwitchAccount}
-                className="text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-wider block mx-auto transition-colors flex items-center gap-1 cursor-pointer pt-1"
+                className="text-[10px] font-black text-slate-400 hover:text-slate-200 uppercase tracking-wider block mx-auto transition-colors flex items-center gap-1 cursor-pointer pt-1"
               >
                 <RotateCcw size={10} />
                 <span>Switch Terminal Code</span>
@@ -491,7 +491,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
 
           {/* 4. BALANCED MINIMALIST FOOTNOTE */}
           <div className="mt-5 pt-3 border-t border-slate-800/60 select-none">
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
               Secure Terminal Auth · End-to-End Encrypted
             </p>
           </div>

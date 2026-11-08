@@ -85,7 +85,7 @@ export const ItemCardPremium: React.FC<ItemCardPremiumProps> = ({ item, onSelect
             {quantity === 0 ? (
               <button 
                 type="button"
-                className="dish-add-action-btn"
+                className="dish-add-action-btn dish-stepper-enter"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (isAvailable) addItem(normalizedMenuItem);
@@ -95,7 +95,7 @@ export const ItemCardPremium: React.FC<ItemCardPremiumProps> = ({ item, onSelect
                 {isAvailable ? 'ADD' : 'OUT'}
               </button>
             ) : (
-              <div className="dish-stepper-active-row" onClick={(e) => e.stopPropagation()}>
+              <div className="dish-stepper-active-row dish-stepper-enter" onClick={(e) => e.stopPropagation()}>
                 <button
                   type="button"
                   className="dish-step-mod decrement"
@@ -104,7 +104,7 @@ export const ItemCardPremium: React.FC<ItemCardPremiumProps> = ({ item, onSelect
                 >
                   −
                 </button>
-                <span className="dish-step-count-val">{quantity}</span>
+                <span key={quantity} className="dish-step-count-val dish-num-pulse">{quantity}</span>
                 <button
                   type="button"
                   className="dish-step-mod increment"
