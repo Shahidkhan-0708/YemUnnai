@@ -6,7 +6,7 @@ import { useVendorSession, useShops } from '../lib/hooks';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage } from '../lib/language';
 import { VENDOR_OUTLETS, lookupOutletByStoreCode } from '../lib/vendorAuth';
-import { playTapSound } from '../lib/celebration';
+import { playTapSound, playSuccessChime } from '../lib/celebration';
 import { reportAppError } from '../lib/telemetry';
 
 // Device-level velocity throttling constants
@@ -70,6 +70,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
 
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [retryAt, setRetryAt] = useState<Record<string, number>>({});
   const [now, setNow] = useState(() => Date.now());
   const inFlight = useRef(false);
@@ -93,6 +95,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
     setCodeError(null);
     setPin(['', '', '', '']);
     setError(null);
+    setIsShaking(false);
+    setIsSuccess(false);
     if (!isOpen) return;
     setNow(Date.now());
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -146,16 +150,22 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
       if (current !== generation.current) return;
       if (result.ok) {
         resetFailedAttempts();
+        setIsSuccess(true);
+        playSuccessChime();
         try {
           sessionStorage.removeItem('terminal_velocity_attempts');
           sessionStorage.removeItem('terminal_lockout_until');
         } catch {
           // ignore storage availability issues
         }
-        onSignedIn?.();
-        onClose();
-        window.dispatchEvent(new Event('yem-login-success'));
+        setTimeout(() => {
+          onSignedIn?.();
+          onClose();
+          window.dispatchEvent(new Event('yem-login-success'));
+        }, 400);
       } else {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 450);
         recordFailedAttempt();
         setError(t(result.error ?? 'Incorrect security PIN. Please retry.', 'తప్పు భద్రతా PIN. మళ్లీ ప్రయత్నించండి.'));
         setPin(['', '', '', '']);
@@ -168,6 +178,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
       }
     } catch {
       if (current === generation.current) {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 450);
         recordFailedAttempt();
         setError(t('Unable to reach kitchen server. Please retry.', 'కనెక్షన్ లేదు. మళ్లీ ప్రయత్నించండి.'));
         setPin(['', '', '', '']);
@@ -241,6 +253,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
     setCodeError(null);
     setPin(['', '', '', '']);
     setError(null);
+    setIsShaking(false);
+    setIsSuccess(false);
   };
 
   if (!isOpen) return null;
@@ -387,23 +401,34 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   Secure Terminal PIN
                 </label>
                 
-                {/* Symmetrical 4-Box Entry Layout */}
-                <div className="flex justify-center gap-3">
-                  {pin.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={el => { pinInputRefs[index].current = el; }}
-                      type="password"
-                      inputMode="numeric"
-                      maxLength={1}
-                      disabled={disabled}
-                      aria-label={t(`PIN digit ${index + 1} of 4`, `PIN అంకె ${index + 1} / 4`)}
-                      value={digit}
-                      onChange={(e) => handlePinCellChange(index, e.target.value)}
-                      onKeyDown={(e) => handlePinKeyDown(index, e)}
-                      className="w-12 h-13 min-w-[44px] min-h-[44px] bg-slate-950 border border-slate-800 rounded-xl text-center text-xl font-black text-orange-400 focus:outline-hidden focus:border-orange-500 transition-all shadow-inner disabled:opacity-40"
-                    />
-                  ))}
+                {/* Symmetrical 4-Box Entry Layout with Tactile Shake & Success Transitions */}
+                <div className={`flex justify-center gap-3 transition-transform ${isShaking ? 'pin-shake' : ''}`}>
+                  {pin.map((digit, index) => {
+                    const isFilled = Boolean(digit);
+                    return (
+                      <input
+                        key={index}
+                        ref={el => { pinInputRefs[index].current = el; }}
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={1}
+                        disabled={disabled || isSuccess}
+                        aria-label={t(`PIN digit ${index + 1} of 4`, `PIN అంకె ${index + 1} / 4`)}
+                        value={digit}
+                        onChange={(e) => handlePinCellChange(index, e.target.value)}
+                        onKeyDown={(e) => handlePinKeyDown(index, e)}
+                        className={`w-12 h-14 min-w-[44px] min-h-[44px] rounded-2xl text-center text-2xl font-black transition-all shadow-inner disabled:opacity-40 select-none ${
+                          isSuccess
+                            ? 'bg-emerald-950/50 border-2 border-emerald-500 text-emerald-400 shadow-emerald-500/25 ring-2 ring-emerald-500/30'
+                            : isShaking
+                            ? 'bg-rose-950/40 border-2 border-rose-500 text-rose-300 ring-2 ring-rose-500/20'
+                            : isFilled
+                            ? 'bg-orange-950/30 border-2 border-orange-500 text-orange-400 shadow-orange-500/15'
+                            : 'bg-slate-950 border border-slate-800 text-white focus:border-orange-500 focus:bg-slate-900/80 focus:ring-2 focus:ring-orange-500/20'
+                        }`}
+                      />
+                    );
+                  })}
                 </div>
 
                 {/* Error feedback */}
@@ -423,7 +448,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   <button 
                     key={key} 
                     type="button" 
-                    disabled={disabled} 
+                    disabled={disabled || isSuccess} 
                     aria-label={key === 'delete' ? 'Delete last digit' : key}
                     onClick={() => handleKeypadPress(key)}
                     className="flex h-12 items-center justify-center rounded-xl bg-slate-950 hover:bg-slate-800 active:scale-95 text-base font-black text-white border border-slate-800/80 transition-all cursor-pointer disabled:opacity-40"
@@ -433,19 +458,23 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 ))}
               </div>
 
-              {/* Final Submission Control Target */}
+              {/* Final Submission Control Target with Success State */}
               <button 
                 type="button"
-                disabled={disabled || !isPinComplete}
+                disabled={disabled || !isPinComplete || isSuccess}
                 onClick={() => attemptPinSubmit(pin)}
                 className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
-                  isPinComplete && !disabled
-                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.99] shadow-emerald-600/25 cursor-pointer' 
+                  isSuccess
+                    ? 'bg-emerald-600 text-white shadow-emerald-600/30 ring-2 ring-emerald-500/40 cursor-default'
+                    : isPinComplete && !disabled
+                    ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.99] shadow-orange-500/25 cursor-pointer' 
                     : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed opacity-40'
                 }`}
               >
                 <ShieldCheck size={15} />
-                <span>{busy ? 'Verifying…' : 'Verify Credentials'}</span>
+                <span>
+                  {isSuccess ? 'Access Granted · Opening Console...' : busy ? 'Verifying…' : 'Verify Credentials'}
+                </span>
               </button>
 
               {/* Reset Bridge back to Code Entry */}

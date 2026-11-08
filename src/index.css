@@ -4190,3 +4190,15 @@ img[data-extracted] { object-fit:contain; }
   border-radius: 3px;
   background: #e65100;
 }
+
+/* PIN Verification Tactile Shake & Success Transitions */
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.pin-shake {
+  animation: pin-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
