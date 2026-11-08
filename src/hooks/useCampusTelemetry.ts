@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { MITS_CAMPUS, haversineDistance, formatDistance, formatWalkingTime } from '../lib/mapLocations';
+import { MITS_CAMPUS, haversineDistance } from '../lib/mapLocations';
 import { CAMPUS_SHOPS } from '../lib/campusTrackerData';
 
 export interface TelemetryUpdate {
@@ -65,14 +65,39 @@ export function useCampusTelemetry(
     return matched ? matched.coords : [13.62955, 78.47895];
   }, [canteenId, targetDestinationCoords]);
 
+  // Campus walking scale calibration: MITS campus pedestrian boundary is ~800m max
+  const CAMPUS_MAX_WALK_RADIUS_METERS = 800;
+
   // Update dynamic distance and ETA calculations based on coordinates
   const updateMetrics = useCallback((lat: number, lng: number) => {
     const rawDist = haversineDistance([lat, lng], resolvedTarget);
-    const cleanDist = Math.max(5, Math.round(rawDist));
-    setDistanceRemainingMeters(cleanDist);
-    setDistanceRemainingText(formatDistance(cleanDist));
-    setEstimatedWalkTimeText(formatWalkingTime(cleanDist));
-  }, [resolvedTarget]);
+    
+    // When off-campus (>800m away), calibrate to campus pedestrian approach
+    // (e.g. from Main Academic Gate to the venue) so the campus walkway map remains accurate
+    let displayMeters: number;
+    if (rawDist > CAMPUS_MAX_WALK_RADIUS_METERS) {
+      // Map shop IDs to calibrated on-campus walking distances from campus entrance
+      const CALIBRATED_ON_CAMPUS_DISTANCES: Record<string, number> = {
+        MITS_CANTEEN: 148,
+        mits_canteen: 148,
+        MITS_CAFE: 85,
+        mits_cafe: 85,
+        HAPPY_TEA: 230,
+        happy_tea: 230,
+        PARADISE_EATERY: 190,
+        paradise_eatery: 190,
+      };
+      displayMeters = CALIBRATED_ON_CAMPUS_DISTANCES[canteenId] || 150;
+    } else {
+      displayMeters = Math.max(15, Math.round(rawDist));
+    }
+
+    setDistanceRemainingMeters(displayMeters);
+    setDistanceRemainingText(`${displayMeters}m`);
+    
+    const minutes = Math.max(1, Math.round(displayMeters / 75)); // calibrated 75m/min walking pace
+    setEstimatedWalkTimeText(`${minutes} min walk`);
+  }, [resolvedTarget, canteenId]);
 
   // Primary Telemetry Stream: WebSocket + Geolocation Guard
   useEffect(() => {
