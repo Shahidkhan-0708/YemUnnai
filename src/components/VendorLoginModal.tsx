@@ -1,11 +1,12 @@
 import { SvgScreenFrame } from './SvgScreenFrame';
 import { createPortal } from 'react-dom';
+import { CatalogImage } from './CatalogImage';
 import { useEffect, useRef, useState } from 'react';
-import { X, AlertCircle, Delete, ShieldCheck, ArrowRight, RotateCcw } from 'lucide-react';
+import { X, AlertCircle, Delete, ShieldCheck } from 'lucide-react';
 import { useVendorSession, useShops } from '../lib/hooks';
 import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage } from '../lib/language';
-import { VENDOR_OUTLETS, lookupOutletByStoreCode } from '../lib/vendorAuth';
+import { VENDOR_OUTLETS } from '../lib/vendorAuth';
 import { playTapSound, playSuccessChime } from '../lib/celebration';
 import { reportAppError } from '../lib/telemetry';
 
@@ -34,14 +35,6 @@ function resetFailedAttempts() {
   terminalLockoutUntil = 0;
 }
 
-// Decoupled conversion registry to protect compiler loops from breaks & strip raw database UUID leaks
-const STORE_DICTIONARY: Record<string, { label: string; icon: string; code: string }> = {
-  'a0000000-0000-4000-8000-000000000001': { label: 'MITS Canteen', icon: '🍱', code: 'MITS' },
-  'a0000000-0000-4000-8000-000000000006': { label: 'Main Cafe', icon: '🥤', code: 'CAFE' },
-  'a0000000-0000-4000-8000-000000000009': { label: 'Food Hub', icon: '🍔', code: 'HUB' },
-  'a0000000-0000-4000-8000-000000000010': { label: 'Tea Station', icon: '☕', code: 'P2' },
-};
-
 interface VendorLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -51,23 +44,10 @@ interface VendorLoginModalProps {
 export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginModalProps) {
   const { t } = useLanguage();
   const { signInWithOutlet } = useVendorSession();
-  const { shops, loading: shopsLoading } = useShops();
+  const { shops, loading: shopsLoading, error: shopsError, retry: retryShops } = useShops();
   const outlets = shops.length ? shops : shopsLoading ? VENDOR_OUTLETS : [];
-
-  // Step 1: Store Code Lookup
-  const [storeCode, setStoreCode] = useState('');
-  const [matchedOutlet, setMatchedOutlet] = useState<{ id: string; name: string; code: string } | null>(null);
-  const [codeError, setCodeError] = useState<string | null>(null);
-
-  // Step 2: PIN Deck
-  const [pin, setPin] = useState(['', '', '', '']);
-  const pinInputRefs = [
-    useRef<HTMLInputElement | null>(null),
-    useRef<HTMLInputElement | null>(null),
-    useRef<HTMLInputElement | null>(null),
-    useRef<HTMLInputElement | null>(null),
-  ];
-
+  const [outletId, setOutletId] = useState(VENDOR_OUTLETS[0].id);
+  const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
@@ -76,77 +56,44 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
   const [now, setNow] = useState(() => Date.now());
   const inFlight = useRef(false);
   const generation = useRef(0);
+  const pinInputRef = useRef<HTMLInputElement | null>(null);
   const rootRef = useModalA11y<HTMLDivElement>(isOpen, () => { if (!inFlight.current) onClose(); });
 
-  const currentOutletId = matchedOutlet?.id ?? '';
-  const outletRetrySeconds = Math.max(0, Math.ceil(((retryAt[currentOutletId] ?? 0) - now) / 1000));
+  const outletRetrySeconds = Math.max(0, Math.ceil(((retryAt[outletId] ?? 0) - now) / 1000));
   const deviceLockSeconds = Math.max(0, Math.ceil((terminalLockoutUntil - now) / 1000));
   const activeLockoutSeconds = Math.max(outletRetrySeconds, deviceLockSeconds);
   const disabled = busy || activeLockoutSeconds > 0;
 
-  const isCodeValid = storeCode.trim().length >= 3;
-  const isPinComplete = pin.every(d => d !== '');
+  useEffect(() => {
+    if (!isOpen || shopsLoading) return;
+    if (!shops.some(shop => shop.id === outletId)) {
+      setOutletId(shops[0]?.id ?? VENDOR_OUTLETS[0].id);
+      setPin('');
+    }
+  }, [isOpen, shopsLoading, shops, outletId]);
 
-  // Reset state on open/close
   useEffect(() => {
     generation.current++;
-    setStoreCode('');
-    setMatchedOutlet(null);
-    setCodeError(null);
-    setPin(['', '', '', '']);
+    setPin('');
     setError(null);
     setIsShaking(false);
     setIsSuccess(false);
     if (!isOpen) return;
     setNow(Date.now());
     const timer = setInterval(() => setNow(Date.now()), 1000);
+    setTimeout(() => pinInputRef.current?.focus(), 150);
     return () => { clearInterval(timer); generation.current++; };
   }, [isOpen]);
 
-  // Handle store code input
-  const handleStoreCodeChange = (raw: string) => {
-    const clean = raw.toUpperCase().trim().replace(/[^A-Z0-9]/g, '');
-    setStoreCode(clean);
-    setCodeError(null);
-
-    // Instant matching check
-    const match = lookupOutletByStoreCode(clean, outlets);
-    if (match) {
-      playTapSound();
-      setMatchedOutlet(match);
-      setPin(['', '', '', '']);
-      setError(null);
-      setTimeout(() => {
-        pinInputRefs[0].current?.focus();
-      }, 100);
-    }
-  };
-
-  const handleManualCodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (disabled || !isCodeValid) return;
-    const match = lookupOutletByStoreCode(storeCode, outlets);
-    if (match) {
-      playTapSound();
-      setMatchedOutlet(match);
-      setTimeout(() => pinInputRefs[0].current?.focus(), 100);
-    } else {
-      recordFailedAttempt();
-      setCodeError(t('Unrecognized terminal code. Contact administrator.', 'గుర్తించబడని టెర్మినల్ కోడ్. నిర్వాహకుడిని సంప్రదించండి.'));
-    }
-  };
-
-  const attemptPinSubmit = async (pinDigits: string[]) => {
-    const fullPin = pinDigits.join('');
-    if (!matchedOutlet || inFlight.current || activeLockoutSeconds > 0 || !/^\d{4}$/.test(fullPin)) return;
-
+  const attemptPin = async (candidate: string) => {
+    if (inFlight.current || disabled || !/^\d{4}$/.test(candidate)) return;
     inFlight.current = true;
     setBusy(true);
     setError(null);
     const current = generation.current;
 
     try {
-      const result = await signInWithOutlet(matchedOutlet.id, fullPin);
+      const result = await signInWithOutlet(outletId, candidate);
       if (current !== generation.current) return;
       if (result.ok) {
         resetFailedAttempts();
@@ -156,7 +103,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
           sessionStorage.removeItem('terminal_velocity_attempts');
           sessionStorage.removeItem('terminal_lockout_until');
         } catch {
-          // ignore storage availability issues
+          // ignore
         }
         setTimeout(() => {
           onSignedIn?.();
@@ -168,12 +115,12 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         setTimeout(() => setIsShaking(false), 450);
         recordFailedAttempt();
         setError(t(result.error ?? 'Incorrect security PIN. Please retry.', 'తప్పు భద్రతా PIN. మళ్లీ ప్రయత్నించండి.'));
-        setPin(['', '', '', '']);
-        pinInputRefs[0].current?.focus();
+        setPin('');
+        pinInputRef.current?.focus();
         if (result.retrySeconds) {
           const timestamp = Date.now();
           setNow(timestamp);
-          setRetryAt(prev => ({ ...prev, [matchedOutlet.id]: timestamp + result.retrySeconds! * 1000 }));
+          setRetryAt(prev => ({ ...prev, [outletId]: timestamp + result.retrySeconds! * 1000 }));
         }
       }
     } catch {
@@ -182,8 +129,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         setTimeout(() => setIsShaking(false), 450);
         recordFailedAttempt();
         setError(t('Unable to reach kitchen server. Please retry.', 'కనెక్షన్ లేదు. మళ్లీ ప్రయత్నించండి.'));
-        setPin(['', '', '', '']);
-        pinInputRefs[0].current?.focus();
+        setPin('');
+        pinInputRef.current?.focus();
       }
     } finally {
       inFlight.current = false;
@@ -191,70 +138,15 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
     }
   };
 
-  const handlePinCellChange = (index: number, val: string) => {
-    if (inFlight.current || activeLockoutSeconds > 0) return;
-    const digit = val.replace(/\D/g, '').slice(-1);
-    const nextPin = [...pin];
-    nextPin[index] = digit;
-    setPin(nextPin);
-    setError(null);
-
-    // Auto-advancing focus forward
-    if (digit && index < 3) {
-      pinInputRefs[index + 1].current?.focus();
-    }
-
-    // Auto-submission on 4th digit
-    if (digit && index === 3 && nextPin.every(d => d !== '')) {
-      void attemptPinSubmit(nextPin);
-    }
-  };
-
-  const handlePinKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Backspace auto-retreat focus backward
-    if (e.key === 'Backspace' && !pin[index] && index > 0) {
-      pinInputRefs[index - 1].current?.focus();
-    }
-  };
-
-  const handleKeypadPress = (key: string) => {
-    if (inFlight.current || activeLockoutSeconds > 0) return;
+  const updatePin = (value: string) => {
+    if (inFlight.current || disabled) return;
+    const candidate = value.replace(/\D/g, '').slice(0, 4);
     playTapSound();
-
-    if (key === 'delete') {
-      const lastFilledIndex = [...pin].reverse().findIndex(d => d !== '');
-      if (lastFilledIndex !== -1) {
-        const targetIndex = 3 - lastFilledIndex;
-        const nextPin = [...pin];
-        nextPin[targetIndex] = '';
-        setPin(nextPin);
-        pinInputRefs[targetIndex].current?.focus();
-      }
-      return;
-    }
-
-    const emptyIndex = pin.findIndex(d => d === '');
-    if (emptyIndex !== -1) {
-      const nextPin = [...pin];
-      nextPin[emptyIndex] = key;
-      setPin(nextPin);
-      if (emptyIndex < 3) {
-        pinInputRefs[emptyIndex + 1].current?.focus();
-      }
-      if (emptyIndex === 3 && nextPin.every(d => d !== '')) {
-        void attemptPinSubmit(nextPin);
-      }
-    }
-  };
-
-  const handleSwitchAccount = () => {
-    setMatchedOutlet(null);
-    setStoreCode('');
-    setCodeError(null);
-    setPin(['', '', '', '']);
+    setPin(candidate);
     setError(null);
-    setIsShaking(false);
-    setIsSuccess(false);
+    if (candidate.length === 4) {
+      void attemptPin(candidate);
+    }
   };
 
   if (!isOpen) return null;
@@ -266,239 +158,164 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         role="dialog" 
         aria-modal="true" 
         aria-labelledby="vendor-login-title"
-        className="vendor-login fixed inset-0 z-50 bg-black/80 backdrop-blur-md text-white font-sans selection:bg-orange-500 flex items-center justify-center p-4 animate-in fade-in duration-200"
+        className="vendor-login fixed inset-0 z-50 overflow-y-auto bg-[#E8ECEF] text-[#1F140A] flex flex-col items-center justify-center p-4 sm:p-6"
       >
-        {/* Backdrop Dismiss Click */}
-        <div 
-          className="absolute inset-0 cursor-pointer" 
-          onClick={() => { if (!inFlight.current) onClose(); }}
-          aria-hidden="true"
-        />
-
-        {/* CENTERED FLOATING TERMINAL MODAL CONTAINER (Matching Image 2) */}
-        <div 
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-sm sm:max-w-md bg-[#0C152B] border border-slate-800/80 rounded-3xl p-6 sm:p-7 text-center text-white shadow-2xl relative z-10 overflow-hidden transition-all duration-300 animate-in zoom-in-95 duration-200"
-        >
-          {/* Close button (WCAG 44x44px touch target) */}
-          <button 
-            type="button" 
-            onClick={onClose} 
-            aria-label={t('Close login','ప్రవేశ విండో మూసివేయండి')} 
-            disabled={busy}
-            className="absolute top-4 right-4 w-11 h-11 rounded-full bg-slate-800/80 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-50 cursor-pointer border border-slate-700/80"
-          >
-            <X size={16} />
-          </button>
-
-          {/* 1. PORTAL SECURITY FLOATING BADGE */}
-          <div className="mb-3">
-            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-2xs select-none">
-              <ShieldCheck size={13} className="text-emerald-400" />
-              <span>{t("ENCRYPTED PARTNER PORTAL", "రక్షిత వ్యాపార గేట్‌వే")}</span>
-            </div>
+        <div className="w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-[#D6DCE2] relative animate-in zoom-in-95 duration-200">
+          {/* Header row */}
+          <div className="flex items-center justify-between pb-1">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              {t("Business Portal", "వ్యాపార పేజీ")}
+            </span>
+            <button 
+              type="button" 
+              onClick={onClose} 
+              aria-label={t('Close login','ప్రవేశ విండో మూసివేయండి')} 
+              disabled={busy}
+              className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors disabled:opacity-50 cursor-pointer border border-gray-200/60"
+            >
+              <X size={18} />
+            </button>
           </div>
 
-          {/* 2. UNIFIED BRAND IDENTITY LAYER */}
-          <div className="flex flex-col items-center mb-5">
-            <div className="w-14 h-14 bg-[#F26400] rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-orange-950/30 border border-orange-400/20 select-none">
-              YM
-            </div>
-            <h2 id="vendor-login-title" className="text-2xl font-black tracking-tight text-white mt-3 leading-none">
-              {!matchedOutlet ? 'Merchant Terminal' : matchedOutlet.name}
+          {/* Logo badge */}
+          <div className="flex flex-col items-center mt-2">
+            <CatalogImage 
+              src="/images/NewLogo.svg" 
+              size="thumbnail" 
+              priority 
+              alt="YEMUNNAI" 
+              className="size-16 rounded-full bg-[#F06A05] object-contain p-2 shadow-md" 
+            />
+            <h2 id="vendor-login-title" className="mt-4 text-center text-2xl font-bold text-gray-900 leading-tight">
+              {t("Canteen sign in", "కేఫ్ యజమాని ప్రవేశం")}
             </h2>
-            <p className="text-xs text-slate-400 font-semibold mt-1.5 tracking-wide max-w-[280px] leading-normal mx-auto">
-              {!matchedOutlet 
-                ? 'Enter your unique store code to unlock the kitchen console'
-                : `Terminal identified as ${matchedOutlet.code}. Input 4-digit security PIN.`
-              }
+            <p className="mt-1.5 text-center text-sm text-[#7A6658] font-medium">
+              {t("Choose a canteen and enter its PIN.", "మీ కేఫ్ ఎంచుకుని నాలుగు అంకెల PIN నమోదు చేయండి.")}
             </p>
           </div>
 
-          {/* LOCKOUT ACTIVE NOTIFICATION */}
+          {/* Active lockout alert */}
           {activeLockoutSeconds > 0 && (
-            <div role="alert" className="mb-5 p-3.5 bg-rose-950/70 border border-rose-500/40 rounded-2xl text-center">
-              <p className="text-xs font-black text-rose-300">Terminal Security Lock Active</p>
-              <p className="text-[11px] text-rose-400 font-normal mt-0.5">
-                Too many failed attempts. Device locked for {Math.floor(activeLockoutSeconds / 60)}:{String(activeLockoutSeconds % 60).padStart(2, '0')}.
+            <div role="alert" className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-center">
+              <p className="text-xs font-bold text-rose-700">Terminal Security Lock Active</p>
+              <p className="text-[11px] text-rose-600 mt-0.5">
+                Too many failed attempts. Try again in {Math.floor(activeLockoutSeconds / 60)}:{String(activeLockoutSeconds % 60).padStart(2, '0')}.
               </p>
             </div>
           )}
 
-          {/* STEP 1: BLIND STORE CODE ENTRY (CRISP WHITE INPUT CONTAINER - EXACT MATCH IMAGE 2) */}
-          {!matchedOutlet ? (
-            <form onSubmit={handleManualCodeSubmit} className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="text-left">
-                <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
-                  TERMINAL STORE CODE
-                </label>
-                {/* Dark-slate high-contrast input box matching PIN boxes */}
-                <input 
-                  id="store-code-input"
-                  type="text"
-                  autoFocus
-                  autoCapitalize="characters"
-                  autoComplete="off"
-                  spellCheck="false"
-                  maxLength={6}
-                  disabled={disabled}
-                  value={storeCode}
-                  onChange={(e) => handleStoreCodeChange(e.target.value)}
-                  placeholder="E.G. MITS, PARA, CAFE"
-                  className="w-full bg-slate-950 border-2 border-slate-800 focus:border-orange-500 rounded-2xl px-5 py-3.5 text-center text-lg font-black tracking-wider text-white placeholder:text-slate-500 placeholder:font-black placeholder:text-sm sm:placeholder:text-base focus:outline-hidden transition-all uppercase shadow-inner disabled:opacity-40"
-                />
-
-                {/* Balanced Quick Pick Badge Track (Purged raw database UUID texts) */}
-                <div className="mt-3.5 mb-2 text-left bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-0.5">
-                    {t('Tap Terminal Quick Picks', 'త్వరిత ఎంపిక')}
-                  </span>
-                  
-                  {/* Uniform 2-Column Grid Layout target block */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(STORE_DICTIONARY).map(([uuid, data]) => (
-                      <button
-                        key={uuid}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => handleStoreCodeChange(data.code)}
-                        className="bg-slate-950 border border-slate-800/80 hover:border-orange-500/60 hover:bg-slate-900 text-[11px] font-black text-slate-200 hover:text-orange-400 py-2.5 px-3 rounded-xl flex items-center gap-2 transition-all active:scale-[0.97] cursor-pointer disabled:opacity-40"
-                      >
-                        <span className="text-sm select-none">{data.icon}</span>
-                        <span className="truncate">{data.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {codeError && (
-                  <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold mt-2.5">
-                    <AlertCircle size={13} className="shrink-0" />
-                    <span>{codeError}</span>
-                  </p>
-                )}
-              </div>
-
-              {/* ACTIVE STATE VIBRATION PHYSICS BUTTON */}
-              <button 
-                type="submit"
-                disabled={disabled || !isCodeValid}
-                className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
-                  isCodeValid && !disabled
-                    ? 'bg-orange-500 text-slate-950 hover:bg-orange-400 active:scale-[0.99] shadow-orange-500/25 cursor-pointer font-black' 
-                    : 'bg-slate-900/80 text-slate-400 border border-slate-800/80 cursor-not-allowed'
-                }`}
+          {/* Form */}
+          <form 
+            className="mt-5 space-y-4" 
+            onSubmit={(e) => { e.preventDefault(); void attemptPin(pin); }}
+          >
+            {/* Canteen Dropdown */}
+            <div className="text-left">
+              <label htmlFor="vendor-outlet" className="text-xs font-bold text-gray-900 block mb-1.5">
+                {t("Canteen", "క్యాంటీన్ దుకాణం")}
+              </label>
+              <select 
+                id="vendor-outlet" 
+                value={outletId} 
+                disabled={busy}
+                onChange={(e) => { setOutletId(e.target.value); setPin(''); setError(null); }}
+                className="h-12 w-full min-w-0 rounded-xl bg-white border-2 border-[#F06A05] px-3.5 text-sm font-bold text-gray-900 shadow-xs focus:outline-hidden cursor-pointer"
               >
-                <span>UNLOCK TERMINAL</span>
-                <ArrowRight size={14} />
-              </button>
-            </form>
-          ) : (
-            /* STEP 2: 4-BOX AUTO-ADVANCING PIN DECK WITH TACTILE TOUCH KEYPAD */
-            <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="text-left">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2.5 text-center">
-                  Secure Terminal PIN
-                </label>
-                
-                {/* Symmetrical 4-Box Entry Layout with Tactile Shake & Success Transitions */}
-                <div className={`flex justify-center gap-3 transition-transform ${isShaking ? 'pin-shake' : ''}`}>
-                  {pin.map((digit, index) => {
-                    const isFilled = Boolean(digit);
-                    return (
-                      <input
-                        key={index}
-                        ref={el => { pinInputRefs[index].current = el; }}
-                        type="password"
-                        inputMode="numeric"
-                        maxLength={1}
-                        disabled={disabled || isSuccess}
-                        aria-label={t(`PIN digit ${index + 1} of 4`, `PIN అంకె ${index + 1} / 4`)}
-                        value={digit}
-                        onChange={(e) => handlePinCellChange(index, e.target.value)}
-                        onKeyDown={(e) => handlePinKeyDown(index, e)}
-                        className={`w-12 h-14 min-w-[44px] min-h-[44px] rounded-2xl text-center text-2xl font-black transition-all shadow-inner disabled:opacity-40 select-none ${
-                          isSuccess
-                            ? 'bg-emerald-950/50 border-2 border-emerald-500 text-emerald-400 shadow-emerald-500/25 ring-2 ring-emerald-500/30'
-                            : isShaking
-                            ? 'bg-rose-950/40 border-2 border-rose-500 text-rose-300 ring-2 ring-rose-500/20'
-                            : isFilled
-                            ? 'bg-orange-950/30 border-2 border-orange-500 text-orange-400 shadow-orange-500/15'
-                            : 'bg-slate-950 border border-slate-800 text-white focus:border-orange-500 focus:bg-slate-900/80 focus:ring-2 focus:ring-orange-500/20'
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
+                <option value="" disabled>Choose a food business</option>
+                {outlets.map((outlet) => (
+                  <option key={outlet.id} value={outlet.id}>
+                    {outlet.name}
+                  </option>
+                ))}
+              </select>
+              {shopsError && (
+                <button type="button" onClick={retryShops} className="mt-1 text-xs text-orange-600 font-semibold cursor-pointer">
+                  Refresh business list
+                </button>
+              )}
+            </div>
 
-                {/* Error feedback */}
-                {error && (
-                  <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold mt-2.5 text-center">
-                    <AlertCircle size={13} className="shrink-0" />
+            {/* 4-digit PIN input */}
+            <div className="text-left">
+              <label htmlFor="vendor-pin" className="text-xs font-bold text-gray-900 block mb-1.5">
+                {t("4-digit PIN", "భద్రతా PIN (4 అంకెలు)")}
+              </label>
+              <input 
+                ref={pinInputRef}
+                id="vendor-pin" 
+                type="password" 
+                inputMode="numeric" 
+                autoComplete="off" 
+                maxLength={4}
+                pattern="[0-9]{4}" 
+                required 
+                value={pin} 
+                disabled={disabled || isSuccess} 
+                onChange={(e) => updatePin(e.target.value)}
+                placeholder="····"
+                aria-describedby="vendor-login-message"
+                className={`h-12 w-full rounded-xl bg-white border px-4 text-center text-2xl font-bold tracking-[0.75em] text-gray-900 shadow-xs focus:outline-hidden transition-all ${
+                  isSuccess
+                    ? 'border-2 border-emerald-500 bg-emerald-50/50 text-emerald-700 ring-2 ring-emerald-500/20'
+                    : isShaking
+                    ? 'pin-shake border-2 border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20'
+                    : 'border-gray-200 focus:border-[#F06A05] focus:ring-2 focus:ring-orange-500/20'
+                } disabled:opacity-50`}
+              />
+              
+              <div id="vendor-login-message" className="mt-2 min-h-5 text-center" aria-live="polite">
+                {error ? (
+                  <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-600 font-semibold">
+                    <AlertCircle size={14} className="shrink-0" />
                     <span>{error}</span>
                   </p>
+                ) : (
+                  <p className="text-xs text-[#7A6658]">
+                    Sign-in starts after the fourth digit.
+                  </p>
                 )}
               </div>
-
-              {/* On-screen tactile keypad for tablet touchscreens */}
-              <div className="grid grid-cols-3 gap-2 pt-1" aria-label="PIN keypad">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => key === '' ? (
-                  <span key="space" />
-                ) : (
-                  <button 
-                    key={key} 
-                    type="button" 
-                    disabled={disabled || isSuccess} 
-                    aria-label={key === 'delete' ? 'Delete last digit' : key}
-                    onClick={() => handleKeypadPress(key)}
-                    className="flex h-12 items-center justify-center rounded-xl bg-slate-950 hover:bg-slate-800 active:scale-95 text-base font-black text-white border border-slate-800/80 transition-all cursor-pointer disabled:opacity-40"
-                  >
-                    {key === 'delete' ? <Delete className="size-4 text-slate-400" /> : key}
-                  </button>
-                ))}
-              </div>
-
-              {/* Final Submission Control Target with Success State */}
-              <button 
-                type="button"
-                disabled={disabled || !isPinComplete || isSuccess}
-                onClick={() => attemptPinSubmit(pin)}
-                className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
-                  isSuccess
-                    ? 'bg-emerald-600 text-white shadow-emerald-600/30 ring-2 ring-emerald-500/40 cursor-default'
-                    : isPinComplete && !disabled
-                    ? 'bg-orange-500 text-slate-950 hover:bg-orange-400 active:scale-[0.99] shadow-orange-500/25 cursor-pointer font-black' 
-                    : 'bg-slate-900/80 text-slate-400 border border-slate-800 cursor-not-allowed'
-                }`}
-              >
-                <ShieldCheck size={15} />
-                <span>
-                  {isSuccess ? 'Access Granted · Opening Console...' : busy ? 'Verifying…' : 'Verify Credentials'}
-                </span>
-              </button>
-
-              {/* Reset Bridge back to Code Entry */}
-              <button 
-                type="button"
-                onClick={handleSwitchAccount}
-                className="text-[10px] font-black text-slate-400 hover:text-slate-200 uppercase tracking-wider block mx-auto transition-colors flex items-center gap-1 cursor-pointer pt-1"
-              >
-                <RotateCcw size={10} />
-                <span>Switch Terminal Code</span>
-              </button>
             </div>
-          )}
 
-          {/* 4. BALANCED MINIMALIST FOOTNOTE */}
-          <div className="mt-5 pt-3 border-t border-slate-800/60 select-none">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-              Secure Terminal Auth · End-to-End Encrypted
-            </p>
-          </div>
+            {/* Tactile Keypad */}
+            <div className="grid grid-cols-3 gap-3 pt-1" aria-label="PIN keypad">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map((key) => key === '' ? (
+                <span key="space" />
+              ) : (
+                <button 
+                  key={key} 
+                  type="button" 
+                  disabled={disabled || isSuccess} 
+                  aria-label={key === 'delete' ? 'Delete last digit' : key}
+                  onClick={() => updatePin(key === 'delete' ? pin.slice(0, -1) : pin + key)}
+                  className="flex h-12 items-center justify-center rounded-xl bg-white border border-gray-200/90 hover:bg-gray-50 active:scale-95 text-xl font-bold text-gray-900 shadow-xs transition-all cursor-pointer disabled:opacity-40 select-none"
+                >
+                  {key === 'delete' ? <Delete className="size-5 text-gray-700" /> : key}
+                </button>
+              ))}
+            </div>
 
+            {/* Sign in Button */}
+            <button 
+              type="submit" 
+              disabled={disabled || pin.length !== 4 || isSuccess}
+              className={`w-full h-12 rounded-xl text-sm font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm ${
+                isSuccess
+                  ? 'bg-emerald-600 text-white shadow-emerald-600/30 ring-2 ring-emerald-500/40 cursor-default'
+                  : pin.length === 4 && !disabled
+                  ? 'bg-[#F06A05] hover:bg-[#d95e04] active:scale-[0.99] text-white shadow-orange-500/25 cursor-pointer'
+                  : 'bg-gray-200 text-gray-400 border border-gray-200 cursor-not-allowed'
+              }`}
+            >
+              <ShieldCheck size={16} />
+              <span>
+                {isSuccess ? 'Access Granted · Opening Console...' : busy ? 'Signing in…' : 'Sign in'}
+              </span>
+            </button>
+          </form>
         </div>
       </div>
-    </SvgScreenFrame>, 
+    </SvgScreenFrame>,
     document.body
   );
 }
