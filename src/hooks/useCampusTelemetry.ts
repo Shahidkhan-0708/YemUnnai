@@ -36,7 +36,7 @@ export interface CampusTelemetryState {
  */
 export function useCampusTelemetry(
   canteenId: string = 'MITS_CANTEEN',
-  targetDestinationCoords: [number, number] = [13.6288, 78.5022]
+  targetDestinationCoords?: [number, number]
 ): CampusTelemetryState {
   const [courierLocation, setCourierLocation] = useState<[number, number]>(MITS_CAMPUS);
   const [headingAngle, setHeadingAngle] = useState<number>(0);
@@ -58,7 +58,7 @@ export function useCampusTelemetry(
 
   // Dynamically resolve target destination coordinates if not custom
   const resolvedTarget: [number, number] = useMemo(() => {
-    if (targetDestinationCoords && (targetDestinationCoords[0] !== 13.6288 || targetDestinationCoords[1] !== 78.5022)) {
+    if (targetDestinationCoords) {
       return targetDestinationCoords;
     }
     const matched = CAMPUS_SHOPS.find(s => s.id === canteenId || s.code === canteenId);
