@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { X, Navigation2, Clock, MapPin, Footprints, ChevronRight, Zap } from 'lucide-react';
+import { useCampusLocation } from '../hooks/useCampusLocation';
 
 export interface ShopNode {
   id: string;
@@ -190,6 +191,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
   initialShopId = 'MITS_CANTEEN'
 }) => {
   const [activeShopId, setActiveShopId] = useState<string>(initialShopId);
+  const { accuracyMeters, isWatching } = useCampusLocation();
 
   const activeShop = useMemo(() => {
     return CAMPUS_SHOPS.find(s => s.id === activeShopId) ?? CAMPUS_SHOPS[0];
@@ -217,11 +219,17 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
         {/* Top Floating Header & Automated Data Feedback Block */}
         <header className="p-4 pb-3 border-b border-zinc-800/80 flex items-center justify-between flex-shrink-0 bg-zinc-950/95 backdrop-blur-md">
           <div className="min-w-0 pr-3">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-              <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="flex items-center gap-1.5 text-[10px] font-black text-orange-500 uppercase tracking-widest">
+                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
                 Dijkstra Shortest Path
               </span>
+              {isWatching && (
+                <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  GPS Live (±{accuracyMeters}m)
+                </span>
+              )}
             </div>
             <div className="flex items-baseline gap-2">
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">

@@ -186,12 +186,12 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
       if (!goodTiles) setStatus('error');
     }, 9000);
 
-    // Crisp Voyager tiles with CARTO API key
+    // Hyper-minimalist Swiggy/Zomato dark monochrome basemap (zero label clutter)
     const subdomains = 'abcd';
     const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY;
     const tilesUrl = cartoApiKey
-      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png';
 
     const tiles = L.tileLayer(tilesUrl, {
       subdomains,
@@ -234,9 +234,9 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
     if (accuracyMeters && accuracyMeters > 5) {
       L.circle(userLocation, {
         radius: Math.min(accuracyMeters, 45),
-        color: '#2563eb',
-        fillColor: '#3b82f6',
-        fillOpacity: 0.1,
+        color: '#F06A05',
+        fillColor: '#F06A05',
+        fillOpacity: 0.08,
         weight: 1,
         dashArray: '3, 4',
       }).addTo(markers);
@@ -336,10 +336,10 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
         }).addTo(routes);
       }
 
-      // Indoor approach segment
+      // Indoor approach segment (subtle slate corridor line)
       if (activeRoutePath.indoorCoordinates.length > 1) {
         L.polyline(activeRoutePath.indoorCoordinates, {
-          color: '#0284c7',
+          color: '#94A3B8',
           weight: 3.5,
           opacity: 0.92,
           dashArray: '3, 6',
