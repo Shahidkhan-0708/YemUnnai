@@ -272,7 +272,7 @@ export function App() {
 
                 </TabsContent>
                 <FloatingCartBar />
-                <BuyerTabBar activeTab={buyerTab} />
+                <BuyerTabBar activeTab={buyerTab} onTabChange={setBuyerTab} />
                 {/* Quick Order Modal — sits stably on top of screen with synced quantity */}
                 {selectedOrderFood && <QuickOrderModal
                   isOpen={!!selectedOrderFood}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, X, Plus, Minus, Bell, Clock } from 'lucide-react';
+import { ArrowRight, X, Plus, Minus, Bell, Clock, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/useCart.ts';
 import { placeOrder } from '../lib/pickup.ts';
 import { playSuccessChime, fireOrderConfetti } from '../lib/celebration.ts';
@@ -22,6 +22,13 @@ export const FloatingCartBar: React.FC = () => {
 
   const prevCountRef = useRef(totalItems);
 
+  // Listen for open-cart-drawer event from BuyerTabBar
+  useEffect(() => {
+    const handleOpenCart = () => setIsDrawerOpen(true);
+    window.addEventListener('open-cart-drawer', handleOpenCart);
+    return () => window.removeEventListener('open-cart-drawer', handleOpenCart);
+  }, []);
+
   // Trigger bouncy scale on badge when item count changes
   useEffect(() => {
     if (totalItems !== prevCountRef.current && totalItems > 0) {
@@ -33,7 +40,7 @@ export const FloatingCartBar: React.FC = () => {
     prevCountRef.current = totalItems;
   }, [totalItems]);
 
-  if (totalItems === 0 && !showStatusTracker) {
+  if (totalItems === 0 && !showStatusTracker && !isDrawerOpen) {
     return null;
   }
 
@@ -185,107 +192,130 @@ export const FloatingCartBar: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Scrollable Item Rows */}
-                <div className="overflow-y-auto p-4 space-y-3 flex-grow">
-                  {itemsList.map(({ menuItem, quantity }) => (
-                    <div key={menuItem.id} className="flex justify-between items-center py-2.5 border-b border-gray-100 last:border-none">
-                      {/* Left: Diet Dot + Item Name */}
-                      <div className="flex items-center gap-2.5 min-w-0 pr-3 flex-1">
-                        <span className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center flex-shrink-0 ${
-                          menuItem.isVegetarian ? 'border-emerald-600' : 'border-rose-600'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${menuItem.isVegetarian ? 'bg-emerald-600' : 'bg-rose-600'}`} />
-                        </span>
-                        <span className="text-sm font-semibold text-gray-900 truncate">
-                          {menuItem.name}
-                        </span>
+                {/* Content: Empty State or Scrollable Item Rows */}
+                {itemsList.length === 0 ? (
+                  <div className="py-12 px-6 text-center flex flex-col items-center justify-center flex-grow">
+                    <div className="w-16 h-16 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 mb-3 shadow-2xs">
+                      <ShoppingBag size={28} />
+                    </div>
+                    <h4 className="text-base font-black text-gray-900 tracking-tight">
+                      {t('Your cart is empty', 'మీ కార్ట్ ఖాళీగా ఉంది')}
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-normal">
+                      {t('Explore freshly prepared canteen meals, warm chai, and hot snacks to add to your order.', 'మీ ఆర్డర్‌కు జోడించడానికి తాజా క్యాంటీన్ భోజనాలు, వేడి చాయ్ మరియు స్నాక్స్‌ను అన్వేషించండి.')}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsDrawerOpen(false)}
+                      className="mt-5 px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
+                    >
+                      {t('Browse Menu', 'మెనూ చూడండి')}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="overflow-y-auto p-4 space-y-3 flex-grow">
+                      {itemsList.map(({ menuItem, quantity }) => (
+                        <div key={menuItem.id} className="flex justify-between items-center py-2.5 border-b border-gray-100 last:border-none">
+                          {/* Left: Diet Dot + Item Name */}
+                          <div className="flex items-center gap-2.5 min-w-0 pr-3 flex-1">
+                            <span className={`w-3.5 h-3.5 rounded-xs border flex items-center justify-center flex-shrink-0 ${
+                              menuItem.isVegetarian ? 'border-emerald-600' : 'border-rose-600'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${menuItem.isVegetarian ? 'bg-emerald-600' : 'bg-rose-600'}`} />
+                            </span>
+                            <span className="text-sm font-semibold text-gray-900 truncate">
+                              {menuItem.name}
+                            </span>
+                          </div>
+
+                          {/* Right: Price & Stepper Balanced on Same Horizontal Baseline */}
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <span className="text-sm font-black text-gray-950">
+                              ₹{menuItem.price * quantity}
+                            </span>
+                            <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2.5 py-1 bg-gray-50 shadow-2xs">
+                              <button
+                                type="button"
+                                className="text-gray-500 hover:text-gray-950 font-semibold px-1 transition-colors cursor-pointer"
+                                onClick={() => removeItem(menuItem.id)}
+                                aria-label={`Decrease ${menuItem.name}`}
+                              >
+                                <Minus size={12} />
+                              </button>
+                              <span className="text-xs font-black text-gray-900 w-4 text-center">{quantity}</span>
+                              <button
+                                type="button"
+                                className="text-orange-600 hover:text-orange-700 font-semibold px-1 transition-colors cursor-pointer"
+                                onClick={() => addItem(menuItem)}
+                                aria-label={`Increase ${menuItem.name}`}
+                              >
+                                <Plus size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Clean Arrival Time Selector (Symmetrical rounded-xl buttons, zero loud neon borders) */}
+                      <div className="p-3.5 rounded-2xl border border-gray-150 bg-gray-50/70 mt-3">
+                        <div className="flex items-center gap-1.5 mb-2.5 text-xs font-semibold text-gray-700">
+                          <Clock size={13} className="text-orange-500" />
+                          <span>{t('When will you reach the shop?', 'మీరు దుకాణానికి ఎప్పుడు చేరుకుంటారు?')}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          {['5 mins', '10 mins', '15 mins'].map((time) => (
+                            <button
+                              key={time}
+                              type="button"
+                              onClick={() => setArrivalTime(time)}
+                              className={`flex-1 text-xs font-semibold py-2 rounded-xl border transition-all cursor-pointer ${
+                                arrivalTime === time
+                                  ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
+                                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                              }`}
+                            >
+                              {time}
+                            </button>
+                          ))}
+                        </div>
                       </div>
 
-                      {/* Right: Price & Stepper Balanced on Same Horizontal Baseline */}
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="text-sm font-black text-gray-950">
-                          ₹{menuItem.price * quantity}
-                        </span>
-                        <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2.5 py-1 bg-gray-50 shadow-2xs">
-                          <button
-                            type="button"
-                            className="text-gray-500 hover:text-gray-950 font-semibold px-1 transition-colors cursor-pointer"
-                            onClick={() => removeItem(menuItem.id)}
-                            aria-label={`Decrease ${menuItem.name}`}
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="text-xs font-black text-gray-900 w-4 text-center">{quantity}</span>
-                          <button
-                            type="button"
-                            className="text-orange-600 hover:text-orange-700 font-semibold px-1 transition-colors cursor-pointer"
-                            onClick={() => addItem(menuItem)}
-                            aria-label={`Increase ${menuItem.name}`}
-                          >
-                            <Plus size={12} />
-                          </button>
+                      {/* High-Contrast Summary: Clean Whitespace Grid */}
+                      <div className="space-y-2 mt-4 px-1">
+                        <div className="flex justify-between text-xs text-gray-500 font-normal">
+                          <span>{t('Item Total', 'వంటకాల మొత్తం')}</span>
+                          <span className="font-semibold text-gray-800">₹{totalPrice}</span>
+                        </div>
+                        <div className="flex justify-between text-xs text-emerald-600 font-semibold">
+                          <span>{t('Campus Walk-In', 'క్యాంపస్ వాక్-ఇన్')}</span>
+                          <span>{t('FREE', 'ఉచితం')}</span>
+                        </div>
+                        <div className="border-t border-gray-150 my-2 pt-2 flex justify-between items-center">
+                          <span className="text-sm font-black text-gray-950">{t('Total Bill Value', 'మొత్తం బిల్లు విలువ')}</span>
+                          <span className="text-base font-black text-gray-950">₹{totalPrice}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-gray-600 pt-1">
+                          <span className="font-normal text-gray-500">{t('Payment', 'చెల్లింపు')}</span>
+                          <span className="font-semibold text-gray-900">{t('Pay at Counter (Cash / UPI)', 'కౌంటర్ వద్ద చెల్లింపు (నగదు / UPI)')}</span>
                         </div>
                       </div>
                     </div>
-                  ))}
 
-                  {/* Clean Arrival Time Selector (Symmetrical rounded-xl buttons, zero loud neon borders) */}
-                  <div className="p-3.5 rounded-2xl border border-gray-150 bg-gray-50/70 mt-3">
-                    <div className="flex items-center gap-1.5 mb-2.5 text-xs font-semibold text-gray-700">
-                      <Clock size={13} className="text-orange-500" />
-                      <span>{t('When will you reach the shop?', 'మీరు దుకాణానికి ఎప్పుడు చేరుకుంటారు?')}</span>
+                    {/* Single Full-Width Primary Action */}
+                    <div className="p-4 pt-3 border-t border-gray-100 flex-shrink-0 bg-white">
+                      <button 
+                        type="button"
+                        onClick={handleSendOrder}
+                        disabled={isCheckingOut || totalItems === 0}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-sm font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Bell size={16} />
+                        <span>{isCheckingOut ? t('Alerting Canteen…', 'క్యాంటీన్‌ను హెచ్చరిస్తున్నాం…') : t('Send Order & Alert Owner', 'ఆర్డర్ పంపి యజమానికి తెలపండి')}</span>
+                      </button>
                     </div>
-                    <div className="flex gap-2">
-                      {['5 mins', '10 mins', '15 mins'].map((time) => (
-                        <button
-                          key={time}
-                          type="button"
-                          onClick={() => setArrivalTime(time)}
-                          className={`flex-1 text-xs font-semibold py-2 rounded-xl border transition-all cursor-pointer ${
-                            arrivalTime === time
-                              ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
-                              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                          }`}
-                        >
-                          {time}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* High-Contrast Summary: Clean Whitespace Grid */}
-                  <div className="space-y-2 mt-4 px-1">
-                    <div className="flex justify-between text-xs text-gray-500 font-normal">
-                      <span>{t('Item Total', 'వంటకాల మొత్తం')}</span>
-                      <span className="font-semibold text-gray-800">₹{totalPrice}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-emerald-600 font-semibold">
-                      <span>{t('Campus Walk-In', 'క్యాంపస్ వాక్-ఇన్')}</span>
-                      <span>{t('FREE', 'ఉచితం')}</span>
-                    </div>
-                    <div className="border-t border-gray-150 my-2 pt-2 flex justify-between items-center">
-                      <span className="text-sm font-black text-gray-950">{t('Total Bill Value', 'మొత్తం బిల్లు విలువ')}</span>
-                      <span className="text-base font-black text-gray-950">₹{totalPrice}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-600 pt-1">
-                      <span className="font-normal text-gray-500">{t('Payment', 'చెల్లింపు')}</span>
-                      <span className="font-semibold text-gray-900">{t('Pay at Counter (Cash / UPI)', 'కౌంటర్ వద్ద చెల్లింపు (నగదు / UPI)')}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Single Full-Width Primary Action */}
-                <div className="p-4 pt-3 border-t border-gray-100 flex-shrink-0 bg-white">
-                  <button 
-                    type="button"
-                    onClick={handleSendOrder}
-                    disabled={isCheckingOut || totalItems === 0}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-sm font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Bell size={16} />
-                    <span>{isCheckingOut ? t('Alerting Canteen…', 'క్యాంటీన్‌ను హెచ్చరిస్తున్నాం…') : t('Send Order & Alert Owner', 'ఆర్డర్ పంపి యజమానికి తెలపండి')}</span>
-                  </button>
-                </div>
+                  </>
+                )}
               </>
             )}
           </div>

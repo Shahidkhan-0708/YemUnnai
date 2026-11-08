@@ -386,11 +386,35 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
       const initialBearing = path.length > 1 ? calculateGeographicBearing(path[0], path[1]) : 0;
       const runnerIcon = L.divIcon({
         html: `
-          <div class="swiggy-runner-marker">
-            <div class="swiggy-runner-halo"></div>
-            <div class="swiggy-runner-disc" style="transform: rotate(${Math.round(initialBearing)}deg);">
-              <span class="swiggy-runner-emoji">🛵</span>
-              <div class="swiggy-runner-pointer"></div>
+          <div class="swiggy-runner-marker relative w-10 h-10 flex items-center justify-center">
+            <div class="swiggy-runner-halo absolute inset-0 rounded-full bg-emerald-500/25 animate-ping"></div>
+            <div class="swiggy-runner-disc w-9 h-9 flex items-center justify-center transition-transform duration-75" style="transform: rotate(${Math.round(initialBearing)}deg);">
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-md">
+                <!-- Front tire -->
+                <rect x="15.5" y="1" width="3" height="6" rx="1.5" fill="#18181b" />
+                <!-- Handlebars & Mirrors -->
+                <line x1="8.5" y1="8" x2="25.5" y2="8" stroke="#3f3f46" stroke-width="2.2" stroke-linecap="round" />
+                <circle cx="8" cy="7.5" r="1.5" fill="#e4e4e7" stroke="#27272a" stroke-width="0.8" />
+                <circle cx="26" cy="7.5" r="1.5" fill="#e4e4e7" stroke="#27272a" stroke-width="0.8" />
+                <!-- Front Body / Cowl (Yellow) -->
+                <path d="M12.5 7 Q17 4 21.5 7 L20.5 13.5 Q17 14.5 13.5 13.5 Z" fill="#eab308" stroke="#ca8a04" stroke-width="0.7" />
+                <!-- Rider Arms (Red sleeves reaching forward) -->
+                <line x1="11" y1="12" x2="10" y2="9" stroke="#dc2626" stroke-width="2" stroke-linecap="round" />
+                <line x1="23" y1="12" x2="24" y2="9" stroke="#dc2626" stroke-width="2" stroke-linecap="round" />
+                <!-- Rider Torso (Red delivery jacket) -->
+                <path d="M11.5 12.5 Q17 11 22.5 12.5 L21.5 21 Q17 22 12.5 21 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="0.7" />
+                <!-- Rider Helmet (Red helmet with dark visor & white specular glare) -->
+                <ellipse cx="17" cy="14.5" rx="4" ry="4.5" fill="#dc2626" stroke="#991b1b" stroke-width="0.8" />
+                <ellipse cx="17" cy="12.5" rx="2.8" ry="1.6" fill="#0f172a" />
+                <path d="M15.2 12 Q17 11 18.8 12" stroke="#ffffff" stroke-width="0.75" stroke-linecap="round" opacity="0.85" />
+                <!-- Yellow Delivery Cargo Box / Backpack on rear rack -->
+                <rect x="11.5" y="21" width="11" height="8.5" rx="1.8" fill="#eab308" stroke="#ca8a04" stroke-width="0.8" />
+                <line x1="11.5" y1="25" x2="22.5" y2="25" stroke="#a16207" stroke-width="0.7" />
+                <rect x="15.5" y="23.8" width="3" height="2.5" rx="0.5" fill="#ca8a04" />
+                <!-- Rear Wheel & Mudguard -->
+                <rect x="15.5" y="29.5" width="3" height="3.5" rx="1.2" fill="#18181b" />
+                <circle cx="17" cy="30.5" r="0.9" fill="#ef4444" />
+              </svg>
             </div>
           </div>
         `,

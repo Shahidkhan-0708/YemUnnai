@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X, ChevronRight, LocateFixed, Footprints, Navigation2 } from 'lucide-react';
+import { X, ChevronRight, LocateFixed, Footprints, Navigation2, Store } from 'lucide-react';
 import { useCampusLocation } from '../hooks/useCampusLocation';
 import { findCampusRoute, type CampusRouteResult } from '../lib/campusGraph';
 import { MITS_CAMPUS, haversineDistance } from '../lib/mapLocations';
@@ -145,14 +145,25 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
       zIndexOffset: 800,
     }).addTo(markers);
 
-    // 3. Draw Target Canteen Pin
+    // 3. Draw Target Canteen Pin (Zomato-grade Black Home Pin & Blue GPS Anchor matching reference)
     const canteenHtml = `
       <div class="flex flex-col items-center pointer-events-none">
-        <div class="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-700 shadow-xl flex items-center justify-center text-sm border-t-2 border-t-orange-500">
-          ${activeShop.emoji || '🍱'}
+        <!-- Black Circular Destination Home Pin from Screenshot Reference -->
+        <div class="relative w-8 h-8 rounded-full bg-black border-2 border-white shadow-xl flex items-center justify-center text-white z-10 transition-transform">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
         </div>
-        <div class="w-1.5 h-1.5 bg-orange-500 rotate-45 -mt-1 shadow-xs"></div>
-        <span class="mt-1 text-[9px] font-black text-orange-400 bg-zinc-950/90 border border-zinc-800 px-2 py-0.5 rounded-md whitespace-nowrap">
+        <!-- Pointer Beak -->
+        <div class="w-1.5 h-1.5 bg-black rotate-45 -mt-1 border-r border-b border-white/50 z-10"></div>
+        <!-- Vibrant Blue GPS Location Dot at Pin Base -->
+        <div class="relative w-3.5 h-3.5 flex items-center justify-center -mt-0.5">
+          <div class="absolute inset-0 rounded-full bg-blue-500/35 animate-ping"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-blue-600 border-1.5 border-white shadow-md z-20"></div>
+        </div>
+        <!-- Destination Name Pill -->
+        <span class="mt-1 text-[9px] font-black text-white bg-zinc-950/95 border border-zinc-700/80 px-2.5 py-0.5 rounded-full whitespace-nowrap shadow-lg tracking-wider">
           ${activeShop.name}
         </span>
       </div>
@@ -162,29 +173,29 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
       icon: L.divIcon({
         html: canteenHtml,
         className: 'canteen-target-node',
-        iconSize: [80, 50],
-        iconAnchor: [40, 40],
+        iconSize: [100, 60],
+        iconAnchor: [50, 24],
       }),
       zIndexOffset: 1000,
     }).addTo(markers);
 
-    // 4. Draw Polyline Route Tracks (High-Contrast Dual Stroke)
+    // 4. Draw Polyline Route Tracks (High-Contrast Zomato Emerald Green Dual Stroke)
     const pathCoords = activeRouteResult.coordinates;
     if (pathCoords && pathCoords.length > 1) {
-      // Outer Ambient Glow Polyline
+      // Outer Ambient Glow Polyline (Vibrant Emerald Green)
       L.polyline(pathCoords, {
-        color: '#f97316',
-        weight: 7,
-        opacity: 0.22,
+        color: '#16a34a',
+        weight: 7.5,
+        opacity: 0.28,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(routes);
 
       // Core Crisp Polyline
       L.polyline(pathCoords, {
-        color: '#f97316',
-        weight: 3.5,
-        opacity: 0.95,
+        color: '#15803d',
+        weight: 4.5,
+        opacity: 0.98,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(routes);
@@ -198,17 +209,41 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
       });
     }
 
-    // 5. Live Animated Courier Runner (Continuous LERP along active walking path)
+    // 5. Live Animated Courier Runner (Zomato Top-Down Illustrated Courier Bike Vector)
     let runnerAnimFrameId: number | null = null;
     if (pathCoords && pathCoords.length > 1) {
       const initialBearing = calculateGeographicBearing(pathCoords[0], pathCoords[1]);
       const runnerIcon = L.divIcon({
         html: `
-          <div class="swiggy-runner-marker">
-            <div class="swiggy-runner-halo"></div>
-            <div class="swiggy-runner-disc" style="transform: rotate(${Math.round(initialBearing)}deg);">
-              <span class="swiggy-runner-emoji">🛵</span>
-              <div class="swiggy-runner-pointer"></div>
+          <div class="swiggy-runner-marker relative w-10 h-10 flex items-center justify-center">
+            <div class="swiggy-runner-halo absolute inset-0 rounded-full bg-emerald-500/25 animate-ping"></div>
+            <div class="swiggy-runner-disc w-9 h-9 flex items-center justify-center transition-transform duration-75" style="transform: rotate(${Math.round(initialBearing)}deg);">
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-md">
+                <!-- Front tire -->
+                <rect x="15.5" y="1" width="3" height="6" rx="1.5" fill="#18181b" />
+                <!-- Handlebars & Mirrors -->
+                <line x1="8.5" y1="8" x2="25.5" y2="8" stroke="#3f3f46" stroke-width="2.2" stroke-linecap="round" />
+                <circle cx="8" cy="7.5" r="1.5" fill="#e4e4e7" stroke="#27272a" stroke-width="0.8" />
+                <circle cx="26" cy="7.5" r="1.5" fill="#e4e4e7" stroke="#27272a" stroke-width="0.8" />
+                <!-- Front Body / Cowl (Yellow) -->
+                <path d="M12.5 7 Q17 4 21.5 7 L20.5 13.5 Q17 14.5 13.5 13.5 Z" fill="#eab308" stroke="#ca8a04" stroke-width="0.7" />
+                <!-- Rider Arms (Red sleeves reaching forward) -->
+                <line x1="11" y1="12" x2="10" y2="9" stroke="#dc2626" stroke-width="2" stroke-linecap="round" />
+                <line x1="23" y1="12" x2="24" y2="9" stroke="#dc2626" stroke-width="2" stroke-linecap="round" />
+                <!-- Rider Torso (Red delivery jacket) -->
+                <path d="M11.5 12.5 Q17 11 22.5 12.5 L21.5 21 Q17 22 12.5 21 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="0.7" />
+                <!-- Rider Helmet (Red helmet with dark visor & white specular glare) -->
+                <ellipse cx="17" cy="14.5" rx="4" ry="4.5" fill="#dc2626" stroke="#991b1b" stroke-width="0.8" />
+                <ellipse cx="17" cy="12.5" rx="2.8" ry="1.6" fill="#0f172a" />
+                <path d="M15.2 12 Q17 11 18.8 12" stroke="#ffffff" stroke-width="0.75" stroke-linecap="round" opacity="0.85" />
+                <!-- Yellow Delivery Cargo Box / Backpack on rear rack -->
+                <rect x="11.5" y="21" width="11" height="8.5" rx="1.8" fill="#eab308" stroke="#ca8a04" stroke-width="0.8" />
+                <line x1="11.5" y1="25" x2="22.5" y2="25" stroke="#a16207" stroke-width="0.7" />
+                <rect x="15.5" y="23.8" width="3" height="2.5" rx="0.5" fill="#ca8a04" />
+                <!-- Rear Wheel & Mudguard -->
+                <rect x="15.5" y="29.5" width="3" height="3.5" rx="1.2" fill="#18181b" />
+                <circle cx="17" cy="30.5" r="0.9" fill="#ef4444" />
+              </svg>
             </div>
           </div>
         `,
@@ -347,7 +382,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
                     : 'bg-zinc-800/80 hover:bg-zinc-800 text-zinc-400 border border-zinc-700/40 hover:text-zinc-200'
                 }`}
               >
-                <span>{shop.emoji}</span>
+                <Store size={13} className={isSelected ? 'text-white' : 'text-zinc-400'} />
                 <span>{shop.name}</span>
                 {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
               </button>
