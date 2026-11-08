@@ -8,6 +8,32 @@ import { useModalA11y } from '../lib/useModalA11y';
 import { useLanguage } from '../lib/language';
 import { VENDOR_OUTLETS, lookupOutletByStoreCode } from '../lib/vendorAuth';
 import { playTapSound } from '../lib/celebration';
+import { reportAppError } from '../lib/telemetry';
+
+// Device-level velocity throttling constants
+const MAX_FAILED_ATTEMPTS = 5;
+const SLIDING_WINDOW_MS = 60 * 1000;
+const LOCKOUT_DURATION_MS = 120 * 1000;
+
+let failedAttemptTimestamps: number[] = [];
+let terminalLockoutUntil = 0;
+
+function recordFailedAttempt(): number {
+  const nowMs = Date.now();
+  failedAttemptTimestamps = failedAttemptTimestamps.filter(t => nowMs - t < SLIDING_WINDOW_MS);
+  failedAttemptTimestamps.push(nowMs);
+
+  if (failedAttemptTimestamps.length >= MAX_FAILED_ATTEMPTS) {
+    terminalLockoutUntil = nowMs + LOCKOUT_DURATION_MS;
+    reportAppError('auth', 'Device-level terminal velocity throttle triggered: 5 failed attempts in 60s');
+  }
+  return terminalLockoutUntil;
+}
+
+function resetFailedAttempts() {
+  failedAttemptTimestamps = [];
+  terminalLockoutUntil = 0;
+}
 
 interface VendorLoginModalProps {
   isOpen: boolean;
@@ -44,7 +70,10 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
   const rootRef = useModalA11y<HTMLDivElement>(isOpen, () => { if (!inFlight.current) onClose(); });
 
   const currentOutletId = matchedOutlet?.id ?? '';
-  const retrySeconds = Math.max(0, Math.ceil(((retryAt[currentOutletId] ?? 0) - now) / 1000));
+  const outletRetrySeconds = Math.max(0, Math.ceil(((retryAt[currentOutletId] ?? 0) - now) / 1000));
+  const deviceLockSeconds = Math.max(0, Math.ceil((terminalLockoutUntil - now) / 1000));
+  const activeLockoutSeconds = Math.max(outletRetrySeconds, deviceLockSeconds);
+  const disabled = busy || activeLockoutSeconds > 0;
 
   // Reset state on open/close
   useEffect(() => {
@@ -81,19 +110,20 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
 
   const handleManualCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!storeCode.trim()) return;
+    if (disabled || !storeCode.trim()) return;
     const match = lookupOutletByStoreCode(storeCode, outlets);
     if (match) {
       setMatchedOutlet(match);
       setTimeout(() => pinInputRefs[0].current?.focus(), 80);
     } else {
+      recordFailedAttempt();
       setCodeError(t('Invalid terminal shortcode. Please check with campus manager.', 'చెల్లని టెర్మినల్ కోడ్. దయచేసి నిర్వాహకుడిని సంప్రదించండి.'));
     }
   };
 
   const attemptPinSubmit = async (pinDigits: string[]) => {
     const fullPin = pinDigits.join('');
-    if (!matchedOutlet || inFlight.current || retrySeconds > 0 || !/^\d{4}$/.test(fullPin)) return;
+    if (!matchedOutlet || inFlight.current || activeLockoutSeconds > 0 || !/^\d{4}$/.test(fullPin)) return;
 
     inFlight.current = true;
     setBusy(true);
@@ -104,10 +134,12 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
       const result = await signInWithOutlet(matchedOutlet.id, fullPin);
       if (current !== generation.current) return;
       if (result.ok) {
+        resetFailedAttempts();
         onSignedIn?.();
         onClose();
         window.dispatchEvent(new Event('yem-login-success'));
       } else {
+        recordFailedAttempt();
         setError(t(result.error ?? 'Incorrect security PIN. Please try again.', 'తప్పు భద్రతా PIN. మళ్లీ ప్రయత్నించండి.'));
         setPin(['', '', '', '']);
         pinInputRefs[0].current?.focus();
@@ -119,6 +151,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
       }
     } catch {
       if (current === generation.current) {
+        recordFailedAttempt();
         setError(t('Unable to connect to kitchen server. Please retry.', 'కనెక్షన్ లేదు. మళ్లీ ప్రయత్నించండి.'));
         setPin(['', '', '', '']);
         pinInputRefs[0].current?.focus();
@@ -195,7 +228,6 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
   };
 
   if (!isOpen) return null;
-  const disabled = busy || retrySeconds > 0;
 
   return createPortal(
     <SvgScreenFrame screen={null}>
@@ -250,6 +282,15 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
             {/* STEP 1: BLIND STORE CODE ENTRY */}
             {!matchedOutlet ? (
               <form onSubmit={handleManualCodeSubmit} className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                {activeLockoutSeconds > 0 && (
+                  <div role="alert" className="p-3.5 bg-rose-950/70 border border-rose-500/50 rounded-2xl text-center">
+                    <p className="text-xs font-black text-rose-300">Terminal Security Lock Active</p>
+                    <p className="text-[11px] text-rose-400 font-normal mt-0.5">
+                      Too many failed attempts. Device locked for {Math.floor(activeLockoutSeconds / 60)}:{String(activeLockoutSeconds % 60).padStart(2, '0')}.
+                    </p>
+                  </div>
+                )}
+
                 <div className="bg-slate-800/80 rounded-3xl p-6 border border-slate-700/60 shadow-xl backdrop-blur-xs">
                   <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2.5">
                     Terminal Store Code
@@ -262,10 +303,11 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                     autoComplete="off"
                     spellCheck="false"
                     maxLength={10}
+                    disabled={disabled}
                     value={storeCode}
                     onChange={(e) => handleStoreCodeChange(e.target.value)}
                     placeholder="e.g. MITS, PARA, CAFE"
-                    className="w-full bg-slate-950 border-2 border-slate-700 focus:border-orange-500 rounded-2xl px-4 py-3.5 text-center text-xl font-black tracking-widest uppercase text-orange-400 placeholder:text-slate-600 focus:outline-hidden transition-all shadow-inner"
+                    className="w-full bg-slate-950 border-2 border-slate-700 focus:border-orange-500 rounded-2xl px-4 py-3.5 text-center text-xl font-black tracking-widest uppercase text-orange-400 placeholder:text-slate-600 focus:outline-hidden transition-all shadow-inner disabled:opacity-40"
                   />
 
                   {codeError ? (
@@ -282,7 +324,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
 
                 <button
                   type="submit"
-                  disabled={!storeCode.trim()}
+                  disabled={disabled || !storeCode.trim()}
                   className="w-full bg-orange-500 hover:bg-orange-600 active:scale-98 disabled:opacity-40 text-white text-xs font-black py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Unlock Terminal</span>
