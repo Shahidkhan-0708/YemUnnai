@@ -277,23 +277,23 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
               </span>
             </button>
 
-            {/* Language Selector */}
+            {/* Language Selector - Symmetrical Rounded Scale */}
             <select 
               aria-label="Language" 
               value={lang} 
               onChange={e => setLanguage(e.target.value as 'en' | 'te')}
-              className="text-xs font-bold bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-gray-700 cursor-pointer"
+              className="text-xs font-black bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 text-gray-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all"
             >
               <option value="en">EN</option>
               <option value="te">తె</option>
             </select>
 
-            {/* Sign Out */}
+            {/* Sign Out - Symmetrical Rounded Scale */}
             <button 
               type="button" 
               onClick={signOut} 
               aria-label="Sign out"
-              className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200/80 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors cursor-pointer flex-shrink-0"
             >
               <LogOut size={14} />
             </button>
@@ -321,20 +321,20 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
           </div>
         </div>
 
-        {/* Background Kitchen Alerts Setup & Test Ring */}
-        <div className="mx-4 mb-3 p-3 bg-white rounded-xl border border-gray-100 shadow-2xs flex items-center justify-between">
-          <div className="flex items-center gap-2.5 min-w-0 pr-2">
-            <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-              pushStatus === 'granted' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+        {/* Background Kitchen Alerts Setup & Test Ring - Perfectly Symmetrical Banner */}
+        <div className="mx-4 mb-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0 pr-1">
+            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+              pushStatus === 'granted' ? 'bg-emerald-500 animate-pulse' : 'bg-orange-500 animate-pulse'
             }`} />
             <div className="min-w-0">
-              <p className="text-xs font-black text-gray-950 truncate">
+              <h4 className="text-xs font-black text-gray-950 leading-tight truncate">
                 {pushStatus === 'granted' ? 'Kitchen Push Alerts Active' : 'Enable Lock Screen Alerts'}
-              </p>
-              <p className="text-[10px] text-gray-400 font-semibold truncate mt-0.5">
+              </h4>
+              <p className="text-[11px] text-gray-400 font-semibold truncate mt-0.5">
                 {pushStatus === 'granted' 
                   ? 'Plays loud kitchen chime even when device is locked' 
-                  : 'Receive background notifications for incoming orders'}
+                  : 'Receive instant background audio alerts for incoming orders'}
               </p>
             </div>
           </div>
@@ -349,7 +349,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                   setTimeout(() => setIsTestingPush(false), 600);
                 }}
                 disabled={isTestingPush}
-                className="text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200/60 px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+                className="text-[11px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200/60 px-3 py-1.5 rounded-xl transition-all cursor-pointer shrink-0"
               >
                 {isTestingPush ? 'Ringing…' : 'Test Ring'}
               </button>
@@ -360,7 +360,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                   const perm = await requestPushPermission();
                   setPushStatus(perm);
                 }}
-                className="text-[10px] font-black text-white bg-orange-500 hover:bg-orange-600 active:scale-95 px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-xs"
+                className="bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-black px-4 py-2 rounded-xl transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
               >
                 Enable
               </button>
@@ -470,16 +470,16 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                   </div>
                 </div>
 
-                {/* Clean Customer Location / Meta Bar */}
+                {/* Symmetrical Context Metadata Footer Box */}
                 <div className="px-4 pb-4">
-                  <div className="text-[11px] font-semibold text-gray-500 bg-gray-50 border border-gray-100/70 px-3 py-2 rounded-xl flex items-center justify-between">
-                    <span className="truncate max-w-[60%] flex items-center gap-1.5">
+                  <div className="w-full bg-gray-50 border border-gray-100/70 p-3 rounded-xl flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-600 truncate max-w-[60%]">
                       <MapPin size={12} className="text-gray-400 flex-shrink-0" />
                       <span className="truncate">{cleanLocation}</span>
-                    </span>
+                    </div>
                     <a 
                       href={`tel:${cleanPhone}`} 
-                      className="text-gray-500 hover:text-gray-800 font-bold font-mono text-[10px] bg-white px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 flex-shrink-0 transition-colors"
+                      className="bg-white border border-gray-200 px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono text-gray-500 shadow-2xs flex items-center gap-1.5 hover:text-gray-800 transition-colors flex-shrink-0"
                     >
                       <Phone size={10} className="text-gray-400" />
                       <span>{cleanPhone}</span>
