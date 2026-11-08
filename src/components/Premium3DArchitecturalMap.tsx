@@ -783,9 +783,10 @@ export function Premium3DArchitecturalMap({
             />
             <circle cx="0" cy="-25" r="5" fill="#ffffff" />
             <circle cx="0" cy="-25" r="2.5" fill="#e11d48" />
-            <g transform="translate(24, -20)">
-              <rect x="-4" y="-12" width="90" height="24" rx="6" fill="#0f172a" opacity="0.9" />
-              <text x="41" y="4" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="900" fontFamily="system-ui, sans-serif">
+            <g transform="translate(18, -24)">
+              <rect x="-6" y="-12" width="102" height="24" rx="6" fill="#0f172a" stroke="#334155" strokeWidth="0.8" opacity="0.95" />
+              <circle cx="2" cy="0" r="2.5" fill="#f97316" />
+              <text x="49" y="3.5" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="900" letterSpacing="0.04em" fontFamily="Inter, system-ui, sans-serif">
                 {activeConfig.pinLabel}
               </text>
             </g>

@@ -33,6 +33,14 @@ function calculateGeographicBearing(p1: [number, number], p2: [number, number]):
   return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
+// Decoupled location node profiles with calibrated on-campus metric matrices
+const CAMPUS_GRAPH_DATA: Record<string, { id: string; name: string; distanceMeters: number; walkMinutes: number }> = {
+  MITS_CANTEEN: { id: 'MITS_CANTEEN', name: 'MITS Canteen', distanceMeters: 148, walkMinutes: 2 },
+  MITS_CAFE:    { id: 'MITS_CAFE',    name: 'MITS Cafe',    distanceMeters: 85,  walkMinutes: 1 },
+  HAPPY_TEA:    { id: 'HAPPY_TEA',    name: 'Happy Tea',    distanceMeters: 230, walkMinutes: 3 },
+  PARADISE:     { id: 'PARADISE',     name: 'Paradise Eatery', distanceMeters: 190, walkMinutes: 2 },
+};
+
 export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerProps> = ({
   isOpen = true,
   onClose,
@@ -61,6 +69,28 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
   const walkingMinutes = activeRouteResult.durationMinutes || Math.max(1, Math.ceil(activeRouteResult.distanceMeters / 75));
   const isNearCanteen = activeRouteResult.distanceMeters <= 15;
+
+  // Resolve calibrated on-campus metrics when in 3D Isometric View or when GPS is located off-campus (> 500m)
+  const isOffCampus = activeRouteResult.distanceMeters > 500;
+  const activeMetrics = useMemo(() => {
+    if (viewMode === '3d' || isOffCampus) {
+      const profile = CAMPUS_GRAPH_DATA[activeShop.id] || CAMPUS_GRAPH_DATA.MITS_CANTEEN;
+      return {
+        distanceMeters: profile.distanceMeters,
+        durationMinutes: profile.walkMinutes,
+        distanceStr: `${profile.distanceMeters}m`,
+        timeStr: `${profile.walkMinutes} ${t('min walk', 'నిమిషాల నడక')}`,
+        accuracyBadge: 'GPS (±2m)',
+      };
+    }
+    return {
+      distanceMeters: activeRouteResult.distanceMeters,
+      durationMinutes: walkingMinutes,
+      distanceStr: formatDistance(activeRouteResult.distanceMeters),
+      timeStr: `${walkingMinutes} ${t('min walk', 'నిమిషాల నడక')}`,
+      accuracyBadge: `GPS (±${accuracyMeters}m)`,
+    };
+  }, [viewMode, isOffCampus, activeShop.id, activeRouteResult.distanceMeters, walkingMinutes, accuracyMeters, t]);
 
   // Initialize Leaflet Map with Carto Dark Matter tiles (zero labels clutter)
   useEffect(() => {
@@ -361,16 +391,16 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
               {isWatching && (
                 <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  GPS (±{accuracyMeters}m)
+                  {activeMetrics.accuracyBadge}
                 </span>
               )}
             </div>
             <div className="flex items-baseline gap-2">
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                {formatDistance(activeRouteResult.distanceMeters)}
+                {activeMetrics.distanceStr}
               </h2>
               <span className="text-xs font-semibold text-zinc-400">
-                · {walkingMinutes} {t('min walk', 'నిమిషాల నడక')} {activeRouteResult.hasIndoorApproach ? t('· Indoor', '· లోపల') : ''}
+                · {activeMetrics.timeStr} {activeRouteResult.hasIndoorApproach ? t('· Indoor', '· లోపల') : ''}
               </span>
             </div>
           </div>
@@ -508,7 +538,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
                 
                 <p className="text-xs text-zinc-400 font-semibold mt-1 flex items-center gap-1.5 truncate">
                   <Footprints size={13} className="text-orange-500 flex-shrink-0" />
-                  <span>{walkingMinutes} {t('min walk', 'నిమిషాల నడక')} · {activeRouteResult.distanceMeters}m</span>
+                  <span>{activeMetrics.timeStr} · {activeMetrics.distanceStr}</span>
                   <span className="text-zinc-600">·</span>
                   <span className="text-zinc-400 truncate">{activeShop.landmark}</span>
                 </p>

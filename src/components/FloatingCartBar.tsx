@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, X, Plus, Minus, Bell, Clock, ShoppingBag } from 'lucide-react';
+import { ArrowRight, X, Plus, Minus, Bell, Clock } from 'lucide-react';
 import { useCart } from '../context/useCart.ts';
 import { placeOrder } from '../lib/pickup.ts';
-import { playSuccessChime, fireOrderConfetti } from '../lib/celebration.ts';
+import { playSuccessChime, fireOrderConfetti, playTapSound } from '../lib/celebration.ts';
 import { OrderStatusTracker } from './OrderStatusTracker';
 import { useLanguage } from '../lib/language.ts';
 
@@ -144,15 +144,15 @@ export const FloatingCartBar: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Full-Width Bottom Sheet (Anchored flush to absolute bottom of screen) */}
+      {/* 2. Elite Bottom-Anchored Sheet Drawer (Locked flush to bottom with thumb ergonomics) */}
       {isDrawerOpen && (
         <div 
-          className="cart-drawer-backdrop fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end justify-center p-0" 
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-end justify-center p-0 font-sans antialiased animate-in fade-in duration-200" 
           onClick={() => !isCheckingOut && setIsDrawerOpen(false)}
           role="presentation"
         >
           <div 
-            className="w-full max-w-md bg-white rounded-t-3xl rounded-b-none shadow-2xl overflow-hidden font-sans max-h-[88vh] flex flex-col border-t border-gray-100 animate-in slide-in-from-bottom duration-300"
+            className="w-full max-w-md bg-white rounded-t-[2.5rem] rounded-b-none shadow-[0_-12px_40px_rgba(0,0,0,0.18)] overflow-hidden font-sans max-h-[90vh] flex flex-col border-t border-gray-100 animate-in slide-in-from-bottom duration-300"
             onClick={(e) => e.stopPropagation()} 
             role="dialog" 
             aria-modal="true" 
@@ -171,46 +171,109 @@ export const FloatingCartBar: React.FC = () => {
               />
             ) : (
               <>
-                {/* Drawer Header with +4px Line-Height Separation */}
-                <div className="flex justify-between items-center p-4 pb-3 border-b border-gray-100 flex-shrink-0">
+                {/* 1. Integrated Header Deck Metrics */}
+                <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0 bg-white">
                   <div>
-                    <h3 className="text-base font-black text-gray-950 tracking-tight">
+                    <h2 className="text-base font-black text-gray-950 tracking-tight leading-none">
                       {t('Your Campus Order', 'మీ క్యాంపస్ ఆర్డర్')}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1.5 leading-normal">
-                      {totalItems} {totalItems === 1 ? t('dish', 'వంటకం') : t('dishes', 'వంటకాలు')} {t('selected', 'ఎంపికయ్యాయి')} · {firstVendorName}
+                    </h2>
+                    <p className="text-2xs text-gray-400 font-semibold tracking-wide uppercase mt-1.5 block">
+                      {totalItems} {totalItems === 1 ? t('dish', 'వంటకం') : t('dishes', 'వంటకాలు')} {t('selected', 'ఎంపికయ్యాయి')} <span className="text-gray-300 font-normal mx-1">·</span> {firstVendorName}
                     </p>
                   </div>
+                  
+                  {/* Symmetrical Round Close Action Bounding Target */}
                   <button 
                     type="button" 
-                    className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 font-bold transition-colors cursor-pointer" 
+                    className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors active:scale-90 cursor-pointer" 
                     onClick={() => setIsDrawerOpen(false)}
-                    aria-label="Close cart"
+                    aria-label={t('Close cart', 'కార్ట్ మూసివేయండి')}
                     disabled={isCheckingOut}
                   >
-                    <X size={16} />
+                    <X size={15} />
                   </button>
                 </div>
 
-                {/* Content: Empty State or Scrollable Item Rows */}
+                {/* Content: Empty State with Quick Picks or Scrollable Item Rows */}
                 {itemsList.length === 0 ? (
-                  <div className="py-12 px-6 text-center flex flex-col items-center justify-center flex-grow">
-                    <div className="w-16 h-16 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 mb-3 shadow-2xs">
-                      <ShoppingBag size={28} />
+                  <div className="flex flex-col flex-grow min-h-0">
+                    {/* 2. Streamlined Empty State Messaging Frame */}
+                    <div className="p-6 py-8 text-center flex flex-col items-center justify-center flex-grow">
+                      <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-2xl border border-orange-100/60 shadow-2xs select-none">
+                        🛒
+                      </div>
+                      
+                      <h3 className="text-sm font-black text-gray-950 uppercase tracking-wider mt-4">
+                        {t('Your cart is empty', 'మీ కార్ట్ ఖాళీగా ఉంది')}
+                      </h3>
+                      <p className="text-xs text-gray-400 font-medium mt-1.5 max-w-[280px] leading-relaxed">
+                        {t('Explore freshly prepared canteen meals, warm chai, and hot snacks to add to your order.', 'మీ ఆర్డర్‌కు జోడించడానికి తాజా క్యాంటీన్ భోజనాలు, వేడి చాయ్ మరియు స్నాక్స్‌ను అన్వేషించండి.')}
+                      </p>
+
+                      <button 
+                        type="button"
+                        onClick={() => setIsDrawerOpen(false)}
+                        className="w-full max-w-xs mt-5 bg-orange-500 hover:bg-orange-600 active:scale-[0.99] text-white text-xs font-black uppercase tracking-wider py-3.5 rounded-xl shadow-md transition-all cursor-pointer"
+                      >
+                        {t('Browse Menu', 'మెనూ చూడండి')}
+                      </button>
                     </div>
-                    <h4 className="text-base font-black text-gray-900 tracking-tight">
-                      {t('Your cart is empty', 'మీ కార్ట్ ఖాళీగా ఉంది')}
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-normal">
-                      {t('Explore freshly prepared canteen meals, warm chai, and hot snacks to add to your order.', 'మీ ఆర్డర్‌కు జోడించడానికి తాజా క్యాంటీన్ భోజనాలు, వేడి చాయ్ మరియు స్నాక్స్‌ను అన్వేషించండి.')}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="mt-5 px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
-                    >
-                      {t('Browse Menu', 'మెనూ చూడండి')}
-                    </button>
+
+                    {/* 3. CONTEXTUAL ACCENT RECOMMENDATION INJECTION RAIL (The missing layer) */}
+                    <div className="bg-gray-50/70 border-t border-gray-100 p-5 pb-7 flex-shrink-0">
+                      <div className="flex items-center justify-between mb-3 px-1">
+                        <h4 className="text-2xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <span>🔥</span>
+                          <span>{t('Popular Campus Quick Picks', 'క్యాంపస్ టాప్ ఎంపికలు')}</span>
+                        </h4>
+                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">
+                          {t('Tap to Add', 'జోడించడానికి నొక్కండి')}
+                        </span>
+                      </div>
+                      
+                      <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1 snap-x">
+                        {[
+                          { id: 'quick-thali', name: 'Unlimited Thali', price: '₹60', priceNum: 60, isVeg: true, vendor: 'MITS Canteen', img: '/images/item_meals.png' },
+                          { id: 'quick-chai', name: 'Ginger Chai duo', price: '₹20', priceNum: 20, isVeg: true, vendor: 'Happy Tea', img: '/images/08_ginger_tea.jpg' },
+                          { id: 'quick-dosa', name: 'Masala Dosa Special', price: '₹45', priceNum: 45, isVeg: true, vendor: 'MITS Cafe', img: '/images/item_masala_dosa.png' },
+                          { id: 'quick-samosa', name: 'Crispy Samosa (2 pcs)', price: '₹30', priceNum: 30, isVeg: true, vendor: 'MITS Canteen', img: '/images/16_veg_samosa.jpg' }
+                        ].map((pick) => (
+                          <button
+                            key={pick.id}
+                            type="button"
+                            onClick={() => {
+                              playTapSound();
+                              addItem({
+                                id: pick.id,
+                                name: pick.name,
+                                price: pick.priceNum,
+                                isVegetarian: pick.isVeg,
+                                vendorName: pick.vendor,
+                                vendorId: 'mits-canteen',
+                                isAvailable: true,
+                                imageUrl: pick.img,
+                              });
+                            }}
+                            className="w-44 bg-white border border-gray-150 hover:border-orange-300 rounded-2xl p-2.5 shadow-2xs flex-shrink-0 flex items-center gap-2.5 transition-all text-left active:scale-95 cursor-pointer snap-start group"
+                          >
+                            <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-100 relative">
+                              <img src={pick.img} alt={pick.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                            </div>
+                            <div className="min-w-0 flex-grow">
+                              <h5 className="text-[11px] font-black text-gray-950 truncate leading-tight group-hover:text-orange-600 transition-colors">
+                                {pick.name}
+                              </h5>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-[11px] font-black text-orange-600">{pick.price}</span>
+                                <span className="text-[9px] font-black uppercase bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded-md border border-orange-200/60">
+                                  + ADD
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <>

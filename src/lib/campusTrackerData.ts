@@ -213,12 +213,13 @@ export const CAMPUS_3D_CONFIGS: Record<string, Campus3DNodeConfig> = {
     name: 'MITS Canteen',
     location: 'Campus Food Court, Ground Floor',
     pin: { x: 770, y: 350 },
-    pinLabel: 'Canteen',
-    pathData: 'M 190 640 L 390 490 Q 420 470 450 490 L 570 610 Q 600 635 630 600 L 770 350',
+    pinLabel: 'MITS Canteen',
+    pathData: 'M 190 640 L 390 490 Q 440 460 490 480 L 590 510 Q 630 480 670 420 L 770 350',
     segments: [
       { x1: 190, y1: 640, x2: 390, y2: 490, angle: -37 },
-      { x1: 390, y1: 490, x2: 570, y2: 610, angle: 34 },
-      { x1: 570, y1: 610, x2: 770, y2: 350, angle: -52 },
+      { x1: 390, y1: 490, x2: 590, y2: 510, angle: 6 },
+      { x1: 590, y1: 510, x2: 670, y2: 420, angle: -48 },
+      { x1: 670, y1: 420, x2: 770, y2: 350, angle: -35 },
     ],
   },
   MITS_CAFE: {
