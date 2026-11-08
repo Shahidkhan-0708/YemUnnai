@@ -133,3 +133,29 @@ export function playKitchenOrderAlert() {
   }
 }
 
+/**
+ * Bright, cheerful acoustic notification for student when food is marked ready at counter.
+ */
+export function playFoodReadyChime() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const notes = [659.25, 880.0, 1174.66]; // E5, A5, D6
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+      gain.gain.setValueAtTime(0.12, now + idx * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.32);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + idx * 0.09);
+      osc.stop(now + idx * 0.09 + 0.32);
+    });
+  } catch {
+    // Graceful fallback
+  }
+}
+

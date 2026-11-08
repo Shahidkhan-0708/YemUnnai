@@ -407,6 +407,9 @@ export async function setOrderStatus(orderId: string, status: OrderStatus, prepa
   const { pickupRequest } = await import('./pickup');
   await pickupRequest({ action: 'transition', orderId, status, preparationMinutes, paymentMethod }, true);
   notifySubscribers();
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('order-status-updated', { detail: { orderId, status } }));
+  }
 }
 
 // ---------------------------------------------------------------------------

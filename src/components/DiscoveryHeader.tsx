@@ -181,7 +181,7 @@ export function DiscoveryHeader({
 }: Props) {
   const [isRouteSheetOpen, setIsRouteSheetOpen] = useState(false);
   const [selectedRouteShopId, setSelectedRouteShopId] = useState<string | undefined>(undefined);
-  const { t } = useLanguage();
+  const { t, lang, setLanguage } = useLanguage();
 
 
   const baseShops: NearbyShop[] = useMemo(() => {
@@ -279,7 +279,7 @@ export function DiscoveryHeader({
           </g>
         </svg>
 
-        <div className="discovery-brand-row">
+        <div className="discovery-brand-row flex items-center justify-between">
           <button
             className="discovery-brand"
             type="button"
@@ -289,8 +289,20 @@ export function DiscoveryHeader({
             <CatalogImage src="/images/optimized/NewLogo-e14eee5ea6-128.webp" alt="" priority />
             <span>
               <strong>YEMUNNAI</strong>
-              <small>A Food Discovery Platform</small>
+              <small>{t('A Food Discovery Platform', 'ఆహార అన్వేషణ వేదిక')}</small>
             </span>
+          </button>
+
+          {/* Global Interactive Bilingual Switcher */}
+          <button
+            type="button"
+            onClick={() => setLanguage(lang === 'te' ? 'en' : 'te')}
+            aria-label="Switch language between English and Telugu"
+            className="bg-white/90 hover:bg-white text-gray-800 text-[11px] font-black px-2.5 py-1 rounded-full border border-orange-200/80 shadow-2xs transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
+          >
+            <span className={lang === 'en' ? 'text-orange-600 font-black' : 'text-gray-400 font-bold'}>EN</span>
+            <span className="text-gray-300">/</span>
+            <span className={lang === 'te' ? 'text-orange-600 font-black' : 'text-gray-400 font-bold'}>తె</span>
           </button>
         </div>
 

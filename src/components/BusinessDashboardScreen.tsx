@@ -113,6 +113,9 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   const handleAccept = async (id: string) => {
     playTapSound();
     setLocalOrderOverrides(prev => ({ ...prev, [id]: 'preparing' }));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('order-status-updated', { detail: { orderId: id, status: 'preparing' } }));
+    }
     await save(id, async () => {
       try {
         await setOrderStatus(id, 'preparing');
@@ -128,6 +131,9 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   const handleReady = async (id: string) => {
     playTapSound();
     setLocalOrderOverrides(prev => ({ ...prev, [id]: 'ready' }));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('order-status-updated', { detail: { orderId: id, status: 'ready' } }));
+    }
     await save(id, async () => {
       try {
         await setOrderStatus(id, 'ready');
@@ -143,6 +149,9 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   const handleDecline = async (id: string) => {
     playTapSound();
     setLocalOrderOverrides(prev => ({ ...prev, [id]: 'declined' }));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('order-status-updated', { detail: { orderId: id, status: 'declined' } }));
+    }
     await save(id, async () => {
       try {
         await setOrderStatus(id, 'declined');
@@ -158,6 +167,9 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   const handleCollected = async (id: string, paymentMethod: 'cash' | 'counter_upi') => {
     playTapSound();
     setLocalOrderOverrides(prev => ({ ...prev, [id]: 'collected' }));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('order-status-updated', { detail: { orderId: id, status: 'collected' } }));
+    }
     await save(id, async () => {
       try {
         await setOrderStatus(id, 'collected', undefined, paymentMethod);
@@ -253,7 +265,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                 {vendor.vendorName}
               </h2>
               <span className="text-[10px] text-gray-400 font-extrabold tracking-wider uppercase mt-1 block">
-                Partner Console
+                {t('Partner Console', 'వ్యాపారి కన్సోల్')}
               </span>
             </div>
           </div>
@@ -273,7 +285,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
             >
               <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse ring-2 ring-emerald-300/50' : 'bg-gray-400'}`} />
               <span className="text-[10px] font-black tracking-wide uppercase">
-                {isOnline ? 'ONLINE' : 'OFFLINE'}
+                {isOnline ? t('ONLINE', 'ఆన్‌లైన్') : t('OFFLINE', 'ఆఫ్‌లైన్')}
               </span>
             </button>
 
@@ -304,7 +316,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
         <div className="grid grid-cols-2 gap-3 p-4 pb-2">
           <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
-              Orders Today
+              {t('Orders Today', 'ఈరోజు ఆర్డర్లు')}
             </span>
             <span className="text-2xl font-black text-gray-950 block mt-1 font-mono">
               {stats.error || stats.loading ? '—' : stats.ordersToday}
@@ -312,7 +324,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
           </div>
           <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
-              Avg Rating
+              {t('Avg Rating', 'సగటు రేటింగ్')}
             </span>
             <div className="flex items-center gap-1 mt-1 text-2xl font-black text-orange-500">
               <span>★</span>
@@ -329,12 +341,14 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
             }`} />
             <div className="min-w-0">
               <h4 className="text-xs font-black text-gray-950 leading-tight truncate">
-                {pushStatus === 'granted' ? 'Kitchen Push Alerts Active' : 'Enable Lock Screen Alerts'}
+                {pushStatus === 'granted' 
+                  ? t('Kitchen Push Alerts Active', 'వంటగది పుష్ హెచ్చరికలు సక్రియంగా ఉన్నాయి') 
+                  : t('Enable Lock Screen Alerts', 'లాక్ స్క్రీన్ హెచ్చరికలను ప్రారంభించండి')}
               </h4>
               <p className="text-[11px] text-gray-400 font-semibold truncate mt-0.5">
                 {pushStatus === 'granted' 
-                  ? 'Plays loud kitchen chime even when device is locked' 
-                  : 'Receive instant background audio alerts for incoming orders'}
+                  ? t('Plays loud kitchen chime even when device is locked', 'పరికర లాక్ ఉన్నప్పుడు కూడా గట్టి శబ్దం చేస్తుంది') 
+                  : t('Receive instant background audio alerts for incoming orders', 'వచ్చే ఆర్డర్ల కోసం శబ్ద హెచ్చరికలను పొందండి')}
               </p>
             </div>
           </div>
@@ -351,7 +365,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                 disabled={isTestingPush}
                 className="text-[11px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200/60 px-3 py-1.5 rounded-xl transition-all cursor-pointer shrink-0"
               >
-                {isTestingPush ? 'Ringing…' : 'Test Ring'}
+                {isTestingPush ? t('Ringing…', 'మోగుతోంది…') : t('Test Ring', 'రింగ్ పరీక్షించండి')}
               </button>
             ) : (
               <button
@@ -362,7 +376,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                 }}
                 className="bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-black px-4 py-2 rounded-xl transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
               >
-                Enable
+                {t('Enable', 'ప్రారంభించండి')}
               </button>
             )}
           </div>
@@ -372,7 +386,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
         <div className="px-4 mb-3 flex items-center justify-between">
           <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
             <Bell size={12} className="text-gray-400" />
-            <span>Incoming Orders ({activeOrders.length})</span>
+            <span>{t('Incoming Orders', 'వచ్చిన ఆర్డర్లు')} ({activeOrders.length})</span>
           </h3>
           <button 
             type="button"
@@ -381,7 +395,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
             onClick={() => setFeedRetry(n => n + 1)}
           >
             <RefreshCw size={11} className={ordersLoading ? 'animate-spin' : ''} />
-            <span>Refresh</span>
+            <span>{t('Refresh', 'తాజాకరించు')}</span>
           </button>
         </div>
 
@@ -402,15 +416,15 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
           </div>
         )}
 
-        {ordersLoading && <p role="status" className="business-empty text-center py-6 text-xs text-gray-400 font-semibold">Connecting to live orders…</p>}
+        {ordersLoading && <p role="status" className="business-empty text-center py-6 text-xs text-gray-400 font-semibold">{t('Connecting to live orders…', 'ప్రత్యక్ష ఆర్డర్లకు అనుసంధానిస్తున్నాం…')}</p>}
         
         {!ordersLoading && !activeOrders.length && !ordersError && (
           <div className="mx-4 bg-white border border-gray-100 rounded-2xl p-8 text-center shadow-xs">
             <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
               <CheckCircle2 size={24} />
             </div>
-            <p className="text-sm font-black text-gray-950">All caught up!</p>
-            <p className="text-xs text-gray-500 font-normal mt-0.5">New incoming student orders will appear here automatically.</p>
+            <p className="text-sm font-black text-gray-950">{t('All caught up!', 'అన్నీ పూర్తయ్యాయి!')}</p>
+            <p className="text-xs text-gray-500 font-normal mt-0.5">{t('New incoming student orders will appear here automatically.', 'కొత్త విద్యార్థి ఆర్డర్లు ఇక్కడ ఆటోమేటిక్‌గా కనిపిస్తాయి.')}</p>
           </div>
         )}
 
@@ -430,10 +444,10 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                 {/* Top Status Header */}
                 <div className="bg-amber-50/60 px-4 py-2.5 flex items-center justify-between border-b border-amber-100/30">
                   <span className="text-[10px] font-black text-amber-800 tracking-wider uppercase flex items-center gap-1">
-                    <Zap size={11} className="text-amber-700" /> Campus Pre-Order
+                    <Zap size={11} className="text-amber-700" /> {t('Campus Pre-Order', 'క్యాంపస్ ముందస్తు ఆర్డర్')}
                   </span>
                   <span className="text-[10px] font-extrabold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-2xs font-mono">
-                    #{ord.row.pickup_number || '4'} · Reaching in <span className="text-orange-600 font-black">5 mins</span>
+                    #{ord.row.pickup_number || '4'} · {t('Reaching in', 'చేరుకుంటారు')} <span className="text-orange-600 font-black">5 mins</span>
                   </span>
                 </div>
 
@@ -465,7 +479,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                       </span>
                     </div>
                     <p className="text-[11px] font-bold text-emerald-600 mt-1 bg-emerald-50/60 inline-block px-2 py-0.5 rounded-md border border-emerald-100/60">
-                      Pay on pickup: ₹{ord.price}
+                      {t('Pay on pickup:', 'తీసుకున్నప్పుడు చెల్లింపు:')} ₹{ord.price}
                     </p>
                   </div>
                 </div>
@@ -498,7 +512,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                         disabled={busyAction !== null} 
                         onClick={() => void handleDecline(ord.id)}
                       >
-                        DECLINE
+                        {t('DECLINE', 'తిరస్కరించు')}
                       </button>
                       <button 
                         type="button"
@@ -506,7 +520,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                         disabled={busyAction !== null} 
                         onClick={() => void handleAccept(ord.id)}
                       >
-                        ACCEPT ORDER
+                        {t('ACCEPT ORDER', 'ఆర్డర్ అంగీకరించు')}
                       </button>
                     </div>
                   )}
@@ -517,10 +531,10 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                       <div className="bg-orange-50/80 px-4 py-2 flex items-center justify-between border-b border-orange-100 text-orange-950">
                         <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                          Preparing Food
+                          {t('Preparing Food', 'ఆహారం తయారుచేస్తున్నారు')}
                         </span>
                         <span className="text-[10px] font-bold text-orange-800 font-mono">
-                          Est. Ready ~10 mins
+                          {t('Est. Ready ~10 mins', 'సుమారు ~10 నిమిషాల్లో సిద్ధం')}
                         </span>
                       </div>
                       <button 
@@ -541,10 +555,10 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                       <div className="bg-emerald-50/80 px-4 py-2 flex items-center justify-between border-b border-emerald-100 text-emerald-950">
                         <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
                           <Check size={12} strokeWidth={3} className="text-emerald-600" />
-                          Ready for Pickup
+                          {t('Ready for Pickup', 'తీసుకోవడానికి సిద్ధం')}
                         </span>
                         <span className="text-[10px] font-bold text-emerald-800">
-                          Waiting for Student
+                          {t('Waiting for Student', 'విద్యార్థి కోసం వేచి ఉంది')}
                         </span>
                       </div>
                       <div className="p-3 bg-gray-50 flex items-center gap-2">
@@ -554,15 +568,15 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                           value={paymentMethods[ord.id] ?? 'cash'} 
                           onChange={e => setPaymentMethods(prev => ({ ...prev, [ord.id]: e.target.value as 'cash' | 'counter_upi' }))}
                         >
-                          <option value="cash">Cash at Counter</option>
-                          <option value="counter_upi">Counter UPI QR</option>
+                          <option value="cash">{t('Cash at Counter', 'కౌంటర్ వద్ద నగదు')}</option>
+                          <option value="counter_upi">{t('Counter UPI QR', 'కౌంటర్ UPI QR')}</option>
                         </select>
                         <FamilyReceiveComponent 
                           triggerLabel={t('Collected & Paid', 'తీసుకున్నారు')} 
-                          title="Confirm Collection & Payment" 
+                          title={t('Confirm Collection & Payment', 'సేకరణ మరియు చెల్లింపును నిర్ధారించండి')} 
                           description={`Has the student collected order #${ord.row.pickup_number || '4'} and paid ₹${ord.price} at the counter?`} 
-                          confirmLabel="Collected and Paid" 
-                          cancelLabel="Cancel" 
+                          confirmLabel={t('Collected and Paid', 'తీసుకున్నారు మరియు చెల్లించారు')} 
+                          cancelLabel={t('Cancel', 'రద్దు')} 
                           disabled={busyAction !== null || ord.row.cancellation_requested} 
                           onConfirm={async () => {
                             try {
@@ -579,7 +593,9 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                   {/* Cancellation Request Decision Block */}
                   {ord.row.cancellation_requested && (
                     <div className="p-3 bg-red-50 border-t border-red-100">
-                      <p className="text-xs font-bold text-red-800 mb-2">Buyer requested cancellation</p>
+                      <p className="text-xs font-bold text-red-800 mb-2">
+                        {t('Buyer requested cancellation', 'కొనుగోలుదారు రద్దు అభ్యర్థించారు')}
+                      </p>
                       <div className="flex gap-2">
                         {(['approve', 'reject'] as const).map(decision => (
                           <button
@@ -593,7 +609,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
                               await pickupRequest({ action: 'cancellation_decision', orderId: ord.id, decision }, true);
                             })}
                           >
-                            {decision === 'approve' ? 'Approve Cancellation' : 'Reject Cancellation'}
+                            {decision === 'approve' ? t('Approve Cancellation', 'రద్దును ఆమోదించు') : t('Reject Cancellation', 'రద్దును తిరస్కరించు')}
                           </button>
                         ))}
                       </div>
