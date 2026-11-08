@@ -43,6 +43,7 @@ globalThis.__vendor = { auth: { getSession: async () => ({ data: { session: { us
 let source = await fs.readFile(new URL('../src/lib/pickup.ts', import.meta.url), 'utf8');
 source = source.replace(/import .* from '\.\/supabase';/, 'const buyerSupabase = globalThis.__buyer, supabase = globalThis.__vendor;')
   .replace(/import .* from '\.\/storage';/, 'const safeStorage = globalThis.__storage;')
+  .replace(/import .* from '\.\/telemetry';/, 'const reportAppError = () => {};')
   .replaceAll('import.meta.env.VITE_SUPABASE_URL', JSON.stringify(env.url))
   .replaceAll('import.meta.env.VITE_SUPABASE_ANON_KEY', JSON.stringify('public-key'));
 const code = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext } }).outputText;
