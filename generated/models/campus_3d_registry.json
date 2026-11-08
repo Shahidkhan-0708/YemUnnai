@@ -1,0 +1,77 @@
+[
+  {
+    "id": "ACADEMIC_BLOCK_A",
+    "name": "Academic Block",
+    "storeys": 4,
+    "elevationMeters": 14.0,
+    "objPath": "generated\\models\\academic_block_a.obj",
+    "footprint": [
+      {
+        "x": 100,
+        "y": 420
+      },
+      {
+        "x": 240,
+        "y": 530
+      },
+      {
+        "x": 370,
+        "y": 430
+      },
+      {
+        "x": 240,
+        "y": 320
+      }
+    ]
+  },
+  {
+    "id": "STUDENT_UNION_HUB",
+    "name": "Student Union",
+    "storeys": 5,
+    "elevationMeters": 17.5,
+    "objPath": "generated\\models\\student_union_hub.obj",
+    "footprint": [
+      {
+        "x": 470,
+        "y": 410
+      },
+      {
+        "x": 600,
+        "y": 510
+      },
+      {
+        "x": 690,
+        "y": 430
+      },
+      {
+        "x": 560,
+        "y": 330
+      }
+    ]
+  },
+  {
+    "id": "CENTRAL_LIBRARY",
+    "name": "Library",
+    "storeys": 6,
+    "elevationMeters": 21.0,
+    "objPath": "generated\\models\\central_library.obj",
+    "footprint": [
+      {
+        "x": 650,
+        "y": 560
+      },
+      {
+        "x": 770,
+        "y": 660
+      },
+      {
+        "x": 880,
+        "y": 570
+      },
+      {
+        "x": 760,
+        "y": 470
+      }
+    ]
+  }
+]

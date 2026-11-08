@@ -1,0 +1,16 @@
+# Watertight 3D Extrusion Mesh: Academic Block (ACADEMIC_BLOCK_A)
+o ACADEMIC_BLOCK_A
+v 100 420 0.0
+v 240 530 0.0
+v 370 430 0.0
+v 240 320 0.0
+v 100 420 36.0
+v 240 530 36.0
+v 370 430 36.0
+v 240 320 36.0
+f 1 2 3 4
+f 5 6 7 8
+f 1 2 6 5
+f 2 3 7 6
+f 3 4 8 7
+f 4 1 5 8
