@@ -333,6 +333,27 @@ export function Premium3DArchitecturalMap({
               <stop offset="50%" stopColor="#0d9488" />
               <stop offset="100%" stopColor="#0f766e" />
             </linearGradient>
+
+            {/* Authentic MITS Campus Palette (Vibrant Royal Academic Blue & Soft Warm Cream) */}
+            <linearGradient id="mits-blue-facade-sun" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#3b82f6" />
+              <stop offset="60%" stopColor="#2563eb" />
+              <stop offset="100%" stopColor="#1d4ed8" />
+            </linearGradient>
+            <linearGradient id="mits-blue-facade-shade" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1d4ed8" />
+              <stop offset="60%" stopColor="#1e40af" />
+              <stop offset="100%" stopColor="#172554" />
+            </linearGradient>
+            <linearGradient id="mits-cream-portico" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="40%" stopColor="#fffbeb" />
+              <stop offset="100%" stopColor="#fef3c7" />
+            </linearGradient>
+            <linearGradient id="mits-cream-plinth" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#fef3c7" />
+              <stop offset="100%" stopColor="#fde68a" />
+            </linearGradient>
             <radialGradient id="tree-crown" cx="40%" cy="35%" r="60%">
               <stop offset="0%" stopColor="#86efac" />
               <stop offset="50%" stopColor="#22c55e" />

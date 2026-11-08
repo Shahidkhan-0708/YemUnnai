@@ -100,8 +100,35 @@ export function renderProcedural3DBuilding(
   const portX = Math.round(west.x + portT * dxW);
   const portY = Math.round(west.y + portT * dyW);
 
-  // Typography badge dimensions
-  const badgeWidth = Math.max(90, building.name.length * 8.5);
+  // Typography Agent: Clean tag layouts, strip brackets and messy wireframe text
+  const cleanDisplayName = (building.name || 'Campus Hall')
+    .replace(/\s*\((.*?)\)/g, ' · $1')
+    .replace(/\s*-\s*/g, ' · ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Geometry Agent: Detect real MITS Academic Blocks for Iconic Blue & Cream Palette
+  const isMitsBlue =
+    building.id?.includes('academic') ||
+    building.id?.includes('block') ||
+    building.id === 'MAIN_ACADEMIC_BLOCK' ||
+    building.id === 'SH_BLOCK_B' ||
+    building.id === 'MECHANICAL_BLOCK' ||
+    building.id === 'ECE_CSE_BLOCK' ||
+    cleanDisplayName.toLowerCase().includes('block') ||
+    cleanDisplayName.toLowerCase().includes('academic') ||
+    cleanDisplayName.toLowerCase().includes('science') ||
+    cleanDisplayName.toLowerCase().includes('humanities') ||
+    cleanDisplayName.toLowerCase().includes('mechanical') ||
+    cleanDisplayName.toLowerCase().includes('civil') ||
+    cleanDisplayName.toLowerCase().includes('computing') ||
+    index === 0 ||
+    index === 3 ||
+    index === 4 ||
+    index === 5;
+
+  // Typography badge dimensions with safe inner margins
+  const badgeWidth = Math.max(100, Math.round(cleanDisplayName.length * 8.2 + 28));
 
   return (
     <g key={`proc-bldg-${building.id || index}`} filter="url(#iso-shadow)">
@@ -168,16 +195,16 @@ export function renderProcedural3DBuilding(
       {/* 3. West / Illuminated Facade (Sun-Lit Academic Street Facing) */}
       <polygon
         points={`${westPlinth.x},${westPlinth.y} ${southPlinth.x},${southPlinth.y} ${southTop.x},${southTop.y} ${westTop.x},${westTop.y}`}
-        fill="url(#facade-west-sun)"
-        stroke="#94a3b8"
+        fill={isMitsBlue ? 'url(#mits-blue-facade-sun)' : 'url(#facade-west-sun)'}
+        stroke={isMitsBlue ? '#1e3a8a' : '#94a3b8'}
         strokeWidth="1.2"
       />
 
       {/* 4. South-East / Shaded Facade (Perspective Shade) */}
       <polygon
         points={`${southPlinth.x},${southPlinth.y} ${eastPlinth.x},${eastPlinth.y} ${eastTop.x},${eastTop.y} ${southTop.x},${southTop.y}`}
-        fill="url(#facade-south-shade)"
-        stroke="#94a3b8"
+        fill={isMitsBlue ? 'url(#mits-blue-facade-shade)' : 'url(#facade-south-shade)'}
+        stroke={isMitsBlue ? '#172554' : '#94a3b8'}
         strokeWidth="1.2"
       />
 
@@ -192,7 +219,7 @@ export function renderProcedural3DBuilding(
               y1={west.y - elev}
               x2={south.x}
               y2={south.y - elev}
-              stroke="#cbd5e1"
+              stroke={isMitsBlue ? '#93c5fd' : '#cbd5e1'}
               strokeWidth="2.5"
             />
             <line
@@ -200,7 +227,7 @@ export function renderProcedural3DBuilding(
               y1={south.y - elev}
               x2={east.x}
               y2={east.y - elev}
-              stroke="#94a3b8"
+              stroke={isMitsBlue ? '#60a5fa' : '#94a3b8'}
               strokeWidth="2.5"
             />
           </g>
@@ -635,27 +662,33 @@ export function renderProcedural3DBuilding(
         </g>
       )}
 
-      {/* 11. High-Contrast Architectural Typography Badge (WCAG AAA 16.4:1 contrast) */}
-      <g transform={`translate(${roofCx}, ${southTop.y - 12})`}>
+      {/* 11. High-Contrast Architectural Typography Frosted Floating Capsule (Typography Agent) */}
+      <g transform={`translate(${roofCx}, ${southTop.y - 14})`}>
+        {/* Borderless Frosted Background Capsule */}
         <rect
           x={-badgeWidth / 2}
-          y="-12"
+          y="-14"
           width={badgeWidth}
-          height="24"
-          rx="6"
-          fill="#0f172a"
-          opacity="0.88"
+          height="28"
+          rx="14"
+          fill="#020617"
+          opacity="0.92"
+          stroke="rgba(255, 255, 255, 0.18)"
+          strokeWidth="1"
         />
+        {/* Subtle status indicator dot */}
+        <circle cx={-badgeWidth / 2 + 12} cy="0" r="3" fill={isMitsBlue ? '#60a5fa' : '#f59e0b'} />
         <text
-          x="0"
+          x={6}
           y="4"
           textAnchor="middle"
           fill="#ffffff"
-          fontSize="12"
+          fontSize="11"
           fontWeight="900"
           letterSpacing="0.04em"
+          fontFamily="Inter, system-ui, sans-serif"
         >
-          {building.name}
+          {cleanDisplayName}
         </text>
       </g>
     </g>
