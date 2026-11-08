@@ -1,17 +1,14 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { X, ChevronRight, Footprints } from 'lucide-react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { X, ChevronRight, LocateFixed, Footprints, Navigation2 } from 'lucide-react';
 import { useCampusLocation } from '../hooks/useCampusLocation';
+import { findCampusRoute, type CampusRouteResult } from '../lib/campusGraph';
+import { MITS_CAMPUS, haversineDistance } from '../lib/mapLocations';
+import { useLanguage } from '../lib/language';
 import {
-  type GeospatialNode,
-  type RunnerState,
   type ShopNode,
   CAMPUS_SHOPS,
-  START_NODE,
-  WAYPOINTS,
-  GRAPH_EDGES,
-  ALL_GRAPH_NODES,
-  DEFAULT_WALKWAY_COORDINATES,
-  computeDijkstraPath,
 } from '../lib/campusTrackerData';
 
 export interface CampusPedestrianPathTrackerProps {
@@ -22,6 +19,19 @@ export interface CampusPedestrianPathTrackerProps {
   onArrival?: () => void;
 }
 
+/**
+ * Calculates geographic bearing angle (0-360 degrees) between two coordinates
+ * for accurate real-time directional heading alignment of the courier marker.
+ */
+function calculateGeographicBearing(p1: [number, number], p2: [number, number]): number {
+  const lat1 = (p1[0] * Math.PI) / 180;
+  const lat2 = (p2[0] * Math.PI) / 180;
+  const dLng = ((p2[1] - p1[1]) * Math.PI) / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
 export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerProps> = ({
   isOpen = true,
   onClose,
@@ -29,131 +39,283 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
   initialShopId = 'MITS_CANTEEN',
   onArrival,
 }) => {
+  const { t } = useLanguage();
   const [activeShopId, setActiveShopId] = useState<string>(initialShopId);
-  const { accuracyMeters, isWatching } = useCampusLocation();
+  const { location: userLocation, accuracyMeters, heading, isWatching, triggerRecenter } = useCampusLocation();
+
+  const mapNode = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<L.Map | null>(null);
+  const layersGroup = useRef<L.LayerGroup | null>(null);
+  const routeLayersGroup = useRef<L.LayerGroup | null>(null);
 
   const activeShop: ShopNode = useMemo(() => {
     return CAMPUS_SHOPS.find(s => s.id === activeShopId) ?? CAMPUS_SHOPS[0];
   }, [activeShopId]);
 
-  // Compute live shortest path whenever activeShop changes
-  const activeRoute = useMemo(() => {
-    return computeDijkstraPath(START_NODE.id, activeShop.id);
-  }, [activeShop.id]);
+  // Compute live walking route using real MITS Campus Graph (A* / Dijkstra)
+  const activeRouteResult: CampusRouteResult = useMemo(() => {
+    return findCampusRoute(userLocation, activeShop.coords);
+  }, [userLocation, activeShop.coords]);
 
-  const walkingMinutes = Math.max(1, Math.ceil(activeRoute.totalDistanceMeters / 75));
+  const walkingMinutes = activeRouteResult.durationMinutes || Math.max(1, Math.ceil(activeRouteResult.distanceMeters / 75));
+  const isNearCanteen = activeRouteResult.distanceMeters <= 15;
 
-  const activeNodes: GeospatialNode[] = useMemo(() => {
-    if (activeRoute.routeNodes.length >= 2) return activeRoute.routeNodes;
-    return DEFAULT_WALKWAY_COORDINATES;
-  }, [activeRoute.routeNodes]);
-
-  // ---------------------------------------------------------------------------
-  // LIVE ANIMATED COURIER ROUTE RUNNER (LERP + TANGENT VECTOR HEADING)
-  // ---------------------------------------------------------------------------
-  const [runner, setRunner] = useState<RunnerState>({
-    x: activeNodes[0]?.x ?? START_NODE.x,
-    y: activeNodes[0]?.y ?? START_NODE.y,
-    bearing: 0,
-  });
-
-  const animationFrameId = useRef<number | null>(null);
-  const stateRef = useRef({
-    currentSegment: 0,
-    progress: 0,
-    speed: 0.012, // Linear step delta per frame
-  });
-
+  // Initialize Leaflet Map with Carto Dark Matter tiles (zero labels clutter)
   useEffect(() => {
-    // Reset tracker parameters cleanly whenever active route nodes update
-    stateRef.current = { currentSegment: 0, progress: 0, speed: 0.012 };
+    if (!mapNode.current || !isOpen) return;
 
-    if (activeNodes.length < 2) return;
+    const instance = L.map(mapNode.current, {
+      center: userLocation,
+      zoom: 17,
+      minZoom: 15,
+      maxZoom: 19,
+      zoomControl: false,
+      scrollWheelZoom: true,
+      doubleClickZoom: false,
+    });
 
-    const computeRealtimeFrame = () => {
-      const { currentSegment, progress, speed } = stateRef.current;
+    mapInstance.current = instance;
+    routeLayersGroup.current = L.layerGroup().addTo(instance);
+    layersGroup.current = L.layerGroup().addTo(instance);
 
-      if (currentSegment >= activeNodes.length - 1) {
-        onArrival?.();
-        // Emulate ongoing path loop telemetry for seamless preview mode
-        stateRef.current.currentSegment = 0;
-        stateRef.current.progress = 0;
-        animationFrameId.current = requestAnimationFrame(computeRealtimeFrame);
-        return;
-      }
+    instance.attributionControl.setPrefix(false);
 
-      const startNode = activeNodes[currentSegment];
-      const endNode = activeNodes[currentSegment + 1];
+    const tilesUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png';
+    L.tileLayer(tilesUrl, {
+      subdomains: 'abcd',
+      maxZoom: 19,
+      attribution: '&copy; CARTO &copy; OpenStreetMap',
+    }).addTo(instance);
 
-      // 1. Calculate precise spatial angle for real-time asset alignment
-      const deltaX = endNode.x - startNode.x;
-      const deltaY = endNode.y - startNode.y;
-      const angleDegrees = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-
-      // 2. Compute smooth Linear Interpolation (LERP) coordinate physics
-      const currentX = startNode.x + deltaX * progress;
-      const currentY = startNode.y + deltaY * progress;
-
-      setRunner({ x: currentX, y: currentY, bearing: angleDegrees });
-
-      // Advance delta ticker state
-      stateRef.current.progress += speed;
-
-      if (stateRef.current.progress >= 1) {
-        stateRef.current.progress = 0;
-        stateRef.current.currentSegment += 1;
-      }
-
-      animationFrameId.current = requestAnimationFrame(computeRealtimeFrame);
-    };
-
-    animationFrameId.current = requestAnimationFrame(computeRealtimeFrame);
+    // Initial resize invalidation
+    const timer = setTimeout(() => {
+      instance.invalidateSize({ pan: false });
+    }, 150);
 
     return () => {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
+      clearTimeout(timer);
+      instance.remove();
+      mapInstance.current = null;
+      layersGroup.current = null;
+      routeLayersGroup.current = null;
     };
-  }, [activeNodes, onArrival]);
+  }, [isOpen]);
+
+  // Render Geospatial Layers, Polyline, Animated Runner, and Destination Marker
+  useEffect(() => {
+    const instance = mapInstance.current;
+    const markers = layersGroup.current;
+    const routes = routeLayersGroup.current;
+    if (!instance || !markers || !routes) return;
+
+    markers.clearLayers();
+    routes.clearLayers();
+
+    // 1. Draw GPS Accuracy Halo
+    if (accuracyMeters && accuracyMeters > 5) {
+      L.circle(userLocation, {
+        radius: Math.min(accuracyMeters, 35),
+        color: '#f97316',
+        fillColor: '#f97316',
+        fillOpacity: 0.08,
+        weight: 1,
+        dashArray: '3, 4',
+      }).addTo(markers);
+    }
+
+    // 2. Draw User Location Pin
+    const userHeadingStyle = heading !== null ? `transform: rotate(${heading}deg);` : '';
+    const userMarkerHtml = `
+      <div class="relative w-7 h-7 flex items-center justify-center pointer-events-none" style="${userHeadingStyle}">
+        <div class="absolute inset-0 rounded-full bg-orange-500/25 animate-ping"></div>
+        <div class="w-3.5 h-3.5 rounded-full bg-white border-2 border-orange-500 shadow-md z-10"></div>
+        <div class="absolute -bottom-3 text-[8px] font-black uppercase text-white bg-zinc-900 border border-zinc-700 px-1.5 py-0.2 rounded-xs whitespace-nowrap shadow-xs">
+          ${t('You', 'మీరు')}
+        </div>
+      </div>
+    `;
+
+    L.marker(userLocation, {
+      icon: L.divIcon({
+        html: userMarkerHtml,
+        className: 'user-live-gps-node',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+      }),
+      zIndexOffset: 800,
+    }).addTo(markers);
+
+    // 3. Draw Target Canteen Pin
+    const canteenHtml = `
+      <div class="flex flex-col items-center pointer-events-none">
+        <div class="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-700 shadow-xl flex items-center justify-center text-sm border-t-2 border-t-orange-500">
+          ${activeShop.emoji || '🍱'}
+        </div>
+        <div class="w-1.5 h-1.5 bg-orange-500 rotate-45 -mt-1 shadow-xs"></div>
+        <span class="mt-1 text-[9px] font-black text-orange-400 bg-zinc-950/90 border border-zinc-800 px-2 py-0.5 rounded-md whitespace-nowrap">
+          ${activeShop.name}
+        </span>
+      </div>
+    `;
+
+    L.marker(activeShop.coords, {
+      icon: L.divIcon({
+        html: canteenHtml,
+        className: 'canteen-target-node',
+        iconSize: [80, 50],
+        iconAnchor: [40, 40],
+      }),
+      zIndexOffset: 1000,
+    }).addTo(markers);
+
+    // 4. Draw Polyline Route Tracks (High-Contrast Dual Stroke)
+    const pathCoords = activeRouteResult.coordinates;
+    if (pathCoords && pathCoords.length > 1) {
+      // Outer Ambient Glow Polyline
+      L.polyline(pathCoords, {
+        color: '#f97316',
+        weight: 7,
+        opacity: 0.22,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(routes);
+
+      // Core Crisp Polyline
+      L.polyline(pathCoords, {
+        color: '#f97316',
+        weight: 3.5,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(routes);
+
+      // Fit map view to bounds with asymmetric bottom clearance
+      instance.fitBounds(L.latLngBounds([userLocation, activeShop.coords]), {
+        paddingTopLeft: [40, 30],
+        paddingBottomRight: [30, 110],
+        maxZoom: 18,
+        animate: true,
+      });
+    }
+
+    // 5. Live Animated Courier Runner (Continuous LERP along active walking path)
+    let runnerAnimFrameId: number | null = null;
+    if (pathCoords && pathCoords.length > 1) {
+      const initialBearing = calculateGeographicBearing(pathCoords[0], pathCoords[1]);
+      const runnerIcon = L.divIcon({
+        html: `
+          <div class="swiggy-runner-marker">
+            <div class="swiggy-runner-halo"></div>
+            <div class="swiggy-runner-disc" style="transform: rotate(${Math.round(initialBearing)}deg);">
+              <span class="swiggy-runner-emoji">🛵</span>
+              <div class="swiggy-runner-pointer"></div>
+            </div>
+          </div>
+        `,
+        className: 'swiggy-runner-leaflet-marker',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+
+      const runnerMarker = L.marker(pathCoords[0], {
+        icon: runnerIcon,
+        zIndexOffset: 1200,
+        interactive: false,
+      }).addTo(routes);
+
+      let currentSeg = 0;
+      let segProgress = 0;
+      const runnerSpeed = 0.012;
+
+      const animateRunner = () => {
+        if (currentSeg >= pathCoords.length - 1) {
+          onArrival?.();
+          currentSeg = 0;
+          segProgress = 0;
+        }
+
+        const p1 = pathCoords[currentSeg];
+        const p2 = pathCoords[currentSeg + 1];
+
+        if (p1 && p2) {
+          const curLat = p1[0] + (p2[0] - p1[0]) * segProgress;
+          const curLng = p1[1] + (p2[1] - p1[1]) * segProgress;
+          runnerMarker.setLatLng([curLat, curLng]);
+
+          const bearing = calculateGeographicBearing(p1, p2);
+          const disc = runnerMarker.getElement()?.querySelector<HTMLElement>('.swiggy-runner-disc');
+          if (disc) {
+            disc.style.transform = `rotate(${Math.round(bearing)}deg)`;
+          }
+
+          segProgress += runnerSpeed;
+          if (segProgress >= 1) {
+            segProgress = 0;
+            currentSeg += 1;
+          }
+        }
+
+        runnerAnimFrameId = requestAnimationFrame(animateRunner);
+      };
+
+      runnerAnimFrameId = requestAnimationFrame(animateRunner);
+    }
+
+    return () => {
+      if (runnerAnimFrameId) cancelAnimationFrame(runnerAnimFrameId);
+    };
+  }, [userLocation, activeShop, activeRouteResult, heading, accuracyMeters, onArrival, t]);
+
+  // Recenter map smoothly to user's live position
+  const handleRecenter = () => {
+    triggerRecenter();
+    if (mapInstance.current) {
+      if (activeRouteResult.coordinates.length > 1) {
+        mapInstance.current.fitBounds(L.latLngBounds([userLocation, activeShop.coords]), {
+          paddingTopLeft: [40, 30],
+          paddingBottomRight: [30, 110],
+          maxZoom: 18,
+          animate: true,
+        });
+      } else {
+        mapInstance.current.flyTo(userLocation, 17, { duration: 0.8 });
+      }
+    }
+  };
 
   if (!isOpen) return null;
-
-  const targetNode = activeNodes[activeNodes.length - 1] ?? {
-    x: activeShop.targetCx,
-    y: activeShop.targetCy,
-  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end justify-center p-0 font-sans animate-in fade-in duration-200">
       
       {/* Container Frame (Edge-to-Edge Flush Architecture) */}
       <div 
-        className="w-full max-w-lg bg-zinc-950 text-white rounded-t-3xl shadow-2xl flex flex-col border-t border-zinc-800 overflow-hidden max-h-[92vh]"
+        className="w-full max-w-lg bg-zinc-950 text-white rounded-t-3xl shadow-2xl flex flex-col border-t border-zinc-800 overflow-hidden max-h-[92vh] h-[85vh] relative"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Campus Pedestrian Path Tracker"
       >
-        {/* Top Floating Header & Realtime Telemetry Feedback Block */}
-        <header className="p-4 pb-3 border-b border-zinc-800/80 flex items-center justify-between flex-shrink-0 bg-zinc-950/95 backdrop-blur-md">
+        {/* TOP FLOATING HEADER HUD WITH TELEMETRY */}
+        <header className="p-4 pb-3 border-b border-zinc-800/80 flex items-center justify-between flex-shrink-0 bg-zinc-950/95 backdrop-blur-md z-30">
           <div className="min-w-0 pr-3">
             <div className="flex items-center gap-2 mb-1">
               <span className="flex items-center gap-1.5 text-[10px] font-black text-orange-500 uppercase tracking-widest">
                 <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                Live Courier Path Tracking
+                {t('Live Geospatial Tracker', 'ప్రత్యక్ష భౌగోళిక ట్రాకర్')}
               </span>
               {isWatching && (
                 <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  GPS Live (±{accuracyMeters}m)
+                  GPS (±{accuracyMeters}m)
                 </span>
               )}
             </div>
             <div className="flex items-baseline gap-2">
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                {activeRoute.totalDistanceMeters}m
+                {activeRouteResult.distanceMeters}m
               </h2>
               <span className="text-xs font-semibold text-zinc-400">
-                · {walkingMinutes} min walk from Entrance
+                · {walkingMinutes} {t('min walk', 'నిమిషాల నడక')} {activeRouteResult.hasIndoorApproach ? t('· Indoor', '· లోపల') : ''}
               </span>
             </div>
           </div>
@@ -170,8 +332,8 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
           )}
         </header>
 
-        {/* Horizontal Selection Ribbon */}
-        <div className="px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800/60 flex gap-2 overflow-x-auto scrollbar-none snap-x flex-shrink-0">
+        {/* HORIZONTAL SHOP SELECTION RIBBON */}
+        <div className="px-4 py-2 bg-zinc-900/90 border-b border-zinc-800/60 flex gap-2 overflow-x-auto scrollbar-none snap-x flex-shrink-0 z-30">
           {CAMPUS_SHOPS.map((shop) => {
             const isSelected = shop.id === activeShop.id;
             return (
@@ -185,6 +347,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
                     : 'bg-zinc-800/80 hover:bg-zinc-800 text-zinc-400 border border-zinc-700/40 hover:text-zinc-200'
                 }`}
               >
+                <span>{shop.emoji}</span>
                 <span>{shop.name}</span>
                 {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
               </button>
@@ -192,200 +355,37 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
           })}
         </div>
 
+        {/* PROXIMITY ARRIVAL ALERT BANNER (Triggers within 15 meters) */}
+        {isNearCanteen && (
+          <div className="absolute top-28 left-4 right-4 z-40 bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 px-4 py-2.5 rounded-2xl text-xs font-black text-center backdrop-blur-md shadow-xl flex items-center justify-center gap-2 animate-bounce">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>{t('You have reached the canteen door! Show your token to collect.', 'మీరు క్యాంటీన్ వద్దకు చేరుకున్నారు! టోకెన్ చూపించండి.')}</span>
+          </div>
+        )}
+
         {/* -------------------------------------------------------------------
-         * HIGH-PERFORMANCE ARCHITECTURAL GRAYSCALE SVG CANVAS
-         * Pure inline SVG vector engine: zero heavy 3D libraries or raw bitmaps.
+         * LEAFLET GEOSPATIAL MAP CANVAS ENGINE
+         * Native Hardware GPU Touch Pinch & Walkway Tracing
          * ------------------------------------------------------------------- */}
-        <div className="relative w-full aspect-4/3 bg-zinc-950 flex-grow min-h-[300px] overflow-hidden select-none">
-          <svg
-            viewBox="0 0 400 480"
-            className="w-full h-full object-cover"
-            preserveAspectRatio="xMidYMid meet"
+        <div className="relative w-full flex-grow min-h-[300px] overflow-hidden select-none bg-zinc-950">
+          <div ref={mapNode} className="w-full h-full z-10" />
+
+          {/* FLOATING RECENTER FAB ACTION BUTTON */}
+          <button
+            type="button"
+            onClick={handleRecenter}
+            aria-label="Recenter map on your position"
+            title="Recenter GPS"
+            className="absolute bottom-4 right-4 z-20 w-11 h-11 rounded-full bg-zinc-900/95 hover:bg-zinc-800 text-orange-500 border border-zinc-700/80 shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all"
           >
-            <defs>
-              {/* Subtle architectural grid pattern */}
-              <pattern id="arch-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="0.75" fill="#27272a" fillOpacity="0.6" />
-              </pattern>
-
-              {/* High-contrast brand orange path glow */}
-              <filter id="trail-glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#F06A05" floodOpacity="0.65" />
-              </filter>
-            </defs>
-
-            {/* Background Grid Pattern */}
-            <rect width="100%" height="100%" fill="url(#arch-grid)" />
-
-            {/* Static Campus Building Footprints (Grayscale Architectural Blocks) */}
-            <g className="buildings opacity-90">
-              {/* Main Academic Block A */}
-              <rect x="40" y="40" width="130" height="60" rx="6" fill="#18181b" stroke="#27272a" strokeWidth="1.5" />
-              <text x="105" y="75" textAnchor="middle" fill="#71717a" fontSize="8" fontWeight="700" letterSpacing="0.05em">
-                ACADEMIC BLOCK A
-              </text>
-
-              {/* Central Library & Dean Block */}
-              <rect x="210" y="40" width="150" height="50" rx="6" fill="#18181b" stroke="#27272a" strokeWidth="1.5" />
-              <text x="285" y="68" textAnchor="middle" fill="#71717a" fontSize="8" fontWeight="700" letterSpacing="0.05em">
-                CENTRAL LIBRARY
-              </text>
-
-              {/* Quadrangle Plaza Garden */}
-              <circle cx="170" cy="250" r="28" fill="#18181b" stroke="#27272a" strokeWidth="1.5" strokeDasharray="2 2" />
-              <text x="170" y="253" textAnchor="middle" fill="#52525b" fontSize="7" fontWeight="600">
-                QUAD
-              </text>
-
-              {/* Campus Food Court Building */}
-              <rect x="280" y="270" width="100" height="85" rx="8" fill="#1c1917" stroke="#292524" strokeWidth="1.5" />
-              <text x="330" y="300" textAnchor="middle" fill="#a8a29e" fontSize="8" fontWeight="800">
-                FOOD COURT
-              </text>
-
-              {/* South Hostel & Sports Ground */}
-              <rect x="30" y="410" width="160" height="50" rx="6" fill="#18181b" stroke="#27272a" strokeWidth="1.5" />
-              <text x="110" y="438" textAnchor="middle" fill="#71717a" fontSize="8" fontWeight="700">
-                STUDENT ACTIVITIES
-              </text>
-            </g>
-
-            {/* Static Walkway Network (Subtle slate grey corridors) */}
-            <g className="walkways">
-              {GRAPH_EDGES.map((edge, idx) => {
-                const u = ALL_GRAPH_NODES[edge.from];
-                const v = ALL_GRAPH_NODES[edge.to];
-                if (!u || !v) return null;
-                return (
-                  <line
-                    key={`static-edge-${idx}`}
-                    x1={u.x}
-                    y1={u.y}
-                    x2={v.x}
-                    y2={v.y}
-                    stroke="#3f3f46"
-                    strokeWidth="2"
-                    strokeDasharray="4 3"
-                    strokeOpacity="0.45"
-                  />
-                );
-              })}
-            </g>
-
-            {/* Waypoint Intersection Nodes */}
-            <g className="waypoints">
-              {Object.values(WAYPOINTS).map((wp) => (
-                <circle
-                  key={wp.id}
-                  cx={wp.x}
-                  cy={wp.y}
-                  r="2.5"
-                  fill="#52525b"
-                  fillOpacity="0.7"
-                />
-              ))}
-            </g>
-
-            {/* ---------------------------------------------------------------
-             * DYNAMIC DIJKSTRA ACTIVE TRAIL
-             * Dual-stroke approach: soft ambient glow halo + high-contrast core.
-             * --------------------------------------------------------------- */}
-            {activeRoute.svgPath && (
-              <g className="active-trail">
-                {/* Outer Glow Halo */}
-                <path
-                  d={activeRoute.svgPath}
-                  fill="none"
-                  stroke="#F06A05"
-                  strokeWidth="7"
-                  strokeOpacity="0.25"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                {/* Core High-Contrast Path */}
-                <path
-                  d={activeRoute.svgPath}
-                  fill="none"
-                  stroke="#F06A05"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter="url(#trail-glow)"
-                />
-              </g>
-            )}
-
-            {/* Start Pin Dot (Minimal White concentric origin marker) */}
-            <g className="start-pin">
-              <circle cx={START_NODE.x} cy={START_NODE.y} r="8" fill="#FFFFFF" fillOpacity="0.15" />
-              <circle cx={START_NODE.x} cy={START_NODE.y} r="5" fill="#FFFFFF" stroke="#090D11" strokeWidth="1.5" />
-              <text x={START_NODE.x} y={START_NODE.y + 16} textAnchor="middle" fill="#A1A1AA" fontSize="8" fontWeight="700">
-                START
-              </text>
-            </g>
-
-            {/* ---------------------------------------------------------------
-             * PREMIUM ANCHOR PIN DESTINATION MARKER
-             * Pulsing radar ring, store badge, and target anchor.
-             * --------------------------------------------------------------- */}
-            <g className="destination-target" transform={`translate(${targetNode.x}, ${targetNode.y})`}>
-              {/* Radar pulse ping */}
-              <circle cx="0" cy="0" r="14" className="stroke-orange-500 fill-orange-500/15 animate-ping opacity-25" strokeWidth="1.5" />
-              <circle cx="0" cy="0" r="4.5" className="fill-orange-500 stroke-white" strokeWidth="1.5" />
-              
-              {/* Floating merchant profile badge */}
-              <g transform="translate(-16, -34)">
-                <rect width="32" height="22" rx="6" className="fill-zinc-950 stroke-zinc-700 shadow-md" strokeWidth="1.2" />
-                <text x="16" y="15" textAnchor="middle" className="text-[11px] select-none">
-                  {activeShop.emoji || '🍱'}
-                </text>
-              </g>
-              <line x1="0" y1="-12" x2="0" y2="0" stroke="#f06a05" strokeWidth="1.5" />
-              
-              <text 
-                x="0" 
-                y="14" 
-                textAnchor="middle" 
-                fill="#FDBA74" 
-                fontSize="8.5" 
-                fontWeight="900"
-                className="select-none"
-              >
-                {activeShop.name}
-              </text>
-            </g>
-
-            {/* ---------------------------------------------------------------
-             * LIVE ANIMATED COURIER ROUTE RUNNER (ZOMATO STYLE)
-             * Smooth LERP motion with dynamic tangent orientation.
-             * --------------------------------------------------------------- */}
-            <g 
-              className="animated-courier-runner"
-              transform={`translate(${runner.x}, ${runner.y}) rotate(${runner.bearing})`}
-            >
-              {/* Directional ambient shadow glow */}
-              <circle cx="0" cy="0" r="12" className="fill-orange-500/20 blur-xs" />
-              
-              <g transform="translate(-11, -11)">
-                {/* High-visibility orange disc */}
-                <circle cx="11" cy="11" r="10.5" className="fill-orange-500 stroke-white" strokeWidth="1.75" />
-                
-                {/* Forward Heading Direction Pointer Triangle */}
-                <polygon points="21,11 16.5,7.5 16.5,14.5" className="fill-white" />
-                
-                {/* Courier Scooter Glyph */}
-                <text x="9" y="14.5" className="text-[10px] text-anchor-middle select-none font-bold">
-                  🛵
-                </text>
-              </g>
-            </g>
-          </svg>
+            <LocateFixed size={18} />
+          </button>
         </div>
 
         {/* -------------------------------------------------------------------
          * SYMMETRICAL COMPACT BOTTOM-SHEET CONTROL DRAWER
          * ------------------------------------------------------------------- */}
-        <footer className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0">
+        <footer className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-30">
           
           {/* Left: Dense Vertical Layout Grid */}
           <div className="min-w-0 pr-3">
@@ -400,13 +400,13 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
             
             <p className="text-xs text-zinc-400 font-semibold mt-1 flex items-center gap-1.5 truncate">
               <Footprints size={13} className="text-orange-500 flex-shrink-0" />
-              <span>{walkingMinutes} min walk · {activeRoute.totalDistanceMeters}m away</span>
+              <span>{walkingMinutes} {t('min walk', 'నిమిషాల నడక')} · {activeRouteResult.distanceMeters}m</span>
               <span className="text-zinc-600">·</span>
               <span className="text-zinc-400 truncate">{activeShop.landmark}</span>
             </p>
           </div>
 
-          {/* Right: Singular, Blocky Primary Action Button with Tactile Downscale */}
+          {/* Right: Primary Action Button */}
           <button
             type="button"
             onClick={() => {
@@ -415,7 +415,7 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
             }}
             className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black px-5 py-3 rounded-xl shadow-lg shadow-orange-500/25 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
           >
-            <span>View Menu</span>
+            <span>{t('View Menu', 'మెనూ చూడండి')}</span>
             <ChevronRight size={14} />
           </button>
         </footer>

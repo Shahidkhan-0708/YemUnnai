@@ -1242,7 +1242,9 @@ html[lang=te] .business-online button { flex:1; min-width:0; overflow-wrap:anywh
 }
 
 /* GPS User Location Beacon (Blue Radar) */
-.swiggy-gps-marker {
+.swiggy-gps-marker,
+.user-live-gps-node,
+.canteen-target-node {
   background: transparent !important;
   border: none !important;
 }

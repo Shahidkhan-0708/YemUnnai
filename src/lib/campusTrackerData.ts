@@ -22,6 +22,7 @@ export interface ShopNode {
   targetCy: number;
   landmark: string;
   emoji?: string;
+  coords: [number, number];
 }
 
 export interface Waypoint {
@@ -50,7 +51,8 @@ export const CAMPUS_SHOPS: ShopNode[] = [
     targetCx: 330,
     targetCy: 320,
     landmark: 'Campus Food Court, Ground Floor',
-    emoji: '🍱'
+    emoji: '🍱',
+    coords: [13.62955, 78.47895]
   },
   {
     id: 'MITS_CAFE',
@@ -61,7 +63,8 @@ export const CAMPUS_SHOPS: ShopNode[] = [
     targetCx: 280,
     targetCy: 110,
     landmark: 'Near Library Academic Block',
-    emoji: '☕'
+    emoji: '☕',
+    coords: [13.63015, 78.47835]
   },
   {
     id: 'HAPPY_TEA',
@@ -72,7 +75,8 @@ export const CAMPUS_SHOPS: ShopNode[] = [
     targetCx: 340,
     targetCy: 410,
     landmark: 'South Promenade Lawn',
-    emoji: '🧋'
+    emoji: '🧋',
+    coords: [13.62910, 78.47810]
   },
   {
     id: 'PARADISE',
@@ -83,7 +87,8 @@ export const CAMPUS_SHOPS: ShopNode[] = [
     targetCx: 110,
     targetCy: 120,
     landmark: 'North Student Center',
-    emoji: '🍛'
+    emoji: '🍛',
+    coords: [13.62760, 78.47690]
   }
 ];
 
