@@ -1,5 +1,4 @@
 import React from 'react';
-import { Navigation } from 'lucide-react';
 
 export interface CanteenData {
   id: string;
@@ -26,12 +25,12 @@ export const CanteenSwipeSlider: React.FC<CanteenSwipeSliderProps> = ({
   return (
     <section className="w-full bg-white py-4 font-sans">
       {/* 1. Clean, Clutter-Free Header Row (Single Explicit Action Link) */}
-      <div className="px-4 mb-3.5 flex items-center justify-between">
+      <div className="px-4 mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-base font-black text-gray-950 tracking-tight">
+          <h2 className="text-sm font-black text-gray-950 uppercase tracking-wider">
             Campus Spots Near You
           </h2>
-          <p className="text-xs text-gray-400 font-medium">
+          <p className="text-2xs text-gray-400 font-semibold">
             Active canteens &amp; cafes in walking distance
           </p>
         </div>
@@ -39,23 +38,22 @@ export const CanteenSwipeSlider: React.FC<CanteenSwipeSliderProps> = ({
           <button
             type="button"
             onClick={onOpenMap}
-            className="text-xs font-black text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-full active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+            className="text-2xs font-black text-orange-600 bg-orange-50 border border-orange-100/50 px-2.5 py-1 rounded-md active:scale-95 transition-all cursor-pointer"
           >
-            <Navigation size={12} className="text-orange-600" />
-            <span>Track Route</span>
+            MAP VIEW
           </button>
         )}
       </div>
 
-      {/* 2. Seamless Floating Card Row (Zero heavy card-in-card nested borders) */}
-      <div className="flex gap-4 overflow-x-auto px-4 pb-3 scrollbar-none snap-x snap-mandatory">
+      {/* 2. Symmetrical Destination Spots Grid / Swipe Track */}
+      <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-none snap-x snap-mandatory">
         {canteens.map((spot) => (
           <div 
             key={spot.id} 
-            className="w-[290px] bg-white rounded-2xl border border-gray-100 shadow-xs flex-shrink-0 snap-start overflow-hidden transition-all hover:shadow-md flex flex-col justify-between"
+            className="w-[285px] sm:w-[305px] bg-white rounded-2xl border border-gray-100/80 shadow-xs flex-shrink-0 snap-start overflow-hidden transition-all hover:shadow-sm flex flex-col justify-between"
           >
-            {/* Main Visual: Clean Photo with Minimal Floating Badges */}
-            <div className="relative w-full h-32 bg-gray-100 overflow-hidden">
+            {/* Visual Container */}
+            <div className="relative w-full h-36 bg-gray-100 overflow-hidden">
               <img 
                 src={spot.imageUrl} 
                 alt={spot.name} 
@@ -65,22 +63,22 @@ export const CanteenSwipeSlider: React.FC<CanteenSwipeSliderProps> = ({
                   (e.currentTarget as HTMLImageElement).src = '/images/shop_mits_canteen.jpg';
                 }}
               />
-              {/* Elegant rounded overlay status chip */}
-              <div
-                className={`absolute top-3 left-3 text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs uppercase tracking-wider ${
-                  spot.isOpen ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+              
+              {/* Clean Symmetrical Badges */}
+              <span
+                className={`absolute top-3 left-3 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-xs tracking-wider uppercase ${
+                  spot.isOpen ? 'bg-emerald-600' : 'bg-rose-600'
                 }`}
               >
                 {spot.isOpen ? 'OPEN' : 'CLOSED'}
-              </div>
+              </span>
 
-              {/* Minimal floating time badge */}
-              <div className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
-                <span>{spot.walkingTime}</span>
-              </div>
+              <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[9px] font-semibold px-2 py-0.5 rounded-md">
+                🏃 {spot.walkingTime}
+              </span>
             </div>
 
-            {/* Symmetrical Information Block */}
+            {/* Information Block */}
             <div className="p-3.5 flex flex-col justify-between flex-grow">
               <div>
                 <div className="flex items-center justify-between gap-1.5">
@@ -93,23 +91,24 @@ export const CanteenSwipeSlider: React.FC<CanteenSwipeSliderProps> = ({
                   </div>
                 </div>
                 
-                <p className="text-[11px] text-gray-400 font-normal mt-0.5 truncate">
+                <p className="text-2xs text-gray-400 font-semibold mt-0.5 truncate">
                   {spot.locationDetails}
-                </p>
-                
-                <p className="text-[11px] font-semibold text-gray-600 mt-1">
-                  {spot.priceRange} <span className="text-gray-300 font-normal">· Cost for one</span>
                 </p>
               </div>
 
-              {/* SINGLE Unified Primary Action Button (Zero duplicate side arrows) */}
-              <button 
-                type="button"
-                onClick={() => onViewMenu(spot.id, spot.name)}
-                className="w-full mt-3.5 bg-orange-500 hover:bg-orange-600 active:scale-98 text-white text-xs font-black py-2.5 rounded-xl shadow-xs transition-all tracking-wide cursor-pointer"
-              >
-                View Menu
-              </button>
+              {/* Symmetrical Bottom Axis: Price + View Menu Button */}
+              <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-50">
+                <p className="text-2xs font-semibold text-gray-500">
+                  <span className="font-black text-gray-950">{spot.priceRange}</span> · Cost for one
+                </p>
+                <button 
+                  type="button"
+                  onClick={() => onViewMenu(spot.id, spot.name)}
+                  className="text-2xs font-black text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg shadow-2xs transition-colors active:scale-95 cursor-pointer"
+                >
+                  View Menu
+                </button>
+              </div>
             </div>
           </div>
         ))}

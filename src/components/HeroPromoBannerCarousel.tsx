@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
 
 export interface PromoDeal {
   id: string;
@@ -18,21 +17,21 @@ export const PROMO_DEALS: PromoDeal[] = [
     id: 'deal-1',
     badge: 'MITS CANTEEN EXCLUSIVE',
     title: 'FLAT 20% OFF',
-    subtitle: 'On hot Masala Dosas, Idlis & Filter Kaapi',
+    subtitle: 'On hot Masala Dosas, Idlis & Filter...',
     code: 'CAMPUS20',
     shopName: 'MITS Canteen',
-    bgGradient: 'linear-gradient(135deg, #c43800 0%, #e65100 50%, #f57c00 100%)',
+    bgGradient: 'from-orange-500 to-amber-600',
     emoji: '🍲',
     imageUrl: '/images/item_masala_dosa.png',
   },
   {
     id: 'deal-2',
     badge: 'STUDENT SNACK COMBO',
-    title: 'CHAI & SAMOSA ₹25',
-    subtitle: 'Fresh ginger chai with crispy golden samosa',
+    title: 'CHAI & SAMOSA',
+    subtitle: 'Fresh ginger chai with crispy...',
     code: 'HAPPYTEA',
     shopName: 'Happy Tea',
-    bgGradient: 'linear-gradient(135deg, #005b4f 0%, #00796b 50%, #009688 100%)',
+    bgGradient: 'from-teal-600 to-emerald-700',
     emoji: '☕',
     imageUrl: '/images/item_samosa_chicken.jpg',
   },
@@ -40,10 +39,10 @@ export const PROMO_DEALS: PromoDeal[] = [
     id: 'deal-3',
     badge: 'BEST STUDENT VALUE',
     title: 'UNLIMITED MEALS ₹60',
-    subtitle: 'Steaming Andhra rice, hot sambar, ghee & podi',
+    subtitle: 'Steaming Andhra rice, hot sambar, ghee...',
     code: 'THALI60',
     shopName: 'Mallikarjuna Mess',
-    bgGradient: 'linear-gradient(135deg, #511378 0%, #6a1b9a 50%, #8e24aa 100%)',
+    bgGradient: 'from-purple-600 to-indigo-700',
     emoji: '🍱',
     imageUrl: '/images/item_meals.png',
   },
@@ -54,7 +53,7 @@ export const PROMO_DEALS: PromoDeal[] = [
     subtitle: 'Chilled watermelon mojito & thick fruit shakes',
     code: 'CHILLOUT',
     shopName: 'ACS Cafe',
-    bgGradient: 'linear-gradient(135deg, #01579b 0%, #0277bd 50%, #0288d1 100%)',
+    bgGradient: 'from-sky-600 to-blue-700',
     emoji: '🍹',
     imageUrl: '/images/item_juice.jpg',
   },
@@ -75,9 +74,9 @@ export const HeroPromoBannerCarousel: React.FC<HeroPromoBannerCarouselProps> = (
       if (!isInteractingRef.current && containerRef.current) {
         const nextIndex = (currentIndex + 1) % PROMO_DEALS.length;
         setCurrentIndex(nextIndex);
-        const cardWidth = containerRef.current.clientWidth;
+        const cardWidth = 316; // width + gap
         containerRef.current.scrollTo({
-          left: nextIndex * (cardWidth - 24),
+          left: nextIndex * cardWidth,
           behavior: 'smooth'
         });
       }
@@ -88,8 +87,8 @@ export const HeroPromoBannerCarousel: React.FC<HeroPromoBannerCarouselProps> = (
 
   const handleScroll = () => {
     if (!containerRef.current) return;
-    const { scrollLeft, clientWidth } = containerRef.current;
-    const index = Math.round(scrollLeft / (clientWidth - 24));
+    const { scrollLeft } = containerRef.current;
+    const index = Math.round(scrollLeft / 316);
     if (index >= 0 && index < PROMO_DEALS.length && index !== currentIndex) {
       setCurrentIndex(index);
     }
@@ -98,105 +97,87 @@ export const HeroPromoBannerCarousel: React.FC<HeroPromoBannerCarouselProps> = (
   const scrollToIndex = (index: number) => {
     if (!containerRef.current) return;
     setCurrentIndex(index);
-    const cardWidth = containerRef.current.clientWidth;
     containerRef.current.scrollTo({
-      left: index * (cardWidth - 24),
+      left: index * 316,
       behavior: 'smooth'
     });
   };
 
   return (
-    <div className="promo-banner-carousel-container">
-      {/* Symmetrical Viewport Masked Track */}
+    <div className="w-full font-sans">
+      {/* 1. HORIZONTAL PROMO TRACK */}
       <div 
         ref={containerRef}
-        className="promo-banner-track"
         onScroll={handleScroll}
         onTouchStart={() => { isInteractingRef.current = true; }}
         onTouchEnd={() => { setTimeout(() => { isInteractingRef.current = false; }, 2000); }}
         onMouseEnter={() => { isInteractingRef.current = true; }}
         onMouseLeave={() => { isInteractingRef.current = false; }}
+        className="flex gap-4 overflow-x-auto px-4 pt-4 pb-2 scrollbar-none snap-x snap-mandatory"
         role="region"
         aria-label="Campus promotional deals"
       >
-        {PROMO_DEALS.map((deal) => (
+        {PROMO_DEALS.map((promo) => (
           <div 
-            key={deal.id}
-            className="promo-banner-card relative overflow-hidden rounded-2xl group"
-            style={{ background: deal.bgGradient }}
-            onClick={() => onSelectShop?.(deal.shopName)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onSelectShop?.(deal.shopName);
-              }
-            }}
+            key={promo.id} 
+            onClick={() => onSelectShop?.(promo.shopName)}
+            className={`w-[300px] h-36 bg-gradient-to-br ${promo.bgGradient} rounded-2xl p-4 text-white flex-shrink-0 snap-start relative overflow-hidden shadow-xs flex justify-between items-center cursor-pointer`}
           >
-            {/* Subtle Ambient Radial Glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_70%)] pointer-events-none" />
-
-            {/* Left Content Column */}
-            <div className="promo-banner-content relative z-10 max-w-[62%] sm:max-w-[65%] flex flex-col justify-between h-full">
+            <div className="max-w-[65%] flex flex-col justify-between h-full relative z-10">
               <div>
-                {/* Clean Pure Text Badge (Zero heavy background box) */}
-                <div className="flex items-center gap-1.5 text-amber-300 font-black text-[10px] tracking-widest uppercase">
-                  <Sparkles size={11} className="fill-amber-300 text-amber-300" />
-                  <span>{deal.badge}</span>
-                </div>
-
-                {/* High-Contrast Stacked Title */}
-                <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-tight mt-1.5">
-                  {deal.title}
+                <span className="text-[9px] font-black tracking-widest text-white/80 block uppercase">
+                  {promo.badge}
+                </span>
+                <h3 className="text-xl font-black tracking-tight mt-1 leading-none text-white">
+                  {promo.title}
                 </h3>
-
-                {/* Single-line uniform subtitle */}
-                <p className="text-xs text-white/90 font-medium leading-normal mt-1 line-clamp-1">
-                  {deal.subtitle}
+                <p className="text-[10px] text-white/75 font-semibold mt-1.5 line-clamp-1">
+                  {promo.subtitle}
                 </p>
               </div>
-
-              {/* Cleaned CTA Axis: Typographic Coupon Accent + Polished Dominant White Pill */}
-              <div className="flex items-center gap-3 mt-4">
-                <span className="text-[10.5px] font-mono font-bold text-white/85 tracking-wide uppercase">
-                  Code: <strong className="text-white underline decoration-white/40">{deal.code}</strong>
+              
+              <div className="flex items-center gap-2 mt-auto">
+                <span className="text-[9px] font-mono font-semibold tracking-wider text-white bg-black/15 border border-white/20 px-2 py-1 rounded-md">
+                  CODE: {promo.code}
                 </span>
-
-                <span className="inline-flex items-center gap-1.5 bg-white text-gray-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm hover:bg-white/90 active:scale-95 transition-all cursor-pointer">
-                  <span>Claim</span>
-                  <ArrowRight size={12} className="text-gray-950" />
-                </span>
+                <button 
+                  type="button"
+                  className="bg-white text-gray-950 text-[10px] font-black px-3 py-1 rounded-md shadow-xs active:scale-95 transition-transform flex items-center gap-0.5 cursor-pointer"
+                >
+                  Claim <span>→</span>
+                </button>
               </div>
             </div>
 
-            {/* 1. Unbordered Circular Food Frame (Zero nested square box-in-box error) */}
-            <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-white/10 backdrop-blur-xs border border-white/25 shadow-xl flex items-center justify-center p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
-              {deal.imageUrl ? (
-                <img 
-                  src={deal.imageUrl} 
-                  alt={deal.title}
-                  className="w-full h-full object-cover rounded-full"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '/images/item_meals.png';
-                  }}
-                />
-              ) : (
-                <span className="text-4xl select-none">{deal.emoji}</span>
-              )}
+            {/* Seamless Borderless Image Mask */}
+            <div className="relative w-20 h-20 flex-shrink-0">
+              <div className="absolute w-20 h-20 bg-black/20 rounded-full blur-md bottom-0" />
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/95 shadow-md relative z-10 flex items-center justify-center bg-white/10">
+                {promo.imageUrl ? (
+                  <img 
+                    src={promo.imageUrl} 
+                    alt={promo.title} 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = '/images/item_meals.png';
+                    }}
+                  />
+                ) : (
+                  <span className="text-3xl select-none">{promo.emoji}</span>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       {/* Symmetrical Pagination Dot Indicators */}
-      <div className="promo-carousel-dots flex justify-center items-center gap-1.5 mt-2" aria-hidden="true">
+      <div className="flex justify-center items-center gap-1.5 mt-2" aria-hidden="true">
         {PROMO_DEALS.map((deal, idx) => (
           <button
             key={deal.id}
             type="button"
-            className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+            className={`w-1.5 h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
               idx === currentIndex ? 'bg-orange-600 w-4' : 'bg-gray-300'
             }`}
             onClick={() => scrollToIndex(idx)}
