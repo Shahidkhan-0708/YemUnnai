@@ -203,7 +203,7 @@ export function CanteenMap({ shops, selectedId, onSelect }: Props) {
     const subdomains = 'abcd';
     const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY;
     const tilesUrl = cartoApiKey
-      ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png?api_key=${cartoApiKey}`
       : 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png';
 
     const tiles = L.tileLayer(tilesUrl, {

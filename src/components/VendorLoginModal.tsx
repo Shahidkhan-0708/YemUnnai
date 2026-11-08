@@ -238,39 +238,49 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
         role="dialog" 
         aria-modal="true" 
         aria-labelledby="vendor-login-title"
-        className="vendor-login fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md text-white font-sans selection:bg-orange-500 flex items-center justify-center p-4 sm:p-6"
+        className="vendor-login fixed inset-0 z-50 bg-black/80 backdrop-blur-md text-white font-sans selection:bg-orange-500 flex flex-col justify-end p-0"
       >
-        {/* ELITE BORDERLESS MATTE TERMINAL CONTAINER */}
-        <div className="w-full max-w-sm bg-[#0b1329] rounded-[2.5rem] p-7 sm:p-8 text-center text-white border border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300">
+        {/* Top Dismiss Touch Area */}
+        <div 
+          className="flex-1 w-full cursor-pointer" 
+          onClick={() => { if (!inFlight.current) onClose(); }}
+          aria-hidden="true"
+        />
+
+        {/* NATIVE MOBILE BOTTOM-ANCHORED CONTROL SHEET CONTAINER */}
+        <div className="w-full max-w-md mx-auto bg-slate-900 border-t border-slate-800 rounded-t-[2.5rem] rounded-b-none p-6 pt-3 pb-8 text-center text-white shadow-2xl relative overflow-hidden transition-all duration-300 animate-in slide-in-from-bottom duration-250">
           
+          {/* Native Grab Handle Pill */}
+          <div className="w-12 h-1.5 bg-slate-700/60 rounded-full mx-auto my-3" aria-hidden="true" />
+
           {/* Close button */}
           <button 
             type="button" 
             onClick={onClose} 
             aria-label={t('Close login','ప్రవేశ విండో మూసివేయండి')} 
             disabled={busy}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-50 cursor-pointer border border-slate-800"
+            className="absolute top-4 right-5 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-50 cursor-pointer border border-slate-700"
           >
             <X size={15} />
           </button>
 
           {/* 1. PORTAL SECURITY FLOATING BADGE */}
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-500/20 px-3 py-1 rounded-full uppercase tracking-widest shadow-2xs select-none">
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-400 bg-emerald-950/50 border border-emerald-500/20 px-3 py-1 rounded-full uppercase tracking-widest shadow-2xs select-none">
               <ShieldCheck size={12} className="text-emerald-400" />
               <span>{t("Encrypted Partner Portal", "రక్షిత వ్యాపార గేట్‌వే")}</span>
             </div>
           </div>
 
           {/* 2. UNIFIED BRAND IDENTITY LAYER */}
-          <div className="flex flex-col items-center mb-7">
-            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg border border-orange-400/20 select-none">
+          <div className="flex flex-col items-center mb-5">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center font-black text-white text-lg shadow-lg border border-orange-400/20 select-none">
               YM
             </div>
-            <h2 id="vendor-login-title" className="text-xl font-black tracking-tight text-white mt-4 leading-none">
+            <h2 id="vendor-login-title" className="text-xl font-black tracking-tight text-white mt-3 leading-none">
               {!matchedOutlet ? 'Merchant Terminal' : matchedOutlet.name}
             </h2>
-            <p className="text-2xs text-slate-400 font-semibold mt-2 tracking-wide max-w-[240px] leading-normal mx-auto">
+            <p className="text-xs text-slate-400 font-semibold mt-1.5 tracking-wide max-w-[280px] leading-normal mx-auto">
               {!matchedOutlet 
                 ? 'Enter your unique store code to unlock the kitchen console'
                 : `Terminal identified as ${matchedOutlet.code}. Input 4-digit security PIN.`
@@ -288,14 +298,14 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
             </div>
           )}
 
-          {/* STEP 1: BLIND STORE CODE ENTRY (BORDERLESS MATTE INPUT) */}
+          {/* STEP 1: BLIND STORE CODE ENTRY (BORDERLESS MATTE INPUT WITH BALANCED TYPOGRAPHY) */}
           {!matchedOutlet ? (
-            <form onSubmit={handleManualCodeSubmit} className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <form onSubmit={handleManualCodeSubmit} className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="text-left">
-                <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">
+                <label htmlFor="store-code-input" className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
                   Terminal Store Code
                 </label>
-                {/* Borderless matte input with subtle shadow and vanish placeholder */}
+                {/* Borderless matte input with subtle shadow and soft typography placeholder */}
                 <input 
                   id="store-code-input"
                   type="text"
@@ -307,9 +317,28 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   disabled={disabled}
                   value={storeCode}
                   onChange={(e) => handleStoreCodeChange(e.target.value)}
-                  placeholder="e.g. MITS, PARA, CAFE"
-                  className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 text-center text-xl font-black tracking-widest text-orange-400 placeholder:text-slate-700 focus:outline-hidden focus:border-orange-500 focus:bg-slate-900/40 transition-all uppercase shadow-inner disabled:opacity-40"
+                  placeholder="Enter shortcode (e.g., MITS)"
+                  className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-5 py-3.5 text-center text-lg font-bold tracking-widest text-orange-400 placeholder:text-slate-500 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:text-xs sm:placeholder:text-sm focus:outline-hidden focus:border-orange-500 focus:bg-slate-950 transition-all uppercase shadow-inner disabled:opacity-40"
                 />
+
+                {/* Tactile Quick-Select Chips for Kitchen Delivery Tablets */}
+                <div className="flex items-center justify-center gap-2 pt-2.5 flex-wrap">
+                  <span className="text-[10px] font-semibold text-slate-500">{t('Quick Pick:', 'త్వరిత ఎంపిక:')}</span>
+                  {outlets.slice(0, 4).map((outlet) => {
+                    const code = outlet.code || (outlet as any).shortCode || outlet.id;
+                    return (
+                      <button
+                        key={outlet.id}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => handleStoreCodeChange(code)}
+                        className="px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/50 hover:bg-slate-800 text-xs font-bold text-slate-300 hover:text-orange-400 transition-all active:scale-95 cursor-pointer disabled:opacity-40"
+                      >
+                        {code}
+                      </button>
+                    );
+                  })}
+                </div>
 
                 {codeError && (
                   <p role="alert" className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold mt-2.5">
@@ -326,7 +355,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
                   isCodeValid && !disabled
                     ? 'bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.99] shadow-orange-500/25 cursor-pointer' 
-                    : 'bg-slate-900 text-slate-600 border border-slate-800/80 cursor-not-allowed opacity-40'
+                    : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed opacity-40'
                 }`}
               >
                 <span>Unlock Terminal</span>
@@ -334,10 +363,10 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
               </button>
             </form>
           ) : (
-            /* STEP 2: 4-BOX AUTO-ADVANCING PIN DECK */
-            <div className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            /* STEP 2: 4-BOX AUTO-ADVANCING PIN DECK WITH TACTILE TOUCH KEYPAD */
+            <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="text-left">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3 text-center">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2.5 text-center">
                   Secure Terminal PIN
                 </label>
                 
@@ -354,7 +383,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                       value={digit}
                       onChange={(e) => handlePinCellChange(index, e.target.value)}
                       onKeyDown={(e) => handlePinKeyDown(index, e)}
-                      className="w-12 h-14 bg-slate-900 border border-slate-800 rounded-xl text-center text-xl font-black text-orange-400 focus:outline-hidden focus:border-orange-500 transition-all shadow-inner disabled:opacity-40"
+                      className="w-12 h-13 bg-slate-950 border border-slate-800 rounded-xl text-center text-xl font-black text-orange-400 focus:outline-hidden focus:border-orange-500 transition-all shadow-inner disabled:opacity-40"
                     />
                   ))}
                 </div>
@@ -369,7 +398,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
               </div>
 
               {/* On-screen tactile keypad for tablet touchscreens */}
-              <div className="grid grid-cols-3 gap-2" aria-label="PIN keypad">
+              <div className="grid grid-cols-3 gap-2 pt-1" aria-label="PIN keypad">
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => key === '' ? (
                   <span key="space" />
                 ) : (
@@ -379,7 +408,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                     disabled={disabled} 
                     aria-label={key === 'delete' ? 'Delete last digit' : key}
                     onClick={() => handleKeypadPress(key)}
-                    className="flex h-11 items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-base font-black text-white border border-slate-800/80 transition-all cursor-pointer disabled:opacity-40"
+                    className="flex h-12 items-center justify-center rounded-xl bg-slate-950 hover:bg-slate-800 active:scale-95 text-base font-black text-white border border-slate-800/80 transition-all cursor-pointer disabled:opacity-40"
                   >
                     {key === 'delete' ? <Delete className="size-4 text-slate-400" /> : key}
                   </button>
@@ -394,7 +423,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                 className={`w-full py-4 text-xs font-black uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 select-none ${
                   isPinComplete && !disabled
                     ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.99] shadow-emerald-600/25 cursor-pointer' 
-                    : 'bg-slate-900 text-slate-600 border border-slate-800/80 cursor-not-allowed opacity-40'
+                    : 'bg-slate-950 text-slate-600 border border-slate-800 cursor-not-allowed opacity-40'
                 }`}
               >
                 <ShieldCheck size={15} />
@@ -405,7 +434,7 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
               <button 
                 type="button"
                 onClick={handleSwitchAccount}
-                className="text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-wider block mx-auto transition-colors flex items-center gap-1 cursor-pointer"
+                className="text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-wider block mx-auto transition-colors flex items-center gap-1 cursor-pointer pt-1"
               >
                 <RotateCcw size={10} />
                 <span>Switch Terminal Code</span>
@@ -414,8 +443,8 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
           )}
 
           {/* 4. BALANCED MINIMALIST FOOTNOTE */}
-          <div className="mt-7 pt-4 border-t border-slate-900/80 select-none">
-            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">
+          <div className="mt-5 pt-3 border-t border-slate-800/60 select-none">
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
               Secure Terminal Auth · End-to-End Encrypted
             </p>
           </div>

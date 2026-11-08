@@ -80,7 +80,11 @@ export const CampusPedestrianPathTracker: React.FC<CampusPedestrianPathTrackerPr
 
     instance.attributionControl.setPrefix(false);
 
-    const tilesUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png';
+    const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY;
+    const tilesUrl = cartoApiKey
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png?api_key=${cartoApiKey}`
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png';
+
     L.tileLayer(tilesUrl, {
       subdomains: 'abcd',
       maxZoom: 19,
