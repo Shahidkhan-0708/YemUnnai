@@ -151,18 +151,23 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
         ) : (
           groupedDishes.map((group) => (
             <section key={group.category} className="w-full">
-              {/* Category section subtitle badge */}
-              <div className="px-4 py-2 bg-gray-50/70 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-xs font-black uppercase tracking-wider text-gray-600">
-                  {group.category}
-                </h2>
-                <span className="text-[10px] font-bold text-gray-400">
-                  {group.items.length} {group.items.length === 1 ? 'item' : 'items'}
+              {/* 2. DYNAMIC MENU SECTION SUMMARY */}
+              <div className="px-4 pt-5 pb-2 flex items-center justify-between border-t border-gray-100 first:border-t-0">
+                <div>
+                  <h2 className="text-sm font-black text-gray-950 uppercase tracking-wider">
+                    {group.category}
+                  </h2>
+                  <p className="text-2xs text-gray-400 font-semibold mt-0.5">
+                    {group.items.length} {group.items.length === 1 ? 'curated option' : 'curated options'} available now
+                  </p>
+                </div>
+                <span className="text-[9px] font-black text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                  Top Picks
                 </span>
               </div>
 
-              {/* Clean vertical list rows with zero heavy card backdrops */}
-              <div className="w-full bg-white">
+              {/* 3. BORDERLESS BENTO-STYLE LIST ROWS */}
+              <div className="w-full bg-white divide-y divide-gray-100">
                 {group.items.map((item) => (
                   <ShopMenuItem
                     key={item.id}

@@ -10,19 +10,19 @@ export interface InMenuSearchProps {
 export const InMenuSearch: React.FC<InMenuSearchProps> = ({
   value,
   onChange,
-  placeholder = 'Search this menu for dishes, drinks...',
+  placeholder = 'Search items within this menu...',
 }) => {
   return (
-    <div className="px-4 py-2.5 bg-white border-b border-gray-100">
+    <div className="p-3.5 bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">
       <div className="relative flex items-center">
-        <Search size={16} className="absolute left-3.5 text-gray-400" />
+        <Search size={15} className="absolute left-3.5 text-gray-400" />
         <input
           type="search"
           aria-label="Search within this restaurant menu"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-medium placeholder-gray-400 focus:outline-hidden focus:border-orange-500 focus:bg-white transition-all shadow-inner"
+          className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200/80 rounded-xl text-xs font-semibold placeholder-gray-400 focus:outline-hidden focus:border-orange-500 focus:bg-white transition-all shadow-inner"
         />
         {value && (
           <button
