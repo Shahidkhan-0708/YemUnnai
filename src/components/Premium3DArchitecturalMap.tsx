@@ -222,6 +222,33 @@ export function Premium3DArchitecturalMap({
           </text>
 
           {/* -----------------------------------------------------------------
+           * 2. DYNAMIC DUAL-STROKE HALO GLOW WALKING TRAIL (Physical Occlusion Base)
+           * Stacked BEFORE 3D Extruded Buildings so facades naturally occlude paths behind them
+           * ----------------------------------------------------------------- */}
+          <g id="dynamic-walking-trail">
+            {/* Ambient wide halo glow path */}
+            <path
+              d={activeConfig.pathData}
+              fill="none"
+              stroke="#ea580c"
+              strokeWidth="10"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.20"
+            />
+            {/* High-contrast vibrant core line */}
+            <path
+              d={activeConfig.pathData}
+              fill="none"
+              stroke="#ea580c"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="url(#route-glow)"
+            />
+          </g>
+
+          {/* -----------------------------------------------------------------
            * BUILDING 1: ACADEMIC BLOCK (Top-Left 3D Isometric Extrusion)
            * ----------------------------------------------------------------- */}
           <g filter="url(#iso-shadow)">
@@ -296,30 +323,7 @@ export function Premium3DArchitecturalMap({
           </g>
 
           {/* -----------------------------------------------------------------
-           * 3. DYNAMIC HIGH-CONTRAST SIGNATURE ORANGE WALKING TRAIL
-           * ----------------------------------------------------------------- */}
-          <path
-            d={activeConfig.pathData}
-            fill="none"
-            stroke="#ea580c"
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.25"
-          />
-
-          <path
-            d={activeConfig.pathData}
-            fill="none"
-            stroke="#ea580c"
-            strokeWidth="4.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            filter="url(#route-glow)"
-          />
-
-          {/* -----------------------------------------------------------------
-           * 4. ANIMATED RUNNER / COURIER AVATAR DOWN ACTIVE WALKWAY
+           * 3. ANIMATED RUNNER / COURIER AVATAR DOWN ACTIVE WALKWAY
            * ----------------------------------------------------------------- */}
           <g
             transform={`translate(${runnerPoint.x}, ${runnerPoint.y}) rotate(${runnerPoint.angle})`}
