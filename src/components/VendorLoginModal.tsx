@@ -34,6 +34,14 @@ function resetFailedAttempts() {
   terminalLockoutUntil = 0;
 }
 
+// Decoupled conversion registry to protect compiler loops from breaks & strip raw database UUID leaks
+const STORE_DICTIONARY: Record<string, { label: string; icon: string; code: string }> = {
+  'a0000000-0000-4000-8000-000000000001': { label: 'MITS Canteen', icon: '🍱', code: 'MITS' },
+  'a0000000-0000-4000-8000-000000000006': { label: 'Main Cafe', icon: '🥤', code: 'CAFE' },
+  'a0000000-0000-4000-8000-000000000009': { label: 'Food Hub', icon: '🍔', code: 'HUB' },
+  'a0000000-0000-4000-8000-000000000010': { label: 'Tea Station', icon: '☕', code: 'P2' },
+};
+
 interface VendorLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -326,23 +334,27 @@ export function VendorLoginModal({ isOpen, onClose, onSignedIn }: VendorLoginMod
                   className="w-full bg-white border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-3.5 text-center text-lg font-black tracking-wider text-slate-900 placeholder:text-slate-500 placeholder:font-black placeholder:text-sm sm:placeholder:text-base focus:outline-hidden transition-all uppercase shadow-md disabled:opacity-40"
                 />
 
-                {/* Tactile Quick-Select Chips for Kitchen Delivery Tablets */}
-                <div className="flex items-center justify-center gap-2 pt-2.5 flex-wrap">
-                  <span className="text-[10px] font-semibold text-slate-500">{t('Quick Pick:', 'త్వరిత ఎంపిక:')}</span>
-                  {outlets.slice(0, 4).map((outlet) => {
-                    const code = ('code' in outlet ? (outlet as any).code : (outlet as any).shortCode) || outlet.id;
-                    return (
+                {/* Balanced Quick Pick Badge Track (Purged raw database UUID texts) */}
+                <div className="mt-3.5 mb-2 text-left bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-0.5">
+                    {t('Tap Terminal Quick Picks', 'త్వరిత ఎంపిక')}
+                  </span>
+                  
+                  {/* Uniform 2-Column Grid Layout target block */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(STORE_DICTIONARY).map(([uuid, data]) => (
                       <button
-                        key={outlet.id}
+                        key={uuid}
                         type="button"
                         disabled={disabled}
-                        onClick={() => handleStoreCodeChange(code)}
-                        className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 hover:bg-slate-800 text-xs font-bold text-slate-300 hover:text-orange-400 transition-all active:scale-95 cursor-pointer disabled:opacity-40"
+                        onClick={() => handleStoreCodeChange(data.code)}
+                        className="bg-slate-950 border border-slate-800/80 hover:border-orange-500/60 hover:bg-slate-900 text-[11px] font-black text-slate-200 hover:text-orange-400 py-2.5 px-3 rounded-xl flex items-center gap-2 transition-all active:scale-[0.97] cursor-pointer disabled:opacity-40"
                       >
-                        {code}
+                        <span className="text-sm select-none">{data.icon}</span>
+                        <span className="truncate">{data.label}</span>
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
 
                 {codeError && (
