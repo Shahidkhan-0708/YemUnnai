@@ -14,6 +14,7 @@ export const FloatingCartBar: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showStatusTracker, setShowStatusTracker] = useState(false);
+  const [confirmedToken, setConfirmedToken] = useState<string | number | undefined>(undefined);
   const [arrivalTime, setArrivalTime] = useState('5 mins');
 
   const prevCountRef = useRef(totalItems);
@@ -42,9 +43,10 @@ export const FloatingCartBar: React.FC = () => {
     setIsCheckingOut(true);
 
     try {
+      let lastPlacedOrder: any = null;
       // Place order for items in cart
       for (const item of itemsList) {
-        await placeOrder({
+        lastPlacedOrder = await placeOrder({
           foodItem: {
             id: item.menuItem.id,
             name: item.menuItem.name,
@@ -59,6 +61,10 @@ export const FloatingCartBar: React.FC = () => {
           },
           quantity: item.quantity
         });
+      }
+
+      if (lastPlacedOrder?.pickup_number) {
+        setConfirmedToken(lastPlacedOrder.pickup_number);
       }
 
       playSuccessChime();
@@ -76,6 +82,7 @@ export const FloatingCartBar: React.FC = () => {
 
   const handleFinishOrderFlow = () => {
     clearCart();
+    setConfirmedToken(undefined);
     setShowStatusTracker(false);
     setIsDrawerOpen(false);
   };
@@ -143,6 +150,7 @@ export const FloatingCartBar: React.FC = () => {
                 totalPrice={totalPrice}
                 initialMinutes={initialMinutesNum}
                 itemsCount={totalItems}
+                pickupNumber={confirmedToken}
                 onClose={handleFinishOrderFlow}
                 onCancel={handleFinishOrderFlow}
               />

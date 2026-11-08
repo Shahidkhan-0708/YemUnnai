@@ -71,3 +71,64 @@ self.addEventListener('fetch', (event) => {
     })()
   );
 });
+
+/* -------------------------------------------------------------------------
+ * Push Notification Background Listener
+ * Wakes up device in background / sleep state when student pre-orders arrive.
+ * ------------------------------------------------------------------------- */
+self.addEventListener('push', (event) => {
+  let payload = {};
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch {
+      payload = { title: 'New Campus Pre-Order', body: event.data.text() };
+    }
+  }
+
+  const title = payload.title || 'New Campus Pre-Order';
+  const orderId = payload.orderId || payload.data?.orderId || Date.now();
+  const options = {
+    body: payload.body || 'A student placed a new campus pre-order.',
+    icon: payload.icon || '/favicon.svg',
+    badge: payload.badge || '/favicon.svg',
+    tag: `kitchen-order-${orderId}`,
+    renotify: true,
+    requireInteraction: true, // Forces notification to stay until acted upon
+    vibrate: [400, 150, 400, 150, 600], // Urgent kitchen alert pulse pattern
+    data: {
+      url: payload.url || '/?portal=business',
+      orderId,
+      ...payload
+    },
+    actions: [
+      { action: 'accept', title: 'Accept Order' },
+      { action: 'decline', title: 'Decline' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/?portal=business';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Focus existing tab if open
+      for (const client of clientList) {
+        if (client.url.includes('/?portal=business') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise open dedicated window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+

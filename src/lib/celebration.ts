@@ -99,3 +99,37 @@ export function fireOrderConfetti() {
     // Graceful fallback
   }
 }
+
+/**
+ * High-priority repeating kitchen chime for merchant order alert.
+ * Emulates high-speed restaurant POS terminals (Swiggy Partner / Zomato OS chime).
+ */
+export function playKitchenOrderAlert() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    
+    // Alert pattern: 2 rapid high-pitch bell bursts
+    const bursts = [0, 0.22];
+    bursts.forEach((offset) => {
+      // Dual frequencies for acoustic penetration in noisy kitchen (880Hz + 1320Hz)
+      const freqs = [880, 1320];
+      freqs.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + offset);
+        gain.gain.setValueAtTime(0.18, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.18);
+      });
+    });
+  } catch {
+    // Graceful fallback
+  }
+}
+

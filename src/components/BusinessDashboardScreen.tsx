@@ -6,7 +6,13 @@ import { useVendorSession, useVendorOrders, useVendorStats } from '../lib/hooks'
 import { setOrderStatus, setVendorOnline, pickupRequest, sanitizeCampusLocation, sanitizeCampusPhone } from '../lib/api';
 import { isBackendConfigured } from '../lib/supabase';
 import { VendorLoginModal } from './VendorLoginModal';
-import { playTapSound } from '../lib/celebration';
+import { playTapSound, playKitchenOrderAlert } from '../lib/celebration';
+import { 
+  getNotificationPermission, 
+  requestPushPermission, 
+  sendTestKitchenNotification, 
+  type PushPermissionStatus 
+} from '../lib/pushNotifications';
 
 import { SupportPanel } from './OrdersScreen';
 import { Button } from './ui/button';
@@ -34,7 +40,10 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [localOrderOverrides, setLocalOrderOverrides] = useState<Record<string, OrderStatus>>({});
+  const [pushStatus, setPushStatus] = useState<PushPermissionStatus>(getNotificationPermission);
+  const [isTestingPush, setIsTestingPush] = useState(false);
   const actionLock = useRef(false);
+  const prevOrderCountRef = useRef<number | null>(null);
 
   // Auto-open login when a signed-out vendor visits the portal (live mode only)
   useEffect(() => {
@@ -50,6 +59,15 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
 
   const { orders, loading: ordersLoading, error: ordersError } = useVendorOrders(vendor?.vendorId ?? null, feedRetry);
   const stats = useVendorStats(vendor?.vendorId ?? null, feedRetry);
+
+  // Play urgent kitchen alert chime whenever new incoming pre-orders appear
+  useEffect(() => {
+    if (ordersLoading) return;
+    if (prevOrderCountRef.current !== null && orders.length > prevOrderCountRef.current) {
+      playKitchenOrderAlert();
+    }
+    prevOrderCountRef.current = orders.length;
+  }, [orders.length, ordersLoading]);
 
   // Map orders with optimistic local overrides for instant, reliable interactive transitions
   const activeOrders = orders
@@ -283,7 +301,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
         </div>
 
         {/* 2. Symmetrical Overview Badges */}
-        <div className="grid grid-cols-2 gap-3 p-4">
+        <div className="grid grid-cols-2 gap-3 p-4 pb-2">
           <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
               Orders Today
@@ -300,6 +318,53 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
               <span>★</span>
               <span>{stats.loading || stats.avgRating == null ? '1.0' : Number(stats.avgRating).toFixed(1)}</span>
             </div>
+          </div>
+        </div>
+
+        {/* Background Kitchen Alerts Setup & Test Ring */}
+        <div className="mx-4 mb-3 p-3 bg-white rounded-xl border border-gray-100 shadow-2xs flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0 pr-2">
+            <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+              pushStatus === 'granted' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+            }`} />
+            <div className="min-w-0">
+              <p className="text-xs font-black text-gray-950 truncate">
+                {pushStatus === 'granted' ? 'Kitchen Push Alerts Active' : 'Enable Lock Screen Alerts'}
+              </p>
+              <p className="text-[10px] text-gray-400 font-semibold truncate mt-0.5">
+                {pushStatus === 'granted' 
+                  ? 'Plays loud kitchen chime even when device is locked' 
+                  : 'Receive background notifications for incoming orders'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {pushStatus === 'granted' ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsTestingPush(true);
+                  await sendTestKitchenNotification();
+                  setTimeout(() => setIsTestingPush(false), 600);
+                }}
+                disabled={isTestingPush}
+                className="text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200/60 px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+              >
+                {isTestingPush ? 'Ringing…' : 'Test Ring'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={async () => {
+                  const perm = await requestPushPermission();
+                  setPushStatus(perm);
+                }}
+                className="text-[10px] font-black text-white bg-orange-500 hover:bg-orange-600 active:scale-95 px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-xs"
+              >
+                Enable
+              </button>
+            )}
           </div>
         </div>
 
