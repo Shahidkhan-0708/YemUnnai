@@ -2,8 +2,8 @@
 // Hero value prop, four onboarding steps with clear hierarchy, minimal noise
 // Inspired by Swiggy: bold hero, clean step indicators
 
-import React, { useEffect, useState } from 'react';
-import { ONBOARDING_STEPS, MOCK_USER, MOCK_VENDORS } from '../data/fixtures';
+import { useEffect, useState } from 'react';
+import { ONBOARDING_STEPS } from '../data/fixtures';
 
 export function SplashOnboardingVariantA() {
   const [currentStep, setCurrentStep] = useState(0);

@@ -2,12 +2,14 @@
 // List-based layout with expandable vendor sections, horizontal category scroll tabs
 // Inspired by Zomato: category tabs below hero, vertical step cards below each step
 
-import React, { useEffect, useState } from 'react';
-import { ONBOARDING_STEPS, MOCK_USER, MOCK_VENDORS } from '../data/fixtures';
+import { useEffect, useState } from 'react';
+import { ONBOARDING_STEPS, MOCK_USER } from '../data/fixtures';
 
 export function SplashOnboardingVariantB() {
   const [currentStep, setCurrentStep] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [activeVendor, setActiveVendor] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showPanels, setShowPanels] = useState(false);
 
   useEffect(() => {
@@ -173,7 +175,7 @@ export function SplashOnboardingVariantB() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(88px, 1fr))',
               gap: '12px',
             }}>
-              {[MOCK_VENDORS[0], MOCK_VENDORS[2], MOCK_VENDORS[4]].map((vendor, vi) => (
+              {[MOCK_VENDORS[0], MOCK_VENDORS[2], MOCK_VENDORS[4]].map((vendor, _vi) => (
                 <div key={vendor.id} style={{
                   padding: '12px',
                   background: '#FFFFFF',

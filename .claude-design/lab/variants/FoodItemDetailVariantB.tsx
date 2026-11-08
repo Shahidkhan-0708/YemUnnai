@@ -3,15 +3,17 @@
 // Zomato-style: persistent image, tabbed content areas, contextual actions
 
 import { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, type FoodItem, type Vendor } from '../data/fixtures';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0]; // Chicken Biryani
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
 const dietary = item.dietary;
 
+type PortionSize = { name: string; price: number };
+
 export function FoodItemDetailVariantB() {
   const [quantity, setQuantity] = useState(1);
-  const [selectedPortion, setSelectedPortion] = useState(item.portionSizes?.[0] || 'Regular');
+  const [selectedPortion, setSelectedPortion] = useState<PortionSize | undefined>(item.portionSizes?.[0]);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews' | 'nutrition'>('details');
   const [isSaved, setIsSaved] = useState(false);
 
@@ -286,27 +288,27 @@ export function FoodItemDetailVariantB() {
                 <div style={{ padding: '16px', background: 'white', borderRadius: '16px', border: '1px solid #F0E8E0' }}>
                   <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: '600', color: '#1F140A' }}>Select portion</h4>
                   <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-                    {item.portionSizes.map((portion: string) => (
+                    {item.portionSizes.map((portion: PortionSize) => (
                       <button
-                        key={portion}
+                        key={portion.name}
                         onClick={() => setSelectedPortion(portion)}
                         style={{
                           flex: '0 0 auto',
                           minWidth: '90px',
                           padding: '10px 16px',
                           borderRadius: '12px',
-                          background: selectedPortion === portion ? '#FFF0E3' : '#F8F9FA',
-                          border: selectedPortion === portion ? '2px solid #F06A05' : '1px solid #F0E8E0',
-                          color: selectedPortion === portion ? '#A23D00' : '#1F140A',
+                          background: selectedPortion?.name === portion.name ? '#FFF0E3' : '#F8F9FA',
+                          border: selectedPortion?.name === portion.name ? '2px solid #F06A05' : '1px solid #F0E8E0',
+                          color: selectedPortion?.name === portion.name ? '#A23D00' : '#1F140A',
                           fontSize: '13px',
-                          fontWeight: selectedPortion === portion ? '600' : '500',
+                          fontWeight: selectedPortion?.name === portion.name ? '600' : '500',
                           cursor: 'pointer',
                           transition: 'all 150ms ease',
                           whiteSpace: 'nowrap'
                         }}
-                        aria-pressed={selectedPortion === portion}
+                        aria-pressed={selectedPortion?.name === portion.name}
                       >
-                        {portion}
+                        {portion.name}
                       </button>
                     ))}
                   </div>

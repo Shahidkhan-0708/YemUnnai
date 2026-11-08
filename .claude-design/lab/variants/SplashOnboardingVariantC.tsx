@@ -2,8 +2,8 @@
 // More information visible, tighter spacing - tradeoff: more visible data vs easier scanning
 // Optimized for quick decisions with minimal scrolling
 
-import React, { useEffect, useState } from 'react';
-import { ONBOARDING_STEPS, MOCK_USER, MOCK_VENDORS } from '../data/fixtures';
+import { useEffect, useState } from 'react';
+import { ONBOARDING_STEPS } from '../data/fixtures';
 
 export function SplashOnboardingVariantC() {
   const [stepIndex, setStepIndex] = useState(0);

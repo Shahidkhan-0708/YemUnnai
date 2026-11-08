@@ -13,12 +13,16 @@ export interface FoodItem {
   dislikes: number;
   reviews: number;
   rating: number;
-  walkTime: string;
-  actionType: 'order' | 'walkin';
-  inStock: boolean;
-  isShopOnline: boolean;
-  dietary: 'veg' | 'nonveg' | 'unknown';
+  walkTime?: string;
+  prepTime?: string;
+  actionType?: 'order' | 'walkin';
+  inStock?: boolean;
+  isShopOnline?: boolean;
+  dietary?: 'veg' | 'nonveg' | 'unknown';
+  description?: string;
+  tags?: string[];
   portionSizes?: Array<{ name: string; price: number }>;
+  reviewCount?: number;
 }
 
 export interface Vendor {
@@ -123,6 +127,8 @@ export const MOCK_FOOD_ITEMS: FoodItem[] = [
     inStock: true,
     isShopOnline: true,
     dietary: 'veg',
+    description: 'Crispy golden triangles filled with spiced potato and peas filling',
+    tags: ['veg', 'snack', 'popular'],
     portionSizes: [
       { name: '1 pc', price: 15 },
       { name: '2 pcs', price: 28 },
@@ -146,6 +152,8 @@ export const MOCK_FOOD_ITEMS: FoodItem[] = [
     inStock: true,
     isShopOnline: true,
     dietary: 'veg',
+    description: 'Crispy rice crepe filled with spiced potato filling, served with coconut chutney and sambar',
+    tags: ['veg', 'south-indian', 'popular'],
     portionSizes: [
       { name: 'Regular', price: 45 },
       { name: 'Large', price: 60 }
@@ -168,6 +176,8 @@ export const MOCK_FOOD_ITEMS: FoodItem[] = [
     inStock: true,
     isShopOnline: true,
     dietary: 'veg',
+    description: 'Steamed rice cakes served with flavorful tamarind sambar and coconut chutney',
+    tags: ['veg', 'south-indian', 'healthy'],
     portionSizes: [
       { name: '2 pcs', price: 30 },
       { name: '4 pcs', price: 55 }
@@ -190,6 +200,8 @@ export const MOCK_FOOD_ITEMS: FoodItem[] = [
     inStock: true,
     isShopOnline: true,
     dietary: 'veg',
+    description: 'Crispy lentil fritters with a golden crust, perfect with filter coffee',
+    tags: ['veg', 'snack', 'south-indian'],
     portionSizes: [
       { name: '1 pc', price: 25 },
       { name: '2 pcs', price: 45 }
@@ -211,7 +223,9 @@ export const MOCK_FOOD_ITEMS: FoodItem[] = [
     actionType: 'order',
     inStock: true,
     isShopOnline: true,
-    dietary: 'veg'
+    dietary: 'veg',
+    description: 'Strong South Indian filter coffee with frothy milk foam',
+    tags: ['veg', 'drink', 'popular']
   },
   {
     id: 'mits-lemon-rice',
@@ -230,6 +244,8 @@ export const MOCK_FOOD_ITEMS: FoodItem[] = [
     inStock: true,
     isShopOnline: true,
     dietary: 'veg',
+    description: 'Fragrant lemon rice with tempered mustard seeds and curry leaves',
+    tags: ['veg', 'south-indian'],
     portionSizes: [
       { name: 'Half', price: 35 },
       { name: 'Full', price: 60 }

@@ -2,8 +2,8 @@
 // Premium brand feel with parallax hero, floating particles, drop-shadows, micro-interactions, confetti
 // Brand adjectives: Premium, Trustworthy, Playful, Energetic
 
-import React, { useEffect, useState } from 'react';
-import { ONBOARDING_STEPS, MOCK_USER } from '../data/fixtures';
+import { useEffect, useState } from 'react';
+import { ONBOARDING_STEPS } from '../data/fixtures';
 
 export function SplashOnboardingVariantE() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -16,12 +16,19 @@ export function SplashOnboardingVariantE() {
 
   // Generate floating particles on mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const p = Array.from({ length: 20 }, () => ({
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       x: Math.random() * 375,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       y: Math.random() * 640,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       size: Math.random() * 8 + 4,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       speedX: (Math.random() - 0.5) * 0.5,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       speedY: (Math.random() - 0.5) * 0.5,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       color: ['#F06A05', '#FFF0E3', '#D6DCE2', '#E0520C'][Math.floor(Math.random() * 4)],
     }));
     setParticles(p);

@@ -2,8 +2,8 @@
 // More information visible, tighter spacing - tradeoff: more visible data vs easier scanning
 // Optimized for quick decisions with minimal scrolling
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0];
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;

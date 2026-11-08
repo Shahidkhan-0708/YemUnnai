@@ -2,8 +2,8 @@
 // Clear visual hierarchy with prominent order summary, sticky actions, progressive disclosure
 // Swiggy-style: bottom sheet with handle, clear sections, quantity controls inline
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0]; // Chicken Biryani
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;

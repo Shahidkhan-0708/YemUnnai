@@ -2,16 +2,18 @@
 // Premium brand feel with enhanced motion, layered shadows, depth, and delightful micro-interactions
 // Inspired by Swiggy's premium polish, Zomato's vibrant depth, Toing's playful energy
 
-import React, { useState, useEffect, useRef } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState, useEffect, useRef } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0];
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
 const dietary = item.dietary;
 
+type PortionSize = { name: string; price: number };
+
 export function FoodItemDetailVariantE() {
   const [quantity, setQuantity] = useState(1);
-  const [selectedPortion, setSelectedPortion] = useState(item.portionSizes?.[0] || 'Regular');
+  const [selectedPortion, setSelectedPortion] = useState<PortionSize | undefined>(item.portionSizes?.[0]);
   const [isSaved, setIsSaved] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -423,31 +425,31 @@ export function FoodItemDetailVariantE() {
           <div style={{ marginBottom: '16px', animation: 'slideUp 500ms cubic-bezier(.23,1,.32,1) 400ms both' }}>
             <h4 style={{ margin: '0 0 14px', fontSize: '14px', fontWeight: '600', color: '#1F140A' }}>Select portion</h4>
             <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-              {item.portionSizes.map((portion: string) => (
+              {item.portionSizes.map((portion: PortionSize) => (
                 <button
-                  key={portion}
+                  key={portion.name}
                   onClick={() => setSelectedPortion(portion)}
                   style={{
                     flex: '0 0 auto',
                     minWidth: '100px',
                     padding: '14px 20px',
                     borderRadius: '14px',
-                    background: selectedPortion === portion ? 'linear-gradient(135deg, #FFF0E3 0%, #FFF8F0 100%)' : '#FFFFFF',
-                    border: selectedPortion === portion ? '2px solid #F06A05' : '1px solid #F0E8E0',
-                    color: selectedPortion === portion ? '#A23D00' : '#1F140A',
+                    background: selectedPortion?.name === portion.name ? 'linear-gradient(135deg, #FFF0E3 0%, #FFF8F0 100%)' : '#FFFFFF',
+                    border: selectedPortion?.name === portion.name ? '2px solid #F06A05' : '1px solid #F0E8E0',
+                    color: selectedPortion?.name === portion.name ? '#A23D00' : '#1F140A',
                     fontSize: '14px',
-                    fontWeight: selectedPortion === portion ? '600' : '500',
+                    fontWeight: selectedPortion?.name === portion.name ? '600' : '500',
                     cursor: 'pointer',
                     transition: 'all 200ms cubic-bezier(.23,1,.32,1)',
                     whiteSpace: 'nowrap',
-                    boxShadow: selectedPortion === portion ? '0 4px 16px rgba(240,106,5,0.2)' : '0 2px 8px rgba(31,20,10,0.04)',
+                    boxShadow: selectedPortion?.name === portion.name ? '0 4px 16px rgba(240,106,5,0.2)' : '0 2px 8px rgba(31,20,10,0.04)',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
-                  aria-pressed={selectedPortion === portion}
+                  aria-pressed={selectedPortion?.name === portion.name}
                 >
-                  {portion}
-                  {selectedPortion === portion && (
+                  {portion.name}
+                  {selectedPortion?.name === portion.name && (
                     <span style={{
                       position: 'absolute',
                       inset: 0,

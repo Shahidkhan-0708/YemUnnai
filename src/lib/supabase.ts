@@ -22,6 +22,7 @@ export const isBackendConfigured = supabase !== null;
 export const buyerSupabase: SupabaseClient | null = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: { storageKey: 'yemunnai-buyer-auth', persistSession: true, autoRefreshToken: true },
+      realtime: { params: { eventsPerSecond: 10 } },
       global: { fetch: monitoredFetch },
     })
   : null;

@@ -2,8 +2,8 @@
 // Bottom sheet drawer with progressive disclosure, expandable sections
 // Inspired by Toing: drawers slide from bottom, reveal more as user interacts
 
-import React, { useEffect, useState } from 'react';
-import { ONBOARDING_STEPS, MOCK_USER, MOCK_VENDORS } from '../data/fixtures';
+import { useEffect, useState } from 'react';
+import { ONBOARDING_STEPS } from '../data/fixtures';
 
 export function SplashOnboardingVariantD() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -26,6 +26,7 @@ export function SplashOnboardingVariantD() {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!dragging) return;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const delta = e.touches[0].clientY - drawerY;
       setVelocity(delta);
       setDrawerY(drawerY + delta);
@@ -58,7 +59,7 @@ export function SplashOnboardingVariantD() {
     const handleMouseUp = () => {
       setDragging(false);
       const shouldExpand = velocity > 50 || drawerY > 250;
-      setExpandedStep(shouldExpanded ? stepIndex : null);
+      setExpandedStep(shouldExpand ? stepIndex : null);
       setTimeout(() => setDrawerY(-100), 100);
     };
 
@@ -77,6 +78,9 @@ export function SplashOnboardingVariantD() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
+    // Intentionally not including dragging, drawerY, velocity in deps - they are read
+    // synchronously during drag events for proper gesture handling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex, expandedStep]);
 
   const steps = ONBOARDING_STEPS;
@@ -129,8 +133,8 @@ export function SplashOnboardingVariantD() {
           return (
             <div key={step.title} style={{
               marginBottom: '20px',
-              opacity: index < stepIndex || index === stepIndex ? 1 : 0.4,
-              transform: index < stepIndex || index === stepIndex ? 'translateY(0)' : 'translateY(12px)',
+              opacity: index <= stepIndex ? 1 : 0.4,
+              transform: index <= stepIndex ? 'translateY(0)' : 'translateY(12px)',
               transition: 'all 250ms cubic-bezier(.23,1,.32,1)',
             }}>
               {/* Step header */}

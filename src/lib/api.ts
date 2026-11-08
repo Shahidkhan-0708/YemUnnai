@@ -1,5 +1,5 @@
 import { getContextualDishImage } from './dishAssetMatching';
-import { supabase, isBackendConfigured } from './supabase';
+import { supabase, buyerSupabase, isBackendConfigured } from './supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { retryRead } from './retryRead';
 import { publicCatalog, invalidatePublicCatalog } from './publicCatalog';
@@ -416,6 +416,69 @@ export function subscribeVendorOrders(vendorId: string, onData: (orders: Dashboa
     window.removeEventListener('online', load);
     document.removeEventListener('visibilitychange', load);
     void supabase!.removeChannel(channel);
+  };
+}
+
+/**
+ * Real-time WebSocket subscription for a customer's active order.
+ * Listens to postgres_changes on the orders table and falls back to
+ * polling so the customer interface automatically advances as the
+ * canteen kitchen changes status (pending -> preparing -> ready -> collected).
+ */
+export function subscribeToOrderStatus(
+  orderId: string,
+  onStatusChange: (status: OrderStatus, details?: { preparationMinutes?: number }) => void
+): () => void {
+  const client = buyerSupabase || supabase;
+  if (!client || !orderId) return () => {};
+
+  let cancelled = false;
+
+  // 1. Supabase Realtime WebSocket Channel
+  const channel = client.channel(`customer-order-${orderId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'orders',
+        filter: `id=eq.${orderId}`
+      },
+      (payload) => {
+        if (cancelled) return;
+        const newRecord = payload.new as any;
+        if (newRecord?.status) {
+          onStatusChange(newRecord.status as OrderStatus, {
+            preparationMinutes: typeof newRecord.preparation_minutes === 'number' ? newRecord.preparation_minutes : undefined
+          });
+        }
+      }
+    )
+    .subscribe();
+
+  // 2. Resilient Polling Fallback (for flaky campus connectivity or missed web socket packets)
+  const poll = async () => {
+    if (cancelled || document.hidden) return;
+    try {
+      const { fetchBuyerOrders } = await import('./pickup');
+      const orders = await fetchBuyerOrders();
+      const current = orders.find((o: any) => o.id === orderId);
+      if (current?.status && !cancelled) {
+        onStatusChange(current.status as OrderStatus, {
+          preparationMinutes: current.preparation_minutes ?? undefined
+        });
+      }
+    } catch {
+      // Quietly ignore background poll failure
+    }
+  };
+
+  const intervalId = setInterval(() => { void poll(); }, 5000);
+
+  return () => {
+    cancelled = true;
+    clearInterval(intervalId);
+    void client.removeChannel(channel);
   };
 }
 

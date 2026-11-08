@@ -12,7 +12,8 @@
     "test:daily-use": "node scripts/test_daily_use.mjs",
     "test:pickup:browser": "node scripts/test_pickup_browser.mjs",
     "test:pickup:browser:live": "node scripts/test_pickup_browser_live.mjs",
-    "test:pickup:integration": "node scripts/test_pickup_integration.mjs"
+    "test:pickup:integration": "node scripts/test_pickup_integration.mjs",
+    "test:peak-lunch": "node scripts/test_campus_lunch_peak_monitor.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

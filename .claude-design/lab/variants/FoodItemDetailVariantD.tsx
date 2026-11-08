@@ -2,16 +2,18 @@
 // Bottom sheet drawer pattern - progressive disclosure with contextual actions
 // Toing/Swiggy inspired: expandable sections, quick-add from summary, swipe gestures
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0];
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
 const dietary = item.dietary;
 
+type PortionSize = { name: string; price: number };
+
 export function FoodItemDetailVariantD() {
   const [quantity, setQuantity] = useState(1);
-  const [selectedPortion, setSelectedPortion] = useState(item.portionSizes?.[0] || 'Regular');
+  const [selectedPortion, setSelectedPortion] = useState<PortionSize | undefined>(item.portionSizes?.[0]);
   const [isSaved, setIsSaved] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     description: true,
@@ -370,27 +372,27 @@ export function FoodItemDetailVariantD() {
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#7A6658', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Select Portion</label>
                 <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
-                  {item.portionSizes.map((portion: string) => (
+                  {item.portionSizes.map((portion: PortionSize) => (
                     <button
-                      key={portion}
+                      key={portion.name}
                       onClick={() => setSelectedPortion(portion)}
                       style={{
                         flex: '0 0 auto',
                         minWidth: '90px',
                         padding: '12px 16px',
                         borderRadius: '12px',
-                        background: selectedPortion === portion ? '#FFF0E3' : '#F8F9FA',
-                        border: selectedPortion === portion ? '2px solid #F06A05' : '1px solid #F0E8E0',
-                        color: selectedPortion === portion ? '#A23D00' : '#1F140A',
+                        background: selectedPortion?.name === portion.name ? '#FFF0E3' : '#F8F9FA',
+                        border: selectedPortion?.name === portion.name ? '2px solid #F06A05' : '1px solid #F0E8E0',
+                        color: selectedPortion?.name === portion.name ? '#A23D00' : '#1F140A',
                         fontSize: '13px',
-                        fontWeight: selectedPortion === portion ? '600' : '500',
+                        fontWeight: selectedPortion?.name === portion.name ? '600' : '500',
                         cursor: 'pointer',
                         transition: 'all 150ms ease',
                         whiteSpace: 'nowrap'
                       }}
-                      aria-pressed={selectedPortion === portion}
+                      aria-pressed={selectedPortion?.name === portion.name}
                     >
-                      {portion}
+                      {portion.name}
                     </button>
                   ))}
                 </div>

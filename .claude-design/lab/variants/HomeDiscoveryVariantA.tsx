@@ -3,8 +3,8 @@
 // Primary action: Browse & order food
 // Uses project's existing design tokens from index.css
 
-import React from 'react';
-import { MOCK_VENDORS, MOCK_CATEGORIES, MOCK_FOOD_ITEMS, Vendor, FoodItem, Category } from '../data/fixtures';
+
+import { MOCK_VENDORS, MOCK_CATEGORIES, MOCK_FOOD_ITEMS } from '../data/fixtures';
 
 const DISPLAY_ITEMS = MOCK_FOOD_ITEMS.slice(0, 8);
 const ONLINE_VENDORS = MOCK_VENDORS.filter(v => v.isOnline);
@@ -247,13 +247,12 @@ export function HomeDiscoveryVariantA() {
                 background: 'linear-gradient(135deg, #FFE8D6 0%, #FFF8F1 100%)'
               }}>
                 <div style={{
-                  display: 'block',
+                  display: 'flex',
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
                   borderRadius: '18px',
                   background: 'linear-gradient(135deg, #F06A05 0%, #FF8618 100%)',
-                  display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>

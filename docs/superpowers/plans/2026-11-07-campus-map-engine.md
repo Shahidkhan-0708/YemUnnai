@@ -2,7 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the broken, 0m-snapped external OSRM road routing and aggressive camera jumping with a high-performance internal campus pedestrian A* router, asymmetric Leaflet viewport padding, user drag lifecycle lock, and continuous GPS location tracking.
+**Goal:** Replace the broken, 0m-snapped external OSRM road routing and aggressive camera
+ jumping with a high-performance internal campus pedestrian A* router, asymmetric Leaflet viewport padding, user drag lifecycle lock, and continuous GPS location tracking.
 
 **Architecture:** A static waypoint graph of MITS campus paths, courtyards, and food spot entrance doors drives a client-side A* pathfinder that returns accurate walking paths and distances. A dedicated React hook streams continuous `watchPosition` coordinates and triggers background reroutes when >20m off-path. Leaflet camera management is decoupled from user gestures so manual panning disables auto-fit until programmatically recentered with bottom-sheet padding offset.
 

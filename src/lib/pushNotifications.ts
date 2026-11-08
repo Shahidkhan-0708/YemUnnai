@@ -117,6 +117,27 @@ export async function sendTestKitchenNotification(orderId = 'TEST-101'): Promise
 }
 
 /**
+ * Attaches a listener to Service Worker client messages to bridge background push events to the UI.
+ * Returns an unbind cleanup function.
+ */
+export function listenToServiceWorkerMessages(onKitchenOrder: (order: any) => void): () => void {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    return () => {};
+  }
+
+  const handler = (event: MessageEvent) => {
+    if (event.data?.type === 'KITCHEN_ORDER_RECEIVED') {
+      onKitchenOrder(event.data.order);
+    }
+  };
+
+  navigator.serviceWorker.addEventListener('message', handler);
+  return () => {
+    navigator.serviceWorker.removeEventListener('message', handler);
+  };
+}
+
+/**
  * Helper to convert a Base64 VAPID public key into a Uint8Array.
  */
 function urlB64ToUint8Array(base64String: string): Uint8Array {

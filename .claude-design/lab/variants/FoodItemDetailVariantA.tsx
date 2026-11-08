@@ -3,15 +3,17 @@
 // Swiggy-style: hero photo, sticky action bar, organized sections
 
 import { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, type FoodItem, type Vendor } from '../data/fixtures';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0]; // Chicken Biryani
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
 const dietary = item.dietary;
 
+type PortionSize = { name: string; price: number };
+
 export function FoodItemDetailVariantA() {
   const [quantity, setQuantity] = useState(1);
-  const [selectedPortion, setSelectedPortion] = useState(item.portionSizes?.[0] || 'Regular');
+  const [selectedPortion, setSelectedPortion] = useState<PortionSize | undefined>(item.portionSizes?.[0]);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -209,7 +211,7 @@ export function FoodItemDetailVariantA() {
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '4px' }}>
               {item.portionSizes?.map((portion: { name: string; price: number }) => (
                 <button
-                  key={portion}
+                  key={portion.name}
                   onClick={() => setSelectedPortion(portion)}
                   style={{
                     flex: '0 0 auto',

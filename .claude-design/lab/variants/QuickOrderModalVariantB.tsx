@@ -2,8 +2,8 @@
 // Card-based layout with horizontal swipeable sections, persistent summary sidebar
 // Zomato-style: segmented sections, visual cards, sticky price summary
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0];
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;

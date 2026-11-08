@@ -2,8 +2,8 @@
 // Explores a list-based layout with richer vendor cards
 // Different from grid: horizontal scrolling vendor sections with expandable lists
 
-import React from 'react';
-import { MOCK_VENDORS, MOCK_CATEGORIES, MOCK_FOOD_ITEMS, Vendor, FoodItem, Category } from '../data/fixtures';
+
+import { MOCK_VENDORS, MOCK_FOOD_ITEMS } from '../data/fixtures';
 
 const ONLINE_VENDORS = MOCK_VENDORS.filter(v => v.isOnline);
 

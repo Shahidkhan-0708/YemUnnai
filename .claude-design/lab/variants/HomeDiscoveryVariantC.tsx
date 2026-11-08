@@ -1,7 +1,7 @@
 // Home Discovery - Variant C: Density Variation (Compact)
 // More information visible, tighter spacing - tradeoff: more visible data vs easier scanning
 
-import React from 'react';
+
 import { MOCK_VENDORS, MOCK_CATEGORIES, MOCK_FOOD_ITEMS, Vendor, FoodItem, Category } from '../data/fixtures';
 
 const DISPLAY_ITEMS = MOCK_FOOD_ITEMS.slice(0, 10); // Show more items

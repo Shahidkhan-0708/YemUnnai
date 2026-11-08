@@ -1,0 +1,23 @@
+[
+  {
+    "file": "src/components/WalkInMapModal.tsx",
+    "line": 67,
+    "summary": "FIXED: Total distance/time now uses sum of all distances",
+    "failure_scenario": "User sees '450m' as total distance when the actual sum of all route segments is much larger; walking time displayed is the last segment's time, not the total time to walk all routes",
+    "status": "fixed"
+  },
+  {
+    "file": "src/components/WalkInMapModal.tsx",
+    "line": 39,
+    "summary": "FIXED: Using Haversine distance formula for accurate geographic calculations",
+    "failure_scenario": "At Madanapalle latitude (~13.5°N), longitude degrees are ~107km not 111km, causing distance errors of up to 4% for east-west routes; user gets incorrect walking directions",
+    "status": "fixed"
+  },
+  {
+    "file": "src/components/WalkInMapModal.tsx",
+    "line": 42,
+    "summary": "FIXED: Using consistent walking speed (83.3m/min) from mapLocations.ts",
+    "failure_scenario": "Walking time estimates are ~10% off compared to other parts of the app; user arrives later than estimated",
+    "status": "fixed"
+  }
+]

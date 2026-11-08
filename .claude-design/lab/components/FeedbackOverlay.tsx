@@ -2,7 +2,7 @@
 // Enables users to click any element and leave structured comments per variant.
 // Critical component of the Design Lab - never skip this.
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface FeedbackComment {
   element: string;

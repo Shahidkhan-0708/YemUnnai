@@ -2,10 +2,12 @@
 // Premium brand feel with enhanced motion, layered shadows, depth, and delightful micro-interactions
 // Inspired by Swiggy's premium polish, Zomato's vibrant depth, Toing's playful energy
 
-import React, { useState, useEffect, useRef } from 'react';
-import { MOCK_VENDORS, MOCK_CATEGORIES, MOCK_FOOD_ITEMS, Vendor, FoodItem, Category } from '../data/fixtures';
+import { useState, useEffect, useRef } from 'react';
+import { MOCK_VENDORS, MOCK_CATEGORIES, MOCK_FOOD_ITEMS, FoodItem } from '../data/fixtures';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ONLINE_VENDORS = MOCK_VENDORS.filter(v => v.isOnline);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DISPLAY_ITEMS = MOCK_FOOD_ITEMS.filter(item => item.inStock).slice(0, 8);
 
 export function HomeDiscoveryVariantE() {

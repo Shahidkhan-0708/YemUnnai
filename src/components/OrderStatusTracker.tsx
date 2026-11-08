@@ -3,6 +3,7 @@ import { Check, AlertCircle, Utensils, Zap, PartyPopper, ConciergeBell } from 'l
 import type { OrderStatus } from '../lib/types';
 import { useLanguage } from '../lib/language';
 import { playFoodReadyChime, fireOrderConfetti } from '../lib/celebration';
+import { subscribeToOrderStatus } from '../lib/api';
 
 export interface OrderStatusTrackerProps {
   canteenName?: string;
@@ -37,41 +38,59 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
     if (currentStatus) setStatus(currentStatus);
   }, [currentStatus]);
 
-  // Real-time Event Listener for instant "Mark As Ready" & state updates
+  // Real-time Event Listener & WebSocket Subscription for instant step advances
   useEffect(() => {
+    const applyStatusTransition = (nextStatus: OrderStatus, prepMinutes?: number) => {
+      setStatus(nextStatus);
+      if (prepMinutes && prepMinutes > 0) {
+        setSecondsRemaining(prepMinutes * 60);
+      }
+
+      if (nextStatus === 'ready') {
+        playFoodReadyChime();
+        fireOrderConfetti();
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try {
+            navigator.vibrate([300, 100, 300]);
+          } catch {
+            // Ignore vibration failure
+          }
+        }
+      } else if (nextStatus === 'collected') {
+        fireOrderConfetti();
+      }
+    };
+
+    // 1. Instant local/same-window CustomEvent listener
     const handleStatusUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent<{ orderId?: string; status?: OrderStatus }>;
+      const customEvent = e as CustomEvent<{ orderId?: string; status?: OrderStatus; preparationMinutes?: number }>;
       if (!customEvent.detail) return;
       if (!orderId || customEvent.detail.orderId === orderId) {
         if (customEvent.detail.status) {
-          const nextStatus = customEvent.detail.status;
-          setStatus(nextStatus);
-
-          if (nextStatus === 'ready') {
-            playFoodReadyChime();
-            fireOrderConfetti();
-            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-              try {
-                navigator.vibrate([300, 100, 300]);
-              } catch {
-                // Ignore vibration failure
-              }
-            }
-          } else if (nextStatus === 'collected') {
-            fireOrderConfetti();
-          }
+          applyStatusTransition(customEvent.detail.status, customEvent.detail.preparationMinutes);
         }
       }
     };
 
     window.addEventListener('order-status-updated', handleStatusUpdate);
-    return () => window.removeEventListener('order-status-updated', handleStatusUpdate);
+
+    // 2. Live Supabase Realtime WebSocket subscription with polling fallback
+    let unsubscribeWs = () => {};
+    if (orderId) {
+      unsubscribeWs = subscribeToOrderStatus(orderId, (newStatus, details) => {
+        applyStatusTransition(newStatus, details?.preparationMinutes);
+      });
+    }
+
+    return () => {
+      window.removeEventListener('order-status-updated', handleStatusUpdate);
+      unsubscribeWs();
+    };
   }, [orderId]);
 
-  // Active Countdown Timer (stops or snaps when ready/collected)
+  // Active Countdown Timer (ticks only when order is active)
   useEffect(() => {
     if (status === 'ready' || status === 'collected') {
-      setSecondsRemaining(0);
       return;
     }
 
@@ -81,9 +100,11 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
     return () => clearInterval(timer);
   }, [status]);
 
+  const displaySeconds = status === 'ready' || status === 'collected' ? 0 : secondsRemaining;
+
   const progressPercent = status === 'ready' || status === 'collected'
     ? 100
-    : Math.min(100, Math.max(0, ((totalDuration - secondsRemaining) / totalDuration) * 100));
+    : Math.min(100, Math.max(0, ((totalDuration - displaySeconds) / totalDuration) * 100));
 
   const formatCountdown = (totalSecs: number) => {
     if (status === 'ready') return t('READY NOW!', 'ఇప్పుడే సిద్ధంగా ఉంది!');
@@ -161,7 +182,7 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
         <h3 className={`text-3xl font-black font-mono tracking-tighter mt-1.5 leading-none ${
           isReady ? 'text-emerald-600 animate-pulse' : 'text-orange-600'
         }`}>
-          {formatCountdown(secondsRemaining)}
+          {formatCountdown(displaySeconds)}
         </h3>
         
         {/* Symmetrical Track Progression Bar */}

@@ -108,7 +108,20 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    (async () => {
+      try {
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const client of clients) {
+          client.postMessage({
+            type: 'KITCHEN_ORDER_RECEIVED',
+            order: payload.data || payload
+          });
+        }
+      } catch (_err) {
+        // Continue to show notification even if client messaging fails
+      }
+      return self.registration.showNotification(title, options);
+    })()
   );
 });
 

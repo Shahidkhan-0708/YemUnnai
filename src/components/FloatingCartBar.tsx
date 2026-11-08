@@ -166,7 +166,9 @@ export const FloatingCartBar: React.FC = () => {
           role="presentation"
         >
           <div 
-            className="w-full max-w-md bg-white rounded-t-[2.5rem] rounded-b-none shadow-[0_-12px_40px_rgba(0,0,0,0.18)] overflow-hidden font-sans max-h-[90vh] flex flex-col border-t border-gray-100 animate-in slide-in-from-bottom duration-300"
+            className={`w-full max-w-md bg-white rounded-t-[2.5rem] rounded-b-none shadow-[0_-12px_40px_rgba(0,0,0,0.18)] ${
+              showStatusTracker ? 'overflow-y-auto' : 'overflow-hidden'
+            } font-sans max-h-[90vh] flex flex-col border-t border-gray-100 animate-in slide-in-from-bottom duration-300`}
             onClick={(e) => e.stopPropagation()} 
             role="dialog" 
             aria-modal="true" 

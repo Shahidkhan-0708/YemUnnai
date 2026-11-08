@@ -2,8 +2,8 @@
 // Stepper/Progressive Disclosure Pattern - guided flow with clear steps
 // Toing-inspired: step-by-step wizard, contextual actions, animated transitions
 
-import React, { useState } from 'react';
-import { MOCK_FOOD_ITEMS, MOCK_VENDORS, FoodItem, Vendor } from '../data/fixtures';
+import { useState } from 'react';
+import { MOCK_FOOD_ITEMS, MOCK_VENDORS } from '../data/fixtures';
 
 const item = MOCK_FOOD_ITEMS[0];
 const vendor = MOCK_VENDORS.find(v => v.id === item.vendorId)!;
@@ -24,6 +24,7 @@ export function QuickOrderModalVariantD({ onClose, onConfirm }: { onClose: () =>
 
   const currentStepData = steps[currentStep];
   const canGoNext = currentStep < steps.length - 1;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isLastStep = currentStep === steps.length - 1;
 
   const goNext = () => {

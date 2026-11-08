@@ -11,6 +11,7 @@ import {
   getNotificationPermission, 
   requestPushPermission, 
   sendTestKitchenNotification, 
+  listenToServiceWorkerMessages,
   type PushPermissionStatus 
 } from '../lib/pushNotifications';
 
@@ -69,7 +70,7 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
     prevOrderCountRef.current = orders.length;
   }, [orders.length, ordersLoading]);
 
-  // Instant real-time acoustic chime & push dispatch upon live Supabase INSERT
+  // Instant real-time acoustic chime & push dispatch upon live Supabase INSERT or SW Push
   useEffect(() => {
     const handleIncomingOrder = (e: Event) => {
       const customEvent = e as CustomEvent<{ order?: any }>;
@@ -92,7 +93,17 @@ export const BusinessDashboardScreen: React.FC<BusinessDashboardScreenProps> = (
       }
     };
     window.addEventListener('kitchen-order-incoming', handleIncomingOrder);
-    return () => window.removeEventListener('kitchen-order-incoming', handleIncomingOrder);
+
+    // Listen to background push broadcasts from Firebase/PWA Service Worker
+    const unbindSw = listenToServiceWorkerMessages((order: any) => {
+      window.dispatchEvent(new CustomEvent('kitchen-order-incoming', { detail: { order } }));
+      setFeedRetry((r) => r + 1);
+    });
+
+    return () => {
+      window.removeEventListener('kitchen-order-incoming', handleIncomingOrder);
+      unbindSw();
+    };
   }, [t]);
 
   // Map orders with optimistic local overrides for instant, reliable interactive transitions
